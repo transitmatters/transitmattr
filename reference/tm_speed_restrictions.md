@@ -6,7 +6,7 @@ given date.
 ## Usage
 
 ``` r
-tm_speed_restrictions(line_id, date, base_url = tm_base_url())
+tm_speed_restrictions(line_id, on_date, base_url = tm_base_url())
 ```
 
 ## Arguments
@@ -15,7 +15,7 @@ tm_speed_restrictions(line_id, date, base_url = tm_base_url())
 
   MBTA line identifier, e.g. `"line-red"`.
 
-- date:
+- on_date:
 
   The date to query. A `Date` object or `"YYYY-MM-DD"` string.
 
