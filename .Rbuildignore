@@ -1,0 +1,11 @@
+^\.git$
+^\.github$
+^\.gitignore$
+^README\.Rmd$
+^plan\.md$
+^transitmatters\.r$
+^openapi\.json$
+^\.Rbuildignore$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

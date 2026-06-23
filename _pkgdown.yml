@@ -1,0 +1,50 @@
+url: https://transitmatters.github.io/transitmattr
+
+template:
+  bootstrap: 5
+
+home:
+  title: "transitmattr — R Client for the TransitMatters API"
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [github]
+  components:
+    github:
+      icon: fab fa-github
+      href: https://github.com/transitmatters/transitmattr
+      aria-label: GitHub
+
+reference:
+  - title: "Travel Times"
+    contents:
+      - tm_travel_times
+      - tm_aggregate_travel_times
+      - tm_aggregate_travel_times2
+  - title: "Headways"
+    contents:
+      - tm_headways
+      - tm_aggregate_headways
+  - title: "Dwells"
+    contents:
+      - tm_dwells
+      - tm_aggregate_dwells
+  - title: "Service & Ridership"
+    contents:
+      - tm_ridership
+      - tm_scheduled_service
+      - tm_service_hours
+      - tm_service_ridership_dashboard
+      - tm_trip_metrics
+  - title: "Alerts & Delays"
+    contents:
+      - tm_alerts
+      - tm_line_delays
+  - title: "Other"
+    contents:
+      - tm_facilities
+      - tm_speed_restrictions
+      - tm_time_predictions
+      - tm_healthcheck
+      - tm_git_id

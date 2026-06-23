@@ -1,0 +1,21 @@
+Package: transitmattr
+Title: R Client for the TransitMatters Data Dashboard API
+Version: 0.1.0
+Authors@R:
+    person("Andrew", "Kouré", email = "andkoure2@gmail.com", role = c("aut", "cre"))
+Description: A thin httr2-based wrapper around the TransitMatters Data Dashboard
+    API, providing access to MBTA performance metrics including headways, dwell
+    times, travel times, ridership, and service data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    httr2
+Suggests:
+    httptest2,
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3
+URL: https://github.com/transitmatters/transitmattr
+BugReports: https://github.com/transitmatters/transitmattr/issues
