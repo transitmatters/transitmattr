@@ -2,8 +2,17 @@
 
 0 errors | 0 warnings | 1 note
 
-* NOTE: checking for future file timestamps — unable to verify current time.
-  This is a transient network issue in the check environment, not a package problem.
+* NOTE: This is a new submission.
+
+* NOTE: Possibly misspelled words in DESCRIPTION — MBTA (Massachusetts Bay
+  Transportation Authority), TransitMatters (the organization that operates the
+  Data Dashboard API this package wraps), and headways (a standard transit
+  operations term) are all spelled correctly.
+
+## Test environments
+
+* Local: Ubuntu 24.04, R 4.3.3
+* win-builder: R-devel (2026-06-21 r90185)
 
 ## Downstream dependencies
 
