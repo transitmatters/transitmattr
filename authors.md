@@ -11,12 +11,12 @@ Source:
 
 Kouré A (2026). *transitmattr: R Client for the TransitMatters Data
 Dashboard API*. R package version 0.1.0,
-<https://transitmatters.github.io/transitmattr>.
+<https://transitmatters.github.io/transitmattr/>.
 
     @Manual{,
       title = {transitmattr: R Client for the TransitMatters Data Dashboard API},
       author = {Andrew Kouré},
       year = {2026},
       note = {R package version 0.1.0},
-      url = {https://transitmatters.github.io/transitmattr},
+      url = {https://transitmatters.github.io/transitmattr/},
     }
