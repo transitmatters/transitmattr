@@ -1,0 +1,203 @@
+# Getting Started with transitmattr
+
+## What is this package?
+
+`transitmattr` lets you pull live and historical data from the
+[TransitMatters Data Dashboard
+API](https://dashboard.transitmatters.org) directly into R. You can get
+things like:
+
+- How often trains are coming (headways)
+- How long trains sit at stations (dwell times)
+- How long it takes to travel between stops (travel times)
+- How many people are riding (ridership)
+- Where slow zones are affecting service
+
+## Installation
+
+``` r
+
+# install.packages("pak")  # run this once if you don't have pak
+pak::pak("transitmatters/transitmattr")
+```
+
+## Loading the package
+
+``` r
+
+library(transitmattr)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+library(ggplot2)
+```
+
+## Step 1: Check that the API is working
+
+Before doing anything else, it’s good practice to confirm the API is up.
+
+``` r
+
+tm_healthcheck()
+```
+
+You’ll get back something like:
+
+    $status
+    [1] "pass"
+
+If you see `"pass"` you’re good to go.
+
+## Step 2: Understanding what you get back
+
+All `tm_*` functions return a **list** — R’s way of bundling different
+pieces of data together. Think of it like a backpack: you have to reach
+in and grab the thing you want.
+
+``` r
+
+result <- tm_headways("2024-01-15")
+
+# See what's inside:
+names(result)
+
+# Grab one piece:
+result$headways
+```
+
+A helpful trick — [`str()`](https://rdrr.io/r/utils/str.html) shows you
+the whole structure at a glance:
+
+``` r
+
+str(result, max.level = 2)
+```
+
+## Step 3: Pull data for a single day
+
+These functions just need a date. You can write it as a string
+`"YYYY-MM-DD"`.
+
+``` r
+
+# Headways (how often trains arrive) on a specific day
+headways <- tm_headways("2024-01-15")
+
+# Dwell times (how long trains stop)
+dwells <- tm_dwells("2024-01-15")
+
+# Travel times between stops
+travel <- tm_travel_times("2024-01-15")
+
+# Alerts (service disruptions)
+alerts <- tm_alerts("2024-01-15")
+```
+
+## Step 4: Pull data over a date range
+
+Most analysis requires looking at a range of dates. These functions take
+`start_date` and `end_date` plus some extra options.
+
+``` r
+
+# Daily Red Line ridership for January 2024
+ridership <- tm_ridership(
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31",
+  line_id    = "line-red"
+)
+
+# Daily trip metrics for the Red Line
+trips <- tm_trip_metrics(
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31",
+  agg        = "daily",
+  line       = "line-red"
+)
+```
+
+**Available line IDs:**
+
+| Line        | `line_id` / `line` |
+|-------------|--------------------|
+| Red Line    | `"line-red"`       |
+| Orange Line | `"line-orange"`    |
+| Blue Line   | `"line-blue"`      |
+| Green Line  | `"line-green"`     |
+| Commuter    | `"line-cr"`        |
+
+## Step 5: Turn the result into a data frame
+
+The API gives back a list, but most R analysis tools (like `ggplot2`)
+prefer a **data frame**. Here’s the easiest way to convert:
+
+``` r
+
+library(dplyr)
+library(transitmattr)
+
+# Pull ridership data
+ridership_raw <- tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+
+# Each item in ridership_raw is one record — bind them into rows
+ridership_df <- bind_rows(ridership_raw)
+
+# Now it looks like a spreadsheet
+head(ridership_df)
+```
+
+> **Tip:** If
+> [`bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html)
+> doesn’t work, try
+> `do.call(rbind, lapply(ridership_raw, as.data.frame))` — it’s a bit
+> more verbose but handles some tricky list shapes.
+
+## Step 6: Make a quick plot
+
+Once you have a data frame you can plot with `ggplot2`:
+
+``` r
+
+library(ggplot2)
+library(dplyr)
+library(transitmattr)
+
+ridership_df <- bind_rows(
+  tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+)
+
+ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
+  geom_line(color = "#DA291C") +   # Red Line color
+  labs(
+    title = "Red Line Daily Ridership — January 2024",
+    x     = "Date",
+    y     = "Riders"
+  ) +
+  theme_minimal()
+```
+
+## Recap: the functions at a glance
+
+| Function | What it returns | Needs |
+|----|----|----|
+| [`tm_healthcheck()`](https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.md) | API status | nothing |
+| [`tm_facilities()`](https://transitmatters.github.io/transitmattr/reference/tm_facilities.md) | All MBTA stations | nothing |
+| `tm_headways(date)` | Train frequency | one date |
+| `tm_dwells(date)` | Station dwell times | one date |
+| `tm_travel_times(date)` | Stop-to-stop travel | one date |
+| `tm_alerts(date)` | Service alerts | optional date |
+| `tm_ridership(start, end)` | Ridership counts | date range |
+| `tm_trip_metrics(start, end, agg, line)` | Trip performance | date range + line |
+| `tm_line_delays(start, end, line)` | Delay summaries | date range + line |
+| `tm_speed_restrictions(line_id, date)` | Slow zones | line + date |
+| `tm_aggregate_travel_times(...)` | Long-run travel time trends | stop pair + range |
+| `tm_aggregate_headways(...)` | Long-run headway trends | stop + range |
+
+Next, check out the **Red Line Analysis** vignette for a full worked
+example that goes from raw API data to a polished chart.
