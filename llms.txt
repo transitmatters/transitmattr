@@ -92,7 +92,7 @@ tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily")
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily", route_id = "Red")
 
 # Speed restrictions / slow zones
-tm_speed_restrictions("line-red", "2024-01-15")
+tm_speed_restrictions("line-Red", "2024-01-15")
 
 # Service hours
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")

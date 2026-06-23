@@ -13,6 +13,14 @@ in January 2024. By the end you’ll have three charts:
 
 library(transitmattr)
 library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 library(ggplot2)
 ```
 
@@ -41,6 +49,14 @@ record. Let’s flatten it into a data frame:
 library(dplyr)
 ridership_df <- bind_rows(ridership_raw)
 head(ridership_df)
+#> # A tibble: 5 × 2
+#>   date       count
+#>   <chr>      <int>
+#> 1 2024-01-01 72986
+#> 2 2024-01-08 78348
+#> 3 2024-01-15 79336
+#> 4 2024-01-22 84922
+#> 5 2024-01-29 88096
 ```
 
 ### Explore the columns
@@ -48,6 +64,10 @@ head(ridership_df)
 ``` r
 
 glimpse(ridership_df)
+#> Rows: 5
+#> Columns: 2
+#> $ date  <chr> "2024-01-01", "2024-01-08", "2024-01-15", "2024-01-22", "2024-01…
+#> $ count <int> 72986, 78348, 79336, 84922, 88096
 ```
 
 ### Plot it
@@ -66,6 +86,8 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   ) +
   theme_minimal()
 ```
+
+![](red-line-analysis_files/figure-html/ridership-plot-1.png)
 
 > **What to notice:** Weekends typically show lower ridership. If a day
 > is unusually low on a weekday, there may have been a service
@@ -125,6 +147,16 @@ travel_df <- travel_df |>
   )
 
 head(travel_df)
+#> # A tibble: 6 × 15
+#>   `25%` `50%` `75%` count holiday   max  mean   min peak  service_date   std
+#>   <dbl> <dbl> <dbl> <int> <lgl>   <dbl> <dbl> <dbl> <chr> <chr>        <dbl>
+#> 1 1235. 1270. 1334.   112 TRUE     2011 1298.  1132 all   2024-01-01   108. 
+#> 2 1251  1302  1362    133 FALSE    2234 1326.  1178 all   2024-01-02   128. 
+#> 3 1237. 1294. 1356    132 FALSE    1572 1305.  1172 all   2024-01-03    82.6
+#> 4 1257. 1308. 1370.   130 FALSE    2674 1336.  1178 all   2024-01-04   156. 
+#> 5 1241  1288  1344.   131 FALSE    2305 1318.  1167 all   2024-01-05   135. 
+#> 6 1230. 1304. 1379    116 FALSE    1893 1337.  1134 all   2024-01-06   142. 
+#> # ℹ 4 more variables: sum <dbl>, weekend <lgl>, date <date>, travel_min <dbl>
 ```
 
 ### Plot it
@@ -143,7 +175,10 @@ ggplot(travel_df, aes(x = date, y = travel_min)) +
     y        = "Minutes"
   ) +
   theme_minimal()
+#> `geom_smooth()` using formula = 'y ~ x'
 ```
+
+![](red-line-analysis_files/figure-html/travel-plot-1.png)
 
 > **Dashed line** is a smooth trend. If travel times creep up over time
 > it can signal slow zones accumulating — which leads us to section 3.
@@ -155,7 +190,7 @@ than normal, usually because of track issues.
 
 ``` r
 
-slow_raw <- tm_speed_restrictions("line-red", "2024-01-15")
+slow_raw <- tm_speed_restrictions("line-Red", "2024-01-15")
 ```
 
 ``` r
@@ -167,6 +202,19 @@ if (!isTRUE(slow_raw$available)) {
   slow_df <- bind_rows(slow_raw$zones)
   glimpse(slow_df)
 }
+#> Rows: 60
+#> Columns: 11
+#> $ date        <chr> "2024-01-15", "2024-01-15", "2024-01-15", "2024-01-15", "2…
+#> $ trackFeet   <int> 699, 412, 599, 500, 300, 86, 475, 99, 513, 100, 100, 800, …
+#> $ reason      <chr> "Track", "Track", "Track", "Track", "Track", "Track", "Tra…
+#> $ speedMph    <int> 10, 10, 25, 10, 10, 10, 10, 25, 10, 10, 25, 25, 25, 25, 25…
+#> $ fromStopId  <chr> "place-pktrm", "place-andrw", "place-chmnl", "place-chmnl"…
+#> $ reported    <chr> "2023-08-25", "2023-08-01", "2023-08-02", "2023-10-19", "2…
+#> $ lineId      <chr> "line-Red", "line-Red", "line-Red", "line-Red", "line-Red"…
+#> $ description <chr> "SB Park to Downtown Cross.", "SB Andrew to JFK", "SB Char…
+#> $ id          <chr> "572027", "565480", "567089", "000108R", "000108R", "50852…
+#> $ toStopId    <chr> "place-dwnxg", "place-jfk", "place-pktrm", "place-knncl", …
+#> $ direction   <chr> "SB", "SB", "SB", "NB", "NB", "NB", "NB", "NB", "NB", "SB"…
 ```
 
 ``` r
@@ -186,6 +234,8 @@ ggplot(slow_df, aes(x = reorder(description, speedMph), y = speedMph, fill = spe
   theme_minimal() +
   theme(legend.position = "none")
 ```
+
+![](red-line-analysis_files/figure-html/slow-plot-1.png)
 
 > **Note:** If `slow_raw$available` is `FALSE`, there were no active
 > slow zones that day. Try a different date or check during a period
