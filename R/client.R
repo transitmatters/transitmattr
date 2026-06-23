@@ -37,7 +37,8 @@ tm_request <- function(path, query = list(), base_url = tm_base_url()) {
   req <- request(base_url)
   req <- do.call(req_url_path_append, c(list(req), as.list(path)))
   req <- req_user_agent(req, "transitmattr/0.1.0")
-  req <- req_retry(req, max_tries = 3)
+  req <- req_retry(req, max_tries = 3,
+    is_transient = \(resp) httr2::resp_status(resp) %in% c(429, 500, 503))
   req <- req_error(req, body = function(resp) resp_body_string(resp))
 
   if (length(query)) {
