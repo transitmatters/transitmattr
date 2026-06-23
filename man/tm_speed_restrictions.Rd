@@ -4,12 +4,12 @@
 \alias{tm_speed_restrictions}
 \title{Get slow zone / speed restriction data}
 \usage{
-tm_speed_restrictions(line_id, date, base_url = tm_base_url())
+tm_speed_restrictions(line_id, on_date, base_url = tm_base_url())
 }
 \arguments{
 \item{line_id}{MBTA line identifier, e.g. \code{"line-red"}.}
 
-\item{date}{The date to query. A \code{Date} object or \code{"YYYY-MM-DD"} string.}
+\item{on_date}{The date to query. A \code{Date} object or \code{"YYYY-MM-DD"} string.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
