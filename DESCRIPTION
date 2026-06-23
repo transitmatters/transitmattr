@@ -13,9 +13,15 @@ RoxygenNote: 7.3.2
 Imports:
     httr2
 Suggests:
+    dplyr,
+    ggplot2,
     httptest2,
+    knitr,
+    rmarkdown,
+    scales,
     testthat (>= 3.0.0),
     withr
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 URL: https://transitmatters.github.io/transitmattr, https://github.com/transitmatters/transitmattr
 BugReports: https://github.com/transitmatters/transitmattr/issues
