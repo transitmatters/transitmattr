@@ -42,8 +42,104 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-A thin httr2-based wrapper around the TransitMatters Data Dashboard API, providing access to MBTA performance metrics including headways, dwell times, travel times, ridership, and service data.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="transitmattr">transitmattr<a class="anchor" aria-label="anchor" href="#transitmattr"></a>
+</h1></div>
+<p>An R package for the <a href="https://dashboard.transitmatters.org" class="external-link">TransitMatters Data Dashboard API</a>, providing access to MBTA performance metrics: headways, dwell times, travel times, ridership, speed restrictions, and more.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"transitmatters/transitmattr"</span><span class="op">)</span></span></code></pre></div>
+<p>Or with <code>remotes</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"transitmatters/transitmattr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://transitmatters.github.io/transitmattr">transitmattr</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="no-parameter-endpoints">No-parameter endpoints<a class="anchor" aria-label="anchor" href="#no-parameter-endpoints"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Check API health</span></span>
+<span><span class="fu"><a href="reference/tm_healthcheck.html">tm_healthcheck</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># List MBTA facilities</span></span>
+<span><span class="fu"><a href="reference/tm_facilities.html">tm_facilities</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Service ridership dashboard summary</span></span>
+<span><span class="fu"><a href="reference/tm_service_ridership_dashboard.html">tm_service_ridership_dashboard</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="per-date-endpoints">Per-date endpoints<a class="anchor" aria-label="anchor" href="#per-date-endpoints"></a>
+</h3>
+<p>Functions accept either a <code>Date</code> object or a <code>"YYYY-MM-DD"</code> string.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/tm_dwells.html">tm_dwells</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Dated or current alerts</span></span>
+<span><span class="fu"><a href="reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="aggregate-endpoints">Aggregate endpoints<a class="anchor" aria-label="anchor" href="#aggregate-endpoints"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times</a></span><span class="op">(</span></span>
+<span>  from_stop  <span class="op">=</span> <span class="st">"place-pktrm"</span>,</span>
+<span>  to_stop    <span class="op">=</span> <span class="st">"place-davis"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/tm_aggregate_headways.html">tm_aggregate_headways</a></span><span class="op">(</span></span>
+<span>  stop       <span class="op">=</span> <span class="st">"place-davis"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="parameterized-endpoints">Parameterized endpoints<a class="anchor" aria-label="anchor" href="#parameterized-endpoints"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Ridership for the Red Line</span></span>
+<span><span class="fu"><a href="reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"line-red"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Delay summary by line</span></span>
+<span><span class="fu"><a href="reference/tm_line_delays.html">tm_line_delays</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line <span class="op">=</span> <span class="st">"line-red"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Trip metrics</span></span>
+<span><span class="fu"><a href="reference/tm_trip_metrics.html">tm_trip_metrics</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span>, line <span class="op">=</span> <span class="st">"line-red"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scheduled service (optionally filtered to one route)</span></span>
+<span><span class="fu"><a href="reference/tm_scheduled_service.html">tm_scheduled_service</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/tm_scheduled_service.html">tm_scheduled_service</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span>, route_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Speed restrictions / slow zones</span></span>
+<span><span class="fu"><a href="reference/tm_speed_restrictions.html">tm_speed_restrictions</a></span><span class="op">(</span><span class="st">"line-red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Service hours</span></span>
+<span><span class="fu"><a href="reference/tm_service_hours.html">tm_service_hours</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="overriding-the-base-url">Overriding the base URL<a class="anchor" aria-label="anchor" href="#overriding-the-base-url"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>tm_dashboard_base_url <span class="op">=</span> <span class="st">"https://your-staging-host.example.com"</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p>MIT</p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
