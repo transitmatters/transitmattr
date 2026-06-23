@@ -29,7 +29,7 @@ tm_aggregate_travel_times <- function(..., base_url = tm_base_url()) {
 #' query parameters as [tm_aggregate_travel_times()].
 #'
 #' @inheritParams tm_aggregate_travel_times
-#' @return A list with a `data` element.
+#' @return A list with `by_date` and `by_time` elements.
 #' @export
 #' @examples
 #' \dontrun{

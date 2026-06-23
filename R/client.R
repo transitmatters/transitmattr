@@ -11,6 +11,20 @@ tm_base_url <- function() {
 }
 
 #' @noRd
+.tm_gtfs_line_id <- function(x) {
+  # Produces "line-Red", "line-Orange", etc. (DynamoDB key format)
+  color <- sub("^line-", "", tolower(x))
+  paste0("line-", toupper(substr(color, 1, 1)), substr(color, 2, nchar(color)))
+}
+
+#' @noRd
+.tm_line_color <- function(x) {
+  # Produces "Red", "Orange", etc. (delays/trip-metrics format, no prefix)
+  color <- sub("^line-", "", x)
+  paste0(toupper(substr(color, 1, 1)), substr(color, 2, nchar(color)))
+}
+
+#' @noRd
 .tm_date <- function(x) {
   if (is.null(x)) return(NULL)
   if (inherits(x, "Date")) format(x, "%Y-%m-%d") else as.character(x)

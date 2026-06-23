@@ -21,7 +21,7 @@ tm_line_delays <- function(start_date, end_date, line, base_url = tm_base_url())
     query = list(
       start_date = .tm_date(start_date),
       end_date   = .tm_date(end_date),
-      line       = line
+      line       = .tm_line_color(line)
     ),
     base_url = base_url
   )
@@ -46,7 +46,7 @@ tm_trip_metrics <- function(start_date, end_date, agg, line, base_url = tm_base_
       start_date = .tm_date(start_date),
       end_date   = .tm_date(end_date),
       agg        = agg,
-      line       = line
+      line       = tolower(line)
     ),
     base_url = base_url
   )
@@ -103,7 +103,7 @@ tm_ridership <- function(start_date, end_date, line_id = NULL,
     query = list(
       start_date = .tm_date(start_date),
       end_date   = .tm_date(end_date),
-      line_id    = line_id
+      line_id    = if (!is.null(line_id)) .tm_gtfs_line_id(line_id)
     ),
     base_url = base_url
   )
@@ -128,8 +128,8 @@ tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
   tm_request(
     "api/speed_restrictions",
     query = list(
-      line_id = line_id,
-      on_date = .tm_date(on_date)
+      line_id = .tm_gtfs_line_id(line_id),
+      date    = .tm_date(on_date)
     ),
     base_url = base_url
   )
