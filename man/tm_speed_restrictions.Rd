@@ -23,6 +23,6 @@ date.
 }
 \examples{
 \dontrun{
-tm_speed_restrictions("line-red", "2024-01-15")
+tm_speed_restrictions("line-Red", "2024-01-15")
 }
 }

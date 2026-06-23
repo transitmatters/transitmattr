@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
-  eval     = FALSE   # set to TRUE locally to actually hit the API
+  eval     = TRUE   # set to TRUE locally to actually hit the API
 )
 ```
 
@@ -159,7 +159,7 @@ Speed restrictions ("slow zones") are places where trains must go slower than
 normal, usually because of track issues.
 
 ```{r slow-pull}
-slow_raw <- tm_speed_restrictions("line-red", "2024-01-15")
+slow_raw <- tm_speed_restrictions("line-Red", "2024-01-15")
 ```
 
 ```{r slow-df}
