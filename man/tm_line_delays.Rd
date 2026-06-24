@@ -19,7 +19,7 @@ string.}
 \item{end_date}{End of the date range. A \code{Date} object or \code{"YYYY-MM-DD"}
 string.}
 
-\item{line}{MBTA line identifier, e.g. \code{"line-red"}.}
+\item{line}{MBTA line identifier, e.g. \code{"Red"}.}
 
 \item{agg}{Aggregation level: \code{"daily"} or \code{"weekly"}. Defaults to
 \code{"weekly"} if \code{NULL}.}
@@ -35,7 +35,7 @@ Returns alert-based delay summaries for an MBTA line over a date range.
 }
 \examples{
 \dontrun{
-tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
-tm_line_delays("2024-01-01", "2024-01-31", line = "line-red", agg = "daily")
+tm_line_delays("2024-01-01", "2024-01-31", line = "Red")
+tm_line_delays("2024-01-01", "2024-01-31", line = "Red", agg = "daily")
 }
 }

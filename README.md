@@ -75,20 +75,20 @@ tm_aggregate_headways(
 
 ``` r
 # Ridership for the Red Line
-tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 
 # Delay summary by line
-tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
+tm_line_delays("2024-01-01", "2024-01-31", line = "Red")
 
 # Trip metrics
-tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "line-red")
+tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "Red")
 
 # Scheduled service (optionally filtered to one route)
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily")
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily", route_id = "Red")
 
 # Speed restrictions / slow zones
-tm_speed_restrictions("line-Red", "2024-01-15")
+tm_speed_restrictions("Red", "2024-01-15")
 
 # Service hours
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
