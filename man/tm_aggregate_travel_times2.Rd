@@ -14,11 +14,11 @@ tm_aggregate_travel_times2(..., base_url = tm_base_url())
 \code{getOption("tm_dashboard_base_url")} or the production host.}
 }
 \value{
-A list with a \code{data} element.
+A list with \code{by_date} and \code{by_time} elements.
 }
 \description{
 Second variant of the aggregate travel times endpoint. Accepts the same
-query parameters as \code{\link{tm_aggregate_travel_times}}.
+query parameters as \code{\link[=tm_aggregate_travel_times]{tm_aggregate_travel_times()}}.
 }
 \examples{
 \dontrun{

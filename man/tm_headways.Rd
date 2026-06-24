@@ -4,23 +4,29 @@
 \alias{tm_headways}
 \title{Get headway data for a date}
 \usage{
-tm_headways(user_date, base_url = tm_base_url())
+tm_headways(user_date, stop, base_url = tm_base_url())
 }
 \arguments{
 \item{user_date}{A \code{Date} object or a \code{"YYYY-MM-DD"} string.}
+
+\item{stop}{One or more stop IDs (required). Use \code{\link[=tm_stops]{tm_stops()}} to find IDs.
+Pass a character vector for multiple stops.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
 }
 \value{
-A list with a \code{headways} element containing per-route headway data.
+An unnamed list of headway event records. Each record contains
+\code{route_id}, \code{direction}, \code{current_dep_dt}, \code{headway_time_sec},
+\code{benchmark_headway_time_sec}, \code{vehicle_label}, and \code{vehicle_consist}.
+Use \code{dplyr::bind_rows(result)} to convert to a data frame.
 }
 \description{
 Get headway data for a date
 }
 \examples{
 \dontrun{
-tm_headways("2024-01-15")
-tm_headways(as.Date("2024-01-15"))
+tm_headways("2024-01-15", stop = "70061")
+tm_headways(as.Date("2024-01-15"), stop = c("70061", "70063"))
 }
 }

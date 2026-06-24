@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 [TransitMatters Data Dashboard API](https://dashboard.transitmatters.org)
 directly into R. You can get things like:
 
+- Which routes and stops are available
 - How often trains are coming (headways)
 - How long trains sit at stations (dwell times)
 - How long it takes to travel between stops (travel times)
@@ -61,44 +62,57 @@ If you see `"pass"` you're good to go.
 ## Step 2: Understanding what you get back
 
 All `tm_*` functions return a **list** — R's way of bundling different pieces
-of data together. Think of it like a backpack: you have to reach in and grab
-the thing you want.
+of data together. Most dated endpoints return an unnamed list of event records,
+one per observation (e.g. one per train departure). Use `str()` to see the
+shape and `[[1]]` to inspect a single record.
 
 ```{r list-example, eval = FALSE}
-result <- tm_headways("2024-01-15")
+result <- tm_headways("2024-01-15", stop = "70061")
 
-# See what's inside:
-names(result)
-
-# Grab one piece:
-result$headways
+length(result)    # number of events
+str(result[[1]])  # fields: route_id, direction, current_dep_dt,
+                  #   headway_time_sec, benchmark_headway_time_sec,
+                  #   vehicle_label, vehicle_consist
 ```
 
-A helpful trick — `str()` shows you the whole structure at a glance:
+## Step 3: Discover routes and stops
 
-```{r str-example, eval = FALSE}
-str(result, max.level = 2)
+Before pulling event data you often need to know which routes and stop IDs exist.
+
+```{r routes-stops, eval = FALSE}
+# All available routes, grouped by mode
+routes <- tm_routes()
+names(routes)  # "rapid_transit" "bus" "commuter_rail" "ferry"
+
+# Stop IDs for a specific route (needed for filtering headways, travel times, etc.)
+# Route IDs come from tm_routes() — e.g. "Red", "Orange", "Green-B"
+red_stops <- tm_stops("Red")
 ```
 
-## Step 3: Pull data for a single day
+## Step 4: Pull data for a single day
 
-These functions just need a date. You can write it as a string `"YYYY-MM-DD"`.
+These functions need a date. You can also pass stop IDs to narrow the results —
+without them you get every stop, which can be a large response.
 
 ```{r single-day, eval = FALSE}
-# Headways (how often trains arrive) on a specific day
-headways <- tm_headways("2024-01-15")
+# Headways at one stop (or a vector of stops)
+headways <- tm_headways("2024-01-15", stop = "70061")
+headways <- tm_headways("2024-01-15", stop = c("70061", "70063"))
 
-# Dwell times (how long trains stop)
-dwells <- tm_dwells("2024-01-15")
+# Dwell times at a stop
+dwells <- tm_dwells("2024-01-15", stop = "70061")
 
-# Travel times between stops
-travel <- tm_travel_times("2024-01-15")
+# Travel times between a stop pair
+travel <- tm_travel_times("2024-01-15", from_stop = "70076", to_stop = "70064")
 
-# Alerts (service disruptions)
-alerts <- tm_alerts("2024-01-15")
+# Alerts for a specific day and route
+alerts <- tm_alerts("2024-01-15", route = "Red")
+
+# Current live alerts for a route
+alerts_now <- tm_alerts(route = "Red")
 ```
 
-## Step 4: Pull data over a date range
+## Step 5: Pull data over a date range
 
 Most analysis requires looking at a range of dates. These functions take
 `start_date` and `end_date` plus some extra options.
@@ -130,7 +144,7 @@ trips <- tm_trip_metrics(
 | Green Line  | `"line-green"`      |
 | Commuter    | `"line-cr"`         |
 
-## Step 5: Turn the result into a data frame
+## Step 6: Turn the result into a data frame
 
 The API gives back a list, but most R analysis tools (like `ggplot2`) prefer a
 **data frame**. Here's the easiest way to convert:
@@ -153,7 +167,7 @@ head(ridership_df)
 > `do.call(rbind, lapply(ridership_raw, as.data.frame))` — it's a bit more
 > verbose but handles some tricky list shapes.
 
-## Step 6: Make a quick plot
+## Step 7: Make a quick plot
 
 Once you have a data frame you can plot with `ggplot2`:
 
@@ -182,10 +196,12 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 |---|---|---|
 | `tm_healthcheck()` | API status | nothing |
 | `tm_facilities()` | All MBTA stations | nothing |
-| `tm_headways(date)` | Train frequency | one date |
-| `tm_dwells(date)` | Station dwell times | one date |
-| `tm_travel_times(date)` | Stop-to-stop travel | one date |
-| `tm_alerts(date)` | Service alerts | optional date |
+| `tm_routes()` | All available routes by mode | nothing |
+| `tm_stops(route_id)` | Stop IDs for a route | route ID |
+| `tm_headways(date, stop)` | Train frequency | date + stop(s) |
+| `tm_dwells(date, stop)` | Station dwell times | date + stop(s) |
+| `tm_travel_times(date, from_stop, to_stop)` | Stop-to-stop travel | date + stop pair |
+| `tm_alerts(date, route)` | Service alerts | optional date + route |
 | `tm_ridership(start, end)` | Ridership counts | date range |
 | `tm_trip_metrics(start, end, agg, line)` | Trip performance | date range + line |
 | `tm_line_delays(start, end, line)` | Delay summaries | date range + line |

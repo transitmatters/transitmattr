@@ -42,7 +42,7 @@ tm_request <- function(path, query = list(), base_url = tm_base_url()) {
   req <- req_error(req, body = function(resp) resp_body_string(resp))
 
   if (length(query)) {
-    req <- do.call(req_url_query, c(list(req), query))
+    req <- do.call(req_url_query, c(list(req), query, list(.multi = "explode")))
   }
 
   resp <- req_perform(req)

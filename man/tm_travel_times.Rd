@@ -4,23 +4,28 @@
 \alias{tm_travel_times}
 \title{Get travel time data for a date}
 \usage{
-tm_travel_times(user_date, base_url = tm_base_url())
+tm_travel_times(user_date, from_stop, to_stop, base_url = tm_base_url())
 }
 \arguments{
 \item{user_date}{A \code{Date} object or a \code{"YYYY-MM-DD"} string.}
+
+\item{from_stop}{One or more origin stop IDs (required). Use \code{\link[=tm_stops]{tm_stops()}} to
+find IDs.}
+
+\item{to_stop}{One or more destination stop IDs (required).}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
 }
 \value{
-A list with a \code{travel_times} element containing per-segment travel
-time data.
+An unnamed list of travel time event records. Use
+\code{dplyr::bind_rows(result)} to convert to a data frame.
 }
 \description{
 Get travel time data for a date
 }
 \examples{
 \dontrun{
-tm_travel_times("2024-01-15")
+tm_travel_times("2024-01-15", from_stop = "70076", to_stop = "70064")
 }
 }

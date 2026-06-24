@@ -63,3 +63,17 @@ tm_time_predictions <- function(base_url = tm_base_url()) {
 tm_service_ridership_dashboard <- function(base_url = tm_base_url()) {
   tm_request("api/service_ridership_dashboard", base_url = base_url)
 }
+
+#' List all available routes
+#'
+#' @inheritParams tm_healthcheck
+#' @return A list with elements `rapid_transit`, `bus`, `commuter_rail`, and
+#'   `ferry`, each containing the routes available in that category.
+#' @export
+#' @examples
+#' \dontrun{
+#' tm_routes()
+#' }
+tm_routes <- function(base_url = tm_base_url()) {
+  tm_request("api/routes", base_url = base_url)
+}
