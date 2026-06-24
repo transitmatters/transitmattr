@@ -44,6 +44,8 @@ reference:
   - title: "Other"
     contents:
       - tm_facilities
+      - tm_routes
+      - tm_stops
       - tm_speed_restrictions
       - tm_time_predictions
       - tm_healthcheck
