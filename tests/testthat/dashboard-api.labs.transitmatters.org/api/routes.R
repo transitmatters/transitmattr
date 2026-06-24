@@ -1,0 +1,13 @@
+structure(list(method = "GET", url = "https://dashboard-api.labs.transitmatters.org/api/routes", 
+    status_code = 200L, headers = structure(list(date = "Wed, 24 Jun 2026 15:19:49 GMT", 
+        `content-type` = "application/json", `content-length` = "590", 
+        `x-amzn-requestid` = "b042d762-f4d2-4acd-b66f-b3dbcf79aa36", 
+        `access-control-allow-origin` = "https://dashboard.transitmatters.org", 
+        `content-encoding` = "deflate", `access-control-allow-headers` = "Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key", 
+        `x-amz-apigw-id` = "feNPeF7rIAMEo3w=", `cache-control` = "public, max-age=86400", 
+        `x-amzn-trace-id` = "Root=1-6a3bf595-6b8c495515eddc4f2a91aafd;Parent=2f67fc87c194a2f7;Sampled=0;Lineage=1:1e0fd665:0", 
+        `access-control-max-age` = "3600"), class = "httr2_headers"), 
+    body = charToRaw("{\"rapid_transit\": [\"Red\", \"Orange\", \"Blue\", \"Green\", \"Mattapan\"], \"bus\": [\"1\", \"10\", \"100\", \"101\", \"104/109\", \"104\", \"105\", \"106\", \"108\", \"109\", \"11\", \"110\", \"111\", \"112\", \"114/116/117\", \"116\", \"119\", \"120/121\", \"120\", \"131/132\", \"134\", \"136/137\", \"14\", \"15\", \"16\", \"17/19\", \"171\", \"18\", \"201/202\", \"21\", \"210/211/212\", \"214/216\", \"215\", \"217/245\", \"22\", \"220/221/222\", \"225/226\", \"23\", \"230\", \"236\", \"238\", \"24/27/33\", \"240\", \"26\", \"28\", \"29\", \"30\", \"31\", \"32\", \"34\", \"35\", \"350/351\", \"354\", \"36\", \"37\", \"38\", \"39\", \"4\", \"40/50\", \"41\", \"411/430\", \"42\", \"424/450/456\", \"426/428\", \"429\", \"43\", \"434/435/436\", \"439/441/442\", \"44\", \"45\", \"451/465\", \"455\", \"456\", \"47\", \"501/503\", \"502/504\", \"505/553/554\", \"51\", \"52/59\", \"55\", \"556/558\", \"57\", \"59\", \"60/65\", \"61/70/170\", \"62/76\", \"64/68\", \"66\", \"67/79\", \"69\", \"7\", \"71\", \"712/713\", \"72/74/75\", \"73\", \"77\", \"78/84\", \"8\", \"80\", \"83\", \"85-legacy\", \"85\", \"86-legacy\", \"86\", \"87\", \"88\", \"89\", \"9\", \"90\", \"91\", \"92\", \"93\", \"94\", \"95\", \"96\", \"97\", \"99\", \"CT2\", \"CT3/171\", \"SL1/SL2/SL3/SLW\", \"SL4/SL5\"], \"commuter_rail\": [\"CR-Fairmount\", \"CR-Fitchburg\", \"CR-Franklin\", \"CR-Greenbush\", \"CR-Haverhill\", \"CR-Kingston\", \"CR-Lowell\", \"CR-Middleborough\", \"CR-Needham\", \"CR-NewBedford\", \"CR-Newburyport\", \"CR-Providence\", \"CR-Worcester\"], \"ferry\": [\"Boat-EastBoston\", \"Boat-F1\", \"Boat-F4\", \"Boat-F6\", \"Boat-F7\", \"Boat-Lynn\"]}"), 
+    timing = c(redirect = 0, namelookup = 0.136125, connect = 0.156228, 
+    pretransfer = 0.177013, starttransfer = 0.283356, total = 0.283423
+    ), cache = new.env(parent = emptyenv())), class = "httr2_response")

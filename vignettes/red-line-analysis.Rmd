@@ -42,7 +42,7 @@ library(ggplot2)
 ridership_raw <- tm_ridership(
   start_date = "2024-01-01",
   end_date   = "2024-01-31",
-  line_id    = "line-Red"
+  line_id    = "Red"
 )
 ```
 
@@ -92,7 +92,7 @@ Travel time endpoints need **platform stop IDs**, not parent station IDs. Each
 station has separate IDs for each direction. Use `tm_stops()` to look them up:
 
 ```{r stops-lookup, eval = FALSE}
-red_stops <- tm_stops("Red")  # MBTA route ID, not "line-red"
+red_stops <- tm_stops("Red")
 
 # Stations are in red_stops$stations — explore one
 str(red_stops$stations[[1]])
@@ -156,7 +156,7 @@ Speed restrictions ("slow zones") are places where trains must go slower than
 normal, usually because of track issues.
 
 ```{r slow-pull}
-slow_raw <- tm_speed_restrictions("line-Red", "2024-01-15")
+slow_raw <- tm_speed_restrictions("Red", "2024-01-15")
 ```
 
 ```{r slow-df}

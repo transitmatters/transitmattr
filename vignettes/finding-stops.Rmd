@@ -1,0 +1,264 @@
+---
+title: "Finding Stops by Name"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Finding Stops by Name}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+```
+
+```{r load, include = FALSE}
+library(transitmattr)
+```
+
+Every API function that returns per-trip data (headways, dwells, travel times)
+needs a **stop ID** — a string that identifies exactly where on the network you
+want to look. These IDs are opaque by design: `"70061"` is Alewife, `"1-1-110"`
+is Harvard inbound on Route 1, `"Boat-F1|1|Boat-Hingham"` is Hingham Ferry
+inbound. Nobody has these memorised.
+
+The `tm_*_stop_id()` family converts human-readable names into the IDs the API
+expects. This vignette is a quick reference for all four transit modes.
+
+---
+
+## Rapid Transit
+
+The five rapid transit lines are **Red**, **Orange**, **Blue**, **Green**, and
+**Mattapan**.
+
+### Discover: what stations are on this line?
+
+```{r rt-stations}
+library(transitmattr)
+tm_line_stations("Red")
+```
+
+### Discover: which directions does this line use?
+
+Rapid transit lines use geographic direction names rather than inbound/outbound.
+
+```{r rt-directions}
+tm_line_directions("Red")   # northbound / southbound
+tm_line_directions("Green") # eastbound  / westbound
+```
+
+### Look up a stop ID
+
+```{r rt-stop-id}
+# Davis, trains heading toward Alewife (northbound)
+tm_stop_id("Red", "Davis", "northbound")
+
+# Alewife is a terminus — same stop ID in both directions
+tm_stop_id("Red", "Alewife", "northbound")
+tm_stop_id("Red", "Alewife", "southbound")
+```
+
+You can also use `0`/`1` instead of direction names if you prefer:
+
+```{r rt-stop-id-numeric}
+tm_stop_id("Red", "Davis", 0)  # same as "northbound"
+tm_stop_id("Red", "Davis", 1)  # same as "southbound"
+```
+
+### Look up a place ID
+
+Some aggregate endpoints (like `tm_aggregate_travel_times()`) take a **place
+ID** instead of a stop ID. Place IDs refer to a whole station, not a platform.
+
+```{r rt-place-id}
+tm_place_id("Red", "Park Street")
+tm_place_id("Red", "Davis")
+```
+
+### Using these in API calls
+
+```{r rt-api, eval = FALSE}
+# Headways at Davis, trains heading toward Alewife
+tm_headways("2024-01-15",
+  stop = tm_stop_id("Red", "Davis", "northbound")
+)
+
+# Travel time: Park Street → Davis (aggregate endpoint uses place IDs)
+tm_aggregate_travel_times2(
+  from_stop  = tm_place_id("Red", "Park Street"),
+  to_stop    = tm_place_id("Red", "Davis"),
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+```
+
+---
+
+## Bus
+
+There are 121 bus routes in the constants. Directions are always
+`"outbound"` and `"inbound"`.
+
+### Discover: what routes are available?
+
+```{r bus-routes}
+# Returns all route IDs — sorted, so standard routes come first
+head(tm_bus_routes(), 15)
+```
+
+### Discover: what stops are on this route?
+
+```{r bus-stations}
+# Route 1 runs between Harvard and Nubian
+tm_bus_stations("1")
+```
+
+### Look up a stop ID
+
+```{r bus-stop-id}
+# Harvard, boarding a Route 1 toward Nubian (inbound)
+tm_bus_stop_id("1", "Harvard", "inbound")
+
+# Harvard, boarding a Route 1 toward Watertown (outbound)
+tm_bus_stop_id("1", "Harvard", "outbound")
+```
+
+Bus stop IDs encode the route and direction — `"1-1-110"` means route 1,
+direction 1 (inbound), stop sequence 110.
+
+### Using these in API calls
+
+```{r bus-api, eval = FALSE}
+# Headways at Harvard on Route 1, inbound, on a specific day
+harvard_headways = tm_headways("2024-01-15",
+  stop = tm_bus_stop_id("1", "Harvard", "inbound")
+)
+
+# Aggregate headways at Nubian over a month
+aggregate_headways_1 = tm_aggregate_headways(
+  stop       = tm_bus_stop_id("1", "Nubian Station", "inbound"),
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+```
+
+---
+
+## Commuter Rail
+
+Commuter Rail routes are identified by their GTFS route ID. All 13 lines are
+available.
+
+### Discover: what routes are available?
+
+```{r cr-routes}
+tm_cr_routes()
+```
+
+### Discover: what stops are on this line?
+
+The `terminus` column flags the endpoints of each line.
+
+```{r cr-stations}
+tm_cr_stations("CR-Fairmount")
+```
+
+### Look up a stop ID
+
+CR stations can have multiple platform stop IDs for the same station. At
+**terminus** stations, one direction may have no stops (trains only depart, not
+arrive, in the other direction).
+
+```{r cr-stop-id}
+# Fairmount station, outbound (toward Readville)
+tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
+
+# South Station, inbound — terminus, so no inbound stops
+tm_cr_stop_id("CR-Fairmount", "South Station", "inbound")
+
+# South Station, outbound — all platforms
+tm_cr_stop_id("CR-Fairmount", "South Station", "outbound")
+```
+
+### Look up a place ID
+
+CR stations have proper GTFS place IDs (unlike bus or ferry). Use these with
+`tm_aggregate_travel_times()`.
+
+```{r cr-place-id}
+tm_cr_place_id("CR-Fairmount", "South Station")
+tm_cr_place_id("CR-Fairmount", "Fairmount")
+```
+
+### Using these in API calls
+
+```{r cr-api, eval = FALSE}
+# Headways at Fairmount station, outbound
+tm_headways("2024-01-15",
+  stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
+)
+
+# Aggregate travel time, Fairmount → South Station
+tm_aggregate_travel_times(
+  from_stop  = tm_cr_place_id("CR-Fairmount", "Fairmount"),
+  to_stop    = tm_cr_place_id("CR-Fairmount", "South Station"),
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+```
+
+---
+
+## Ferry
+
+Six ferry routes are available. Like bus and CR, directions are `"outbound"`
+and `"inbound"`.
+
+### Discover: what routes are available?
+
+```{r ferry-routes}
+tm_ferry_routes()
+```
+
+### Discover: what stops are on this route?
+
+```{r ferry-stations}
+# F1: Long Wharf ↔ Hingham
+tm_ferry_stations("Boat-F1")
+```
+
+### Look up a stop ID
+
+```{r ferry-stop-id}
+# Hingham, boarding a ferry to Long Wharf (inbound)
+tm_ferry_stop_id("Boat-F1", "Hingham", "inbound")
+
+# Long Wharf (North), boarding a ferry to Hingham (outbound)
+tm_ferry_stop_id("Boat-F1", "Long Wharf (North)", "outbound")
+```
+
+### Using these in API calls
+
+```{r ferry-api, eval = FALSE}
+# Headways at Hingham, inbound
+ferry_headways = tm_headways("2024-06-01",
+  stop = tm_ferry_stop_id("Boat-F1", "Hingham", "inbound")
+)
+```
+
+---
+
+## Quick reference
+
+| Mode | Routes fn | Stations fn | Stop ID fn | Place ID fn |
+|------|-----------|-------------|------------|-------------|
+| Rapid transit | — | `tm_line_stations(line)` | `tm_stop_id(line, stop, dir)` | `tm_place_id(line, stop)` |
+| Bus | `tm_bus_routes()` | `tm_bus_stations(route)` | `tm_bus_stop_id(route, stop, dir)` | — |
+| Commuter Rail | `tm_cr_routes()` | `tm_cr_stations(route)` | `tm_cr_stop_id(route, stop, dir)` | `tm_cr_place_id(route, stop)` |
+| Ferry | `tm_ferry_routes()` | `tm_ferry_stations(route)` | `tm_ferry_stop_id(route, stop, dir)` | — |
+
+All stop-name arguments are **case-insensitive**. Line and route arguments are
+also case-insensitive (`"red"` and `"Red"` both work).

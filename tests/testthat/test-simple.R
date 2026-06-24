@@ -14,14 +14,6 @@ test_that("tm_facilities returns a list", {
   expect_type(result, "list")
 })
 
-test_that("tm_time_predictions returns a list", {
-  httr2::local_mocked_responses(
-    function(req) mock_response('{"predictions":[]}')
-  )
-  result <- tm_time_predictions()
-  expect_type(result, "list")
-})
-
 test_that("tm_service_ridership_dashboard returns a list", {
   httr2::local_mocked_responses(
     function(req) mock_response('{"data":{}}')

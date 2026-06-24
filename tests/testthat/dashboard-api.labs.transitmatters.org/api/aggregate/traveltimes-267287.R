@@ -1,0 +1,12 @@
+structure(list(method = "GET", url = "https://dashboard-api.labs.transitmatters.org/api/aggregate/traveltimes?from_stop=place-pktrm&to_stop=place-davis&start_date=2024-01-01&end_date=2024-01-31", 
+    status_code = 200L, headers = structure(list(date = "Wed, 24 Jun 2026 15:23:13 GMT", 
+        `content-type` = "application/json", `content-length` = "2", 
+        `x-amzn-requestid` = "fe3b2780-9b43-43df-a3d3-5345ff6f8baa", 
+        `access-control-allow-origin` = "https://dashboard.transitmatters.org", 
+        `access-control-allow-headers` = "Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key", 
+        `x-amz-apigw-id` = "feNvVEyRIAMEUYA=", `cache-control` = "public, max-age=7776000", 
+        `x-amzn-trace-id` = "Root=1-6a3bf661-3b7c0baf22c05a783c8af9b3;Parent=30f6373fcb55576f;Sampled=0;Lineage=1:1e0fd665:0", 
+        `access-control-max-age` = "3600"), class = "httr2_headers"), 
+    body = charToRaw("[]"), timing = c(redirect = 0, namelookup = 1.4e-05, 
+    connect = 0, pretransfer = 8.5e-05, starttransfer = 0.191982, 
+    total = 0.192001), cache = new.env(parent = emptyenv())), class = "httr2_response")

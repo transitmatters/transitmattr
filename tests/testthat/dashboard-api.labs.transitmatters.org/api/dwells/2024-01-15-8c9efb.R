@@ -1,0 +1,12 @@
+structure(list(method = "GET", url = "https://dashboard-api.labs.transitmatters.org/api/dwells/2024-01-15?stop=70061", 
+    status_code = 200L, headers = structure(list(date = "Wed, 24 Jun 2026 15:23:00 GMT", 
+        `content-type` = "application/json", `content-length` = "2", 
+        `x-amzn-requestid` = "f59c98fd-f725-4eb9-8276-6e83407934f6", 
+        `access-control-allow-origin` = "https://dashboard.transitmatters.org", 
+        `access-control-allow-headers` = "Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key", 
+        `x-amz-apigw-id` = "feNtMEnCoAMEG8w=", `cache-control` = "public, max-age=7776000", 
+        `x-amzn-trace-id` = "Root=1-6a3bf654-6e310c281ed2d51302622f27;Parent=4f58231cb756ee1a;Sampled=0;Lineage=1:1e0fd665:0", 
+        `access-control-max-age` = "3600"), class = "httr2_headers"), 
+    body = charToRaw("[]"), timing = c(redirect = 0, namelookup = 1.3e-05, 
+    connect = 0, pretransfer = 6.9e-05, starttransfer = 0.419322, 
+    total = 0.419344), cache = new.env(parent = emptyenv())), class = "httr2_response")

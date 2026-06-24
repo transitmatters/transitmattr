@@ -16,7 +16,44 @@ navbar:
       href: https://github.com/transitmatters/transitmattr
       aria-label: GitHub
 
+articles:
+  - title: "Getting started"
+    navbar: ~
+    contents:
+      - getting-started
+  - title: "Worked examples"
+    navbar: Worked examples
+    contents:
+      - red-line-analysis
+      - bus-headways
+  - title: "Reference"
+    navbar: Reference guides
+    contents:
+      - finding-stops
+
 reference:
+  - title: "Stop Lookup — Rapid Transit"
+    contents:
+      - tm_stop_id
+      - tm_place_id
+      - tm_line_stations
+      - tm_line_directions
+  - title: "Stop Lookup — Bus"
+    contents:
+      - tm_bus_stop_id
+      - tm_bus_stations
+      - tm_bus_routes
+  - title: "Stop Lookup — Commuter Rail"
+    contents:
+      - tm_cr_stop_id
+      - tm_cr_place_id
+      - tm_cr_stations
+      - tm_cr_routes
+  - title: "Stop Lookup — Ferry"
+    contents:
+      - tm_ferry_stop_id
+      - tm_ferry_stations
+      - tm_ferry_routes
   - title: "Travel Times"
     contents:
       - tm_travel_times

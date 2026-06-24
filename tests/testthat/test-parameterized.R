@@ -30,11 +30,44 @@ test_that("tm_ridership omits line_id when NULL", {
   expect_no_error(tm_ridership("2024-01-01", "2024-01-31"))
 })
 
+test_that("tm_time_predictions sends route_id", {
+  httr2::local_mocked_responses(
+    function(req) {
+      expect_true(grepl("time_predictions", req$url))
+      expect_true(grepl("route_id=Red", req$url))
+      mock_response('{"predictions":{}}')
+    }
+  )
+  expect_no_error(tm_time_predictions("Red"))
+})
+
 test_that("tm_line_delays sends required params", {
   httr2::local_mocked_responses(
     function(req) {
       expect_true(grepl("linedelays", req$url))
       expect_true(grepl("line=Red", req$url))
+      mock_response('[]')
+    }
+  )
+  expect_no_error(tm_line_delays("2024-01-01", "2024-01-31", line = "line-red"))
+})
+
+test_that("tm_line_delays sends agg when provided", {
+  httr2::local_mocked_responses(
+    function(req) {
+      expect_true(grepl("agg=daily", req$url))
+      mock_response('[]')
+    }
+  )
+  expect_no_error(
+    tm_line_delays("2024-01-01", "2024-01-31", line = "line-red", agg = "daily")
+  )
+})
+
+test_that("tm_line_delays omits agg when NULL", {
+  httr2::local_mocked_responses(
+    function(req) {
+      expect_false(grepl("agg", req$url))
       mock_response('[]')
     }
   )
@@ -51,6 +84,51 @@ test_that("tm_trip_metrics sends agg param", {
   expect_no_error(
     tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "line-red")
   )
+})
+
+test_that("tm_trip_metrics normalises line to line-red", {
+  for (input in c("red", "Red", "line-red", "line-Red")) {
+    httr2::local_mocked_responses(
+      function(req) {
+        expect_true(grepl("line=line-red", req$url),
+                    label = paste("line=line-red in URL for input:", input))
+        mock_response('[]')
+      }
+    )
+    expect_no_error(
+      tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = input)
+    )
+  }
+})
+
+test_that("tm_line_delays normalises line to title-case color", {
+  for (input in c("red", "Red", "line-red", "line-Red")) {
+    httr2::local_mocked_responses(
+      function(req) {
+        expect_true(grepl("line=Red", req$url),
+                    label = paste("line=Red in URL for input:", input))
+        mock_response('[]')
+      }
+    )
+    expect_no_error(
+      tm_line_delays("2024-01-01", "2024-01-31", line = input)
+    )
+  }
+})
+
+test_that("tm_ridership normalises line_id to line-Red", {
+  for (input in c("red", "Red", "line-red", "line-Red")) {
+    httr2::local_mocked_responses(
+      function(req) {
+        expect_true(grepl("line_id=line-Red", req$url),
+                    label = paste("line_id=line-Red in URL for input:", input))
+        mock_response('[]')
+      }
+    )
+    expect_no_error(
+      tm_ridership("2024-01-01", "2024-01-31", line_id = input)
+    )
+  }
 })
 
 test_that("tm_scheduled_service omits route_id when NULL", {
