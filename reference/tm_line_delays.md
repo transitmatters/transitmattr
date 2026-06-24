@@ -26,7 +26,7 @@ tm_line_delays(
 
 - line:
 
-  MBTA line identifier, e.g. `"line-red"`.
+  MBTA line identifier, e.g. `"Red"`.
 
 - agg:
 
@@ -46,7 +46,7 @@ A list of line delay records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
-tm_line_delays("2024-01-01", "2024-01-31", line = "line-red", agg = "daily")
+tm_line_delays("2024-01-01", "2024-01-31", line = "Red")
+tm_line_delays("2024-01-01", "2024-01-31", line = "Red", agg = "daily")
 } # }
 ```
