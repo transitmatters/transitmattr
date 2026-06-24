@@ -460,6 +460,15 @@
     },
     "/api/time_predictions": {
       "get": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimePredictionParams"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -729,7 +738,7 @@
         "type": "object"
       },
       "AlertDelaysByLineParams": {
-        "description": "Parameters for the `/api/linedelays` endpoint.\n\nAttributes:\n    start_date: Start of date range (YYYY-MM-DD).\n    end_date: End of date range (YYYY-MM-DD).\n    line: Line identifier (e.g., `Red`, `Orange`, `Green-B`).",
+        "description": "Parameters for the `/api/linedelays` endpoint.\n\nAttributes:\n    start_date: Start of date range (YYYY-MM-DD).\n    end_date: End of date range (YYYY-MM-DD).\n    line: Line identifier (e.g., `Red`, `Orange`, `Green-B`).\n    agg: Aggregation level \u2014 `daily` or `weekly`. Defaults to `weekly`.",
         "properties": {
           "start_date": {
             "anyOf": [
@@ -757,6 +766,11 @@
           },
           "line": {
             "title": "Line",
+            "type": "string"
+          },
+          "agg": {
+            "default": "weekly",
+            "title": "Agg",
             "type": "string"
           }
         },
@@ -993,20 +1007,20 @@
         "type": "object"
       },
       "SpeedRestrictionsParams": {
-        "description": "Parameters for the `/api/speed_restrictions` endpoint.\n\nAttributes:\n    line_id: Line identifier (e.g., `Red`, `Orange`).\n    on_date: Date to query (YYYY-MM-DD).",
+        "description": "Parameters for the `/api/speed_restrictions` endpoint.\n\nAttributes:\n    line_id: Line identifier (e.g., `Red`, `Orange`).\n    date: Date to query (YYYY-MM-DD).",
         "properties": {
           "line_id": {
             "title": "Line Id",
             "type": "string"
           },
-          "on_date": {
-            "title": "On Date",
+          "date": {
+            "title": "Date",
             "type": "string"
           }
         },
         "required": [
           "line_id",
-          "on_date"
+          "date"
         ],
         "title": "SpeedRestrictionsParams",
         "type": "object"
@@ -1051,9 +1065,9 @@
         "type": "object"
       },
       "ServiceHoursParams": {
-        "description": "Parameters for the `/api/service_hours` endpoint.\n\nAttributes:\n    single_route_id: Optional route filter. `None` returns all routes.\n    start_date: Start of date range.\n    end_date: End of date range.\n    agg: Aggregation level \u2014 `daily`, `weekly`, or `monthly`.",
+        "description": "Parameters for the `/api/service_hours` endpoint.\n\nAttributes:\n    line_id: Optional line filter. `None` returns all lines.\n    start_date: Start of date range.\n    end_date: End of date range.\n    agg: Aggregation level \u2014 `daily`, `weekly`, or `monthly`.",
         "properties": {
-          "single_route_id": {
+          "line_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -1063,7 +1077,7 @@
               }
             ],
             "default": null,
-            "title": "Single Route Id"
+            "title": "Line Id"
           },
           "start_date": {
             "format": "date",
@@ -1102,6 +1116,20 @@
           "data"
         ],
         "title": "ServiceHoursResponse",
+        "type": "object"
+      },
+      "TimePredictionParams": {
+        "description": "Parameters for the `/api/time_predictions` endpoint.\n\nAttributes:\n    route_id: Route identifier (e.g., `Red`, `CR-Fairmount`).",
+        "properties": {
+          "route_id": {
+            "title": "Route Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "route_id"
+        ],
+        "title": "TimePredictionParams",
         "type": "object"
       },
       "TimePredictionResponse": {

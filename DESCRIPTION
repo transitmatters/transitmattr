@@ -16,13 +16,17 @@ Suggests:
     dplyr,
     ggplot2,
     httptest2,
+    jsonlite,
     knitr,
     rmarkdown,
     scales,
     testthat (>= 3.0.0),
+    usethis,
     withr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 URL: https://transitmatters.github.io/transitmattr/, https://github.com/transitmatters/transitmattr
 BugReports: https://github.com/transitmatters/transitmattr/issues
 Config/roxygen2/version: 8.0.0
+Depends: 
+    R (>= 3.5)

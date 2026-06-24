@@ -6,23 +6,50 @@
 #'   string.
 #' @param end_date End of the date range. A `Date` object or `"YYYY-MM-DD"`
 #'   string.
-#' @param line MBTA line identifier, e.g. `"line-red"`.
+#' @param line MBTA line identifier. Accepts any of `"Red"`, `"red"`,
+#'   `"line-red"`, or `"line-Red"` — all are equivalent.
+#' @param agg Aggregation level: `"daily"` or `"weekly"`. Defaults to
+#'   `"weekly"` if `NULL`.
 #' @param base_url Base URL of the TransitMatters API. Defaults to
 #'   `getOption("tm_dashboard_base_url")` or the production host.
 #' @return A list of line delay records.
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
+#' tm_line_delays("2024-01-01", "2024-01-31", line = "Red")
+#' tm_line_delays("2024-01-01", "2024-01-31", line = "Red", agg = "daily")
 #' }
-tm_line_delays <- function(start_date, end_date, line, base_url = tm_base_url()) {
+tm_line_delays <- function(start_date, end_date, line, agg = NULL,
+                           base_url = tm_base_url()) {
   tm_request(
     "api/linedelays",
     query = list(
       start_date = .tm_date(start_date),
       end_date   = .tm_date(end_date),
-      line       = .tm_line_color(line)
+      line       = .tm_line_color(line),
+      agg        = agg
     ),
+    base_url = base_url
+  )
+}
+
+#' Get current time predictions
+#'
+#' Returns time prediction accuracy data for an MBTA route.
+#'
+#' @param route_id Route identifier, e.g. `"Red"`, `"CR-Fairmount"`.
+#' @param base_url Base URL of the TransitMatters API. Defaults to
+#'   `getOption("tm_dashboard_base_url")` or the production host.
+#' @return A list with a `predictions` field.
+#' @export
+#' @examples
+#' \dontrun{
+#' tm_time_predictions("Red")
+#' }
+tm_time_predictions <- function(route_id, base_url = tm_base_url()) {
+  tm_request(
+    "api/time_predictions",
+    query = list(route_id = route_id),
     base_url = base_url
   )
 }
@@ -37,7 +64,7 @@ tm_line_delays <- function(start_date, end_date, line, base_url = tm_base_url())
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "line-red")
+#' tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "Red")
 #' }
 tm_trip_metrics <- function(start_date, end_date, agg, line, base_url = tm_base_url()) {
   tm_request(
@@ -46,7 +73,7 @@ tm_trip_metrics <- function(start_date, end_date, agg, line, base_url = tm_base_
       start_date = .tm_date(start_date),
       end_date   = .tm_date(end_date),
       agg        = agg,
-      line       = tolower(line)
+      line       = tolower(.tm_gtfs_line_id(line))
     ),
     base_url = base_url
   )
@@ -87,13 +114,14 @@ tm_scheduled_service <- function(start_date, end_date, agg, route_id = NULL,
 #' MBTA line.
 #'
 #' @inheritParams tm_line_delays
-#' @param line_id Optional MBTA line identifier, e.g. `"line-red"`.
+#' @param line_id Optional MBTA line identifier. Accepts any of `"Red"`,
+#'   `"red"`, `"line-red"`, or `"line-Red"` — all are equivalent.
 #' @return A list of ridership records.
 #' @export
 #' @examples
 #' \dontrun{
 #' tm_ridership("2024-01-01", "2024-01-31")
-#' tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+#' tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 #' }
 tm_ridership <- function(start_date, end_date, line_id = NULL,
                          base_url = tm_base_url()) {
@@ -113,7 +141,8 @@ tm_ridership <- function(start_date, end_date, line_id = NULL,
 #' Returns current or historical speed restrictions for an MBTA line on a given
 #' date.
 #'
-#' @param line_id MBTA line identifier, e.g. `"line-red"`.
+#' @param line_id MBTA line identifier. Accepts any of `"Red"`, `"red"`,
+#'   `"line-red"`, or `"line-Red"` — all are equivalent.
 #' @param on_date The date to query. A `Date` object or `"YYYY-MM-DD"` string.
 #' @param base_url Base URL of the TransitMatters API. Defaults to
 #'   `getOption("tm_dashboard_base_url")` or the production host.
@@ -121,7 +150,7 @@ tm_ridership <- function(start_date, end_date, line_id = NULL,
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_speed_restrictions("line-red", "2024-01-15")
+#' tm_speed_restrictions("Red", "2024-01-15")
 #' }
 tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
   tm_request(
@@ -144,7 +173,8 @@ tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
 #' @param end_date End of the date range. A `Date` object or `"YYYY-MM-DD"`
 #'   string.
 #' @param agg Aggregation level, e.g. `"daily"` or `"weekly"`.
-#' @param line_id MBTA line identifier, e.g. `"line-red"`.
+#' @param line_id MBTA line identifier. Accepts any of `"Red"`, `"red"`,
+#'   `"line-red"`, or `"line-Red"` — all are equivalent.
 #' @param base_url Base URL of the TransitMatters API. Defaults to
 #'   `getOption("tm_dashboard_base_url")` or the production host.
 #' @return A list of service hours records.
@@ -152,7 +182,7 @@ tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
 #' @examples
 #' \dontrun{
 #' tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-#'                  line_id = "line-red")
+#'                  line_id = "Red")
 #' }
 tm_service_hours <- function(start_date, end_date, agg, line_id = NULL,
                              base_url = tm_base_url()) {

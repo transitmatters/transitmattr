@@ -38,19 +38,6 @@ tm_facilities <- function(base_url = tm_base_url()) {
   tm_request("api/facilities", base_url = base_url)
 }
 
-#' Get current time predictions
-#'
-#' @inheritParams tm_healthcheck
-#' @return A list of time prediction objects.
-#' @export
-#' @examples
-#' \dontrun{
-#' tm_time_predictions()
-#' }
-tm_time_predictions <- function(base_url = tm_base_url()) {
-  tm_request("api/time_predictions", base_url = base_url)
-}
-
 #' Get the service ridership dashboard summary
 #'
 #' @inheritParams tm_healthcheck

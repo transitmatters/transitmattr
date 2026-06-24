@@ -23,7 +23,7 @@ Common query parameters include \code{stop}, \code{start_date}, \code{end_date},
 \examples{
 \dontrun{
 tm_aggregate_headways(
-  stop       = "place-davis",
+  stop       = "70063",
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )

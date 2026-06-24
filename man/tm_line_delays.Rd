@@ -4,7 +4,13 @@
 \alias{tm_line_delays}
 \title{Get delay data by line}
 \usage{
-tm_line_delays(start_date, end_date, line, base_url = tm_base_url())
+tm_line_delays(
+  start_date,
+  end_date,
+  line,
+  agg = NULL,
+  base_url = tm_base_url()
+)
 }
 \arguments{
 \item{start_date}{Start of the date range. A \code{Date} object or \code{"YYYY-MM-DD"}
@@ -14,6 +20,9 @@ string.}
 string.}
 
 \item{line}{MBTA line identifier, e.g. \code{"line-red"}.}
+
+\item{agg}{Aggregation level: \code{"daily"} or \code{"weekly"}. Defaults to
+\code{"weekly"} if \code{NULL}.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -27,5 +36,6 @@ Returns alert-based delay summaries for an MBTA line over a date range.
 \examples{
 \dontrun{
 tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
+tm_line_delays("2024-01-01", "2024-01-31", line = "line-red", agg = "daily")
 }
 }

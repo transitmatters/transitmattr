@@ -21,7 +21,7 @@ string.}
 
 \item{agg}{Aggregation level, e.g. \code{"daily"} or \code{"weekly"}.}
 
-\item{route_id}{Optional MBTA route ID to filter results.}
+\item{route_id}{MBTA route ID, e.g. \code{"Red"}, \code{"Orange"}, \code{"Green-B"}.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -30,12 +30,11 @@ string.}
 A list of scheduled service records.
 }
 \description{
-Returns scheduled service counts aggregated over a date range. Optionally
-filtered to a single route.
+Returns scheduled service counts aggregated over a date range for a single
+MBTA route.
 }
 \examples{
 \dontrun{
-tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily")
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily",
                      route_id = "Red")
 }
