@@ -100,24 +100,24 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 This uses the **aggregate** endpoint, which gives you long-run averages
 rather than individual trips.
 
-### Stop IDs
+### Finding stop IDs
 
 Travel time endpoints need **platform stop IDs**, not parent station
-IDs. Each station has separate IDs for each direction (northbound toward
-Alewife = `0`, southbound = `1`).
+IDs. Each station has separate IDs for each direction. Use
+[`tm_stops()`](https://transitmatters.github.io/transitmattr/reference/tm_stops.md)
+to look them up:
 
-| Station           | Northbound (→ Alewife) | Southbound (→ Ashmont/Braintree) |
-|-------------------|------------------------|----------------------------------|
-| Alewife           | `70061`                | `70061`                          |
-| Davis             | `70064`                | `70063`                          |
-| Porter            | `70066`                | `70065`                          |
-| Harvard           | `70068`                | `70067`                          |
-| Central           | `70070`                | `70069`                          |
-| Kendall/MIT       | `70072`                | `70071`                          |
-| Charles/MGH       | `70074`                | `70073`                          |
-| Park Street       | `70076`                | `70075`                          |
-| Downtown Crossing | `70078`                | `70077`                          |
-| South Station     | `70080`                | `70079`                          |
+``` r
+
+red_stops <- tm_stops("Red")  # MBTA route ID, not "line-red"
+
+# Stations are in red_stops$stations — explore one
+str(red_stops$stations[[1]])
+```
+
+> **Tip:** Northbound (toward Alewife) stop IDs are even numbers;
+> southbound (toward Ashmont/Braintree) are odd. For example, Park
+> Street northbound is `70076` and southbound is `70075`.
 
 ### Pull the data
 
@@ -246,6 +246,9 @@ ggplot(slow_df, aes(x = reorder(description, speedMph), y = speedMph, fill = spe
 Here’s a pattern you’ll use over and over: **pull → bind_rows → mutate →
 ggplot**. Once you’re comfortable with it, try exploring:
 
+- [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
+  — see all available lines before picking one
+- `tm_stops("Orange")` — look up stop IDs for a different line
 - [`tm_aggregate_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_headways.md)
   — how often trains come, over time
 - [`tm_line_delays()`](https://transitmatters.github.io/transitmattr/reference/tm_line_delays.md)

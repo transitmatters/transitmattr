@@ -7,7 +7,7 @@ day.
 ## Usage
 
 ``` r
-tm_alerts(user_date = NULL, base_url = tm_base_url())
+tm_alerts(user_date = NULL, route, base_url = tm_base_url())
 ```
 
 ## Arguments
@@ -16,6 +16,12 @@ tm_alerts(user_date = NULL, base_url = tm_base_url())
 
   A `Date` object, a `"YYYY-MM-DD"` string, or `NULL` (default) for
   current alerts.
+
+- route:
+
+  One or more MBTA route IDs (e.g. `"Red"`, `"Orange"`). Required. Use
+  [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
+  to list valid IDs.
 
 - base_url:
 
@@ -30,7 +36,7 @@ A list with an `alerts` element.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_alerts()
-tm_alerts("2024-01-15")
+tm_alerts(route = "Red")
+tm_alerts("2024-01-15", route = "Red")
 } # }
 ```

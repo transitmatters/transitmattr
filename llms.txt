@@ -158,6 +158,10 @@ MIT
 
 - [`tm_facilities()`](https://transitmatters.github.io/transitmattr/reference/tm_facilities.md)
   : List MBTA facilities
+- [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
+  : List all available routes
+- [`tm_stops()`](https://transitmatters.github.io/transitmattr/reference/tm_stops.md)
+  : Get stops for a route
 - [`tm_speed_restrictions()`](https://transitmatters.github.io/transitmattr/reference/tm_speed_restrictions.md)
   : Get slow zone / speed restriction data
 - [`tm_time_predictions()`](https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.md)

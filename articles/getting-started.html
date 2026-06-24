@@ -70,6 +70,7 @@
 the <a href="https://dashboard.transitmatters.org" class="external-link">TransitMatters Data
 Dashboard API</a> directly into R. You can get things like:</p>
 <ul>
+<li>Which routes and stops are available</li>
 <li>How often trains are coming (headways)</li>
 <li>How long trains sit at stations (dwell times)</li>
 <li>How long it takes to travel between stops (travel times)</li>
@@ -116,41 +117,57 @@ up.</p>
 <h2 id="step-2-understanding-what-you-get-back">Step 2: Understanding what you get back<a class="anchor" aria-label="anchor" href="#step-2-understanding-what-you-get-back"></a>
 </h2>
 <p>All <code>tm_*</code> functions return a <strong>list</strong> — R’s
-way of bundling different pieces of data together. Think of it like a
-backpack: you have to reach in and grab the thing you want.</p>
+way of bundling different pieces of data together. Most dated endpoints
+return an unnamed list of event records, one per observation (e.g. one
+per train departure). Use <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code> to see the shape and
+<code>[[1]]</code> to inspect a single record.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, stop <span class="op">=</span> <span class="st">"70061"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># See what's inside:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Grab one piece:</span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">headways</span></span></code></pre></div>
-<p>A helpful trick — <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code> shows you the whole structure at
-a glance:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">result</span>, max.level <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>    <span class="co"># number of events</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>  <span class="co"># fields: route_id, direction, current_dep_dt,</span></span>
+<span>                  <span class="co">#   headway_time_sec, benchmark_headway_time_sec,</span></span>
+<span>                  <span class="co">#   vehicle_label, vehicle_consist</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-3-pull-data-for-a-single-day">Step 3: Pull data for a single day<a class="anchor" aria-label="anchor" href="#step-3-pull-data-for-a-single-day"></a>
+<h2 id="step-3-discover-routes-and-stops">Step 3: Discover routes and stops<a class="anchor" aria-label="anchor" href="#step-3-discover-routes-and-stops"></a>
 </h2>
-<p>These functions just need a date. You can write it as a string
-<code>"YYYY-MM-DD"</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Headways (how often trains arrive) on a specific day</span></span>
-<span><span class="va">headways</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<p>Before pulling event data you often need to know which routes and
+stop IDs exist.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># All available routes, grouped by mode</span></span>
+<span><span class="va">routes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_routes.html">tm_routes</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">routes</span><span class="op">)</span>  <span class="co"># "rapid_transit" "bus" "commuter_rail" "ferry"</span></span>
 <span></span>
-<span><span class="co"># Dwell times (how long trains stop)</span></span>
-<span><span class="va">dwells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_dwells.html">tm_dwells</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Travel times between stops</span></span>
-<span><span class="va">travel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Alerts (service disruptions)</span></span>
-<span><span class="va">alerts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Stop IDs for a specific route (needed for filtering headways, travel times, etc.)</span></span>
+<span><span class="co"># Route IDs come from tm_routes() — e.g. "Red", "Orange", "Green-B"</span></span>
+<span><span class="va">red_stops</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_stops.html">tm_stops</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-4-pull-data-over-a-date-range">Step 4: Pull data over a date range<a class="anchor" aria-label="anchor" href="#step-4-pull-data-over-a-date-range"></a>
+<h2 id="step-4-pull-data-for-a-single-day">Step 4: Pull data for a single day<a class="anchor" aria-label="anchor" href="#step-4-pull-data-for-a-single-day"></a>
+</h2>
+<p>These functions need a date. You can also pass stop IDs to narrow the
+results — without them you get every stop, which can be a large
+response.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Headways at one stop (or a vector of stops)</span></span>
+<span><span class="va">headways</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, stop <span class="op">=</span> <span class="st">"70061"</span><span class="op">)</span></span>
+<span><span class="va">headways</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, stop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"70061"</span>, <span class="st">"70063"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Dwell times at a stop</span></span>
+<span><span class="va">dwells</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_dwells.html">tm_dwells</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, stop <span class="op">=</span> <span class="st">"70061"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Travel times between a stop pair</span></span>
+<span><span class="va">travel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, from_stop <span class="op">=</span> <span class="st">"70076"</span>, to_stop <span class="op">=</span> <span class="st">"70064"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Alerts for a specific day and route</span></span>
+<span><span class="va">alerts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>, route <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Current live alerts for a route</span></span>
+<span><span class="va">alerts_now</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span>route <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="step-5-pull-data-over-a-date-range">Step 5: Pull data over a date range<a class="anchor" aria-label="anchor" href="#step-5-pull-data-over-a-date-range"></a>
 </h2>
 <p>Most analysis requires looking at a range of dates. These functions
 take <code>start_date</code> and <code>end_date</code> plus some extra
@@ -169,6 +186,22 @@ options.</p>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
 <span>  agg        <span class="op">=</span> <span class="st">"daily"</span>,</span>
 <span>  line       <span class="op">=</span> <span class="st">"line-red"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># How many trips were scheduled to run each day</span></span>
+<span><span class="va">scheduled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_scheduled_service.html">tm_scheduled_service</a></span><span class="op">(</span></span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
+<span>  route_id    <span class="op">=</span> <span class="st">"Red"</span>,</span>
+<span>  agg        <span class="op">=</span> <span class="st">"daily"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Total revenue service hours each day on the Red Line</span></span>
+<span><span class="va">hours</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_service_hours.html">tm_service_hours</a></span><span class="op">(</span></span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
+<span>  agg        <span class="op">=</span> <span class="st">"daily"</span>,</span>
+<span>  line_id    <span class="op">=</span> <span class="st">"Red"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Available line IDs:</strong></p>
 <table class="table">
@@ -203,7 +236,7 @@ options.</p>
 </table>
 </div>
 <div class="section level2">
-<h2 id="step-5-turn-the-result-into-a-data-frame">Step 5: Turn the result into a data frame<a class="anchor" aria-label="anchor" href="#step-5-turn-the-result-into-a-data-frame"></a>
+<h2 id="step-8-turn-the-result-into-a-data-frame">Step 8: Turn the result into a data frame<a class="anchor" aria-label="anchor" href="#step-8-turn-the-result-into-a-data-frame"></a>
 </h2>
 <p>The API gives back a list, but most R analysis tools (like
 <code>ggplot2</code>) prefer a <strong>data frame</strong>. Here’s the
@@ -227,7 +260,7 @@ a bit more verbose but handles some tricky list shapes.</p>
 </blockquote>
 </div>
 <div class="section level2">
-<h2 id="step-6-make-a-quick-plot">Step 6: Make a quick plot<a class="anchor" aria-label="anchor" href="#step-6-make-a-quick-plot"></a>
+<h2 id="step-9-make-a-quick-plot">Step 9: Make a quick plot<a class="anchor" aria-label="anchor" href="#step-9-make-a-quick-plot"></a>
 </h2>
 <p>Once you have a data frame you can plot with
 <code>ggplot2</code>:</p>
@@ -250,6 +283,48 @@ a bit more verbose but handles some tricky list shapes.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="step-7-aggregate-endpoints">Step 7: Aggregate endpoints<a class="anchor" aria-label="anchor" href="#step-7-aggregate-endpoints"></a>
+</h2>
+<p>The aggregate endpoints return long-run averages rather than
+individual trip events — useful for trend analysis over weeks or
+months.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Average travel time from Park Street to Davis, by date</span></span>
+<span><span class="va">travel_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times</a></span><span class="op">(</span></span>
+<span>  from_stop  <span class="op">=</span> <span class="st">"70076"</span>,</span>
+<span>  to_stop    <span class="op">=</span> <span class="st">"70064"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Same data via the v2 endpoint (returns by_date and by_time breakdowns)</span></span>
+<span><span class="va">travel_agg2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_aggregate_travel_times2.html">tm_aggregate_travel_times2</a></span><span class="op">(</span></span>
+<span>  from_stop  <span class="op">=</span> <span class="st">"70076"</span>,</span>
+<span>  to_stop    <span class="op">=</span> <span class="st">"70064"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Average headways at a stop over a date range</span></span>
+<span><span class="va">headways_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_aggregate_headways.html">tm_aggregate_headways</a></span><span class="op">(</span></span>
+<span>  stop       <span class="op">=</span> <span class="st">"70061"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Average dwell times at a stop over a date range</span></span>
+<span><span class="va">dwells_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_aggregate_dwells.html">tm_aggregate_dwells</a></span><span class="op">(</span></span>
+<span>  stop       <span class="op">=</span> <span class="st">"70061"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p><strong>Tip:</strong> The v2 travel times endpoint
+(<code>tm_aggregate_travel_times2</code>) is used in the Red Line
+Analysis vignette for a worked plotting example.</p>
+</blockquote>
+</div>
+<div class="section level2">
 <h2 id="recap-the-functions-at-a-glance">Recap: the functions at a glance<a class="anchor" aria-label="anchor" href="#recap-the-functions-at-a-glance"></a>
 </h2>
 <table class="table">
@@ -270,58 +345,103 @@ a bit more verbose but handles some tricky list shapes.</p>
 <td>nothing</td>
 </tr>
 <tr class="even">
+<td><code><a href="../reference/tm_git_id.html">tm_git_id()</a></code></td>
+<td>Server git commit SHA</td>
+<td>nothing</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/tm_time_predictions.html">tm_time_predictions()</a></code></td>
+<td>Live time predictions</td>
+<td>nothing</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/tm_service_ridership_dashboard.html">tm_service_ridership_dashboard()</a></code></td>
+<td>System-wide ridership summary</td>
+<td>nothing</td>
+</tr>
+<tr class="odd">
 <td><code><a href="../reference/tm_facilities.html">tm_facilities()</a></code></td>
 <td>All MBTA stations</td>
 <td>nothing</td>
 </tr>
+<tr class="even">
+<td><code><a href="../reference/tm_routes.html">tm_routes()</a></code></td>
+<td>All available routes by mode</td>
+<td>nothing</td>
+</tr>
 <tr class="odd">
-<td><code>tm_headways(date)</code></td>
+<td><code>tm_stops(route_id)</code></td>
+<td>Stop IDs for a route</td>
+<td>route ID</td>
+</tr>
+<tr class="even">
+<td><code>tm_headways(date, stop)</code></td>
 <td>Train frequency</td>
-<td>one date</td>
+<td>date + stop(s)</td>
 </tr>
-<tr class="even">
-<td><code>tm_dwells(date)</code></td>
+<tr class="odd">
+<td><code>tm_dwells(date, stop)</code></td>
 <td>Station dwell times</td>
-<td>one date</td>
-</tr>
-<tr class="odd">
-<td><code>tm_travel_times(date)</code></td>
-<td>Stop-to-stop travel</td>
-<td>one date</td>
+<td>date + stop(s)</td>
 </tr>
 <tr class="even">
-<td><code>tm_alerts(date)</code></td>
-<td>Service alerts</td>
-<td>optional date</td>
+<td><code>tm_travel_times(date, from_stop, to_stop)</code></td>
+<td>Stop-to-stop travel</td>
+<td>date + stop pair</td>
 </tr>
 <tr class="odd">
+<td><code>tm_alerts(date, route)</code></td>
+<td>Service alerts</td>
+<td>optional date + route</td>
+</tr>
+<tr class="even">
 <td><code>tm_ridership(start, end)</code></td>
 <td>Ridership counts</td>
 <td>date range</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>tm_trip_metrics(start, end, agg, line)</code></td>
 <td>Trip performance</td>
 <td>date range + line</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>tm_line_delays(start, end, line)</code></td>
 <td>Delay summaries</td>
 <td>date range + line</td>
 </tr>
+<tr class="odd">
+<td><code>tm_scheduled_service(start, end, agg)</code></td>
+<td>Scheduled trip counts</td>
+<td>date range + agg</td>
+</tr>
 <tr class="even">
+<td><code>tm_service_hours(start, end, agg, line_id)</code></td>
+<td>Revenue service hours</td>
+<td>date range + agg + line</td>
+</tr>
+<tr class="odd">
 <td><code>tm_speed_restrictions(line_id, date)</code></td>
 <td>Slow zones</td>
 <td>line + date</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>tm_aggregate_travel_times(...)</code></td>
 <td>Long-run travel time trends</td>
+<td>stop pair + range</td>
+</tr>
+<tr class="odd">
+<td><code>tm_aggregate_travel_times2(...)</code></td>
+<td>Long-run travel times (v2, with by_date/by_time)</td>
 <td>stop pair + range</td>
 </tr>
 <tr class="even">
 <td><code>tm_aggregate_headways(...)</code></td>
 <td>Long-run headway trends</td>
+<td>stop + range</td>
+</tr>
+<tr class="odd">
+<td><code>tm_aggregate_dwells(...)</code></td>
+<td>Long-run dwell time trends</td>
 <td>stop + range</td>
 </tr>
 </tbody>

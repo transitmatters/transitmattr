@@ -2,7 +2,7 @@
 
 Second variant of the aggregate travel times endpoint. Accepts the same
 query parameters as
-[`tm_aggregate_travel_times`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times.md).
+[`tm_aggregate_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times.md).
 
 ## Usage
 
@@ -24,7 +24,7 @@ tm_aggregate_travel_times2(..., base_url = tm_base_url())
 
 ## Value
 
-A list with a `data` element.
+A list with `by_date` and `by_time` elements.
 
 ## Examples
 
