@@ -102,7 +102,7 @@ headways <- tm_headways("2024-01-15", stop = "70061")
 headways <- tm_headways("2024-01-15", stop = c("70061", "70063"))
 
 # Dwell times at a stop
-dwells <- tm_dwells("2024-01-15", stop = "70061")
+dwells <- tm_dwells("2024-01-15", stop = "70063")
 
 # Travel times between a stop pair
 travel <- tm_travel_times("2024-01-15", from_stop = "70076", to_stop = "70064")
@@ -245,7 +245,7 @@ headways_agg <- tm_aggregate_headways(
 
 # Average dwell times at a stop over a date range
 dwells_agg <- tm_aggregate_dwells(
-  stop       = "70061",
+  stop       = "70063",
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )
