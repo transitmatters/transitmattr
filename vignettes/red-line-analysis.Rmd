@@ -11,12 +11,15 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
-  eval     = TRUE   # set to TRUE locally to actually hit the API
+  eval     = FALSE
 )
 ```
 
 This vignette walks through a realistic analysis of Red Line performance in
 January 2024. By the end you'll have three charts:
+
+> **Note:** Code in this vignette is not run automatically — copy and run it
+> in your own R session after loading the package.
 
 1. Daily ridership
 2. Average travel time from Park Street → Davis

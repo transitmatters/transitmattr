@@ -8,7 +8,7 @@ tm_service_hours(
   start_date,
   end_date,
   agg,
-  single_route_id = NULL,
+  line_id = NULL,
   base_url = tm_base_url()
 )
 }
@@ -21,7 +21,7 @@ string.}
 
 \item{agg}{Aggregation level, e.g. \code{"daily"} or \code{"weekly"}.}
 
-\item{single_route_id}{Optional MBTA route ID to filter results.}
+\item{line_id}{Optional MBTA line identifier, e.g. \code{"line-red"}, to filter results.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -31,12 +31,12 @@ A list of service hours records.
 }
 \description{
 Returns total revenue service hours aggregated over a date range. Optionally
-filtered to a single route.
+filtered to a single line.
 }
 \examples{
 \dontrun{
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-                 single_route_id = "Red")
+                 line_id = "line-red")
 }
 }

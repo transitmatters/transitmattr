@@ -38,17 +38,61 @@ tm_facilities <- function(base_url = tm_base_url()) {
   tm_request("api/facilities", base_url = base_url)
 }
 
-#' Get current time predictions
+#' Get time prediction accuracy data for a route
 #'
-#' @inheritParams tm_healthcheck
+#' @param route_id MBTA route identifier, e.g. `"Red"` or `"CR-Fairmount"`.
+#' @param base_url Base URL of the TransitMatters API. Defaults to
+#'   `getOption("tm_dashboard_base_url")` or the production host.
 #' @return A list of time prediction objects.
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_time_predictions()
+#' tm_time_predictions("Red")
+#' tm_time_predictions("CR-Fairmount")
 #' }
-tm_time_predictions <- function(base_url = tm_base_url()) {
-  tm_request("api/time_predictions", base_url = base_url)
+tm_time_predictions <- function(route_id, base_url = tm_base_url()) {
+  tm_request(
+    "api/time_predictions",
+    query = list(route_id = route_id),
+    base_url = base_url
+  )
+}
+
+#' List all available routes
+#'
+#' Returns a manifest of all routes supported by the TransitMatters dashboard,
+#' grouped by transit mode.
+#'
+#' @inheritParams tm_healthcheck
+#' @return A list with elements `rapid_transit`, `bus`, `commuter_rail`, and
+#'   `ferry`, each containing a character vector of route IDs.
+#' @export
+#' @examples
+#' \dontrun{
+#' tm_routes()
+#' }
+tm_routes <- function(base_url = tm_base_url()) {
+  tm_request("api/routes", base_url = base_url)
+}
+
+#' Get stop information for a route
+#'
+#' Returns station and stop data for the given route, including names, IDs,
+#' and directions.
+#'
+#' @param route_id MBTA route identifier, e.g. `"Red"` or `"CR-Fairmount"`.
+#' @param base_url Base URL of the TransitMatters API. Defaults to
+#'   `getOption("tm_dashboard_base_url")` or the production host.
+#' @return A list with elements `type`, `direction`, `stations`, and optionally
+#'   `service_start` and `service_end`.
+#' @export
+#' @examples
+#' \dontrun{
+#' tm_stops("Red")
+#' tm_stops("CR-Fairmount")
+#' }
+tm_stops <- function(route_id, base_url = tm_base_url()) {
+  tm_request(c("api", "stops", route_id), base_url = base_url)
 }
 
 #' Get the service ridership dashboard summary

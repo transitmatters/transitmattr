@@ -4,10 +4,13 @@
 \alias{tm_dwells}
 \title{Get dwell time data for a date}
 \usage{
-tm_dwells(user_date, base_url = tm_base_url())
+tm_dwells(user_date, stops = NULL, base_url = tm_base_url())
 }
 \arguments{
 \item{user_date}{A \code{Date} object or a \code{"YYYY-MM-DD"} string.}
+
+\item{stops}{A character vector of stop IDs to filter by. If \code{NULL} (default),
+returns data for all stops.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -21,5 +24,6 @@ Get dwell time data for a date
 \examples{
 \dontrun{
 tm_dwells("2024-01-15")
+tm_dwells("2024-01-15", stops = "70061")
 }
 }

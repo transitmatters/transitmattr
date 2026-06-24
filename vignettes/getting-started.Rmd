@@ -65,7 +65,8 @@ of data together. Think of it like a backpack: you have to reach in and grab
 the thing you want.
 
 ```{r list-example, eval = FALSE}
-result <- tm_headways("2024-01-15")
+# Stop 70076 is the Park Street northbound platform
+result <- tm_headways("2024-01-15", stops = "70076")
 
 # See what's inside:
 names(result)
@@ -80,22 +81,48 @@ A helpful trick — `str()` shows you the whole structure at a glance:
 str(result, max.level = 2)
 ```
 
+## Stop IDs
+
+Several functions (`tm_headways`, `tm_dwells`, `tm_travel_times`) need
+**platform stop IDs** rather than station names. Each platform has a separate ID
+for each direction. Here are the Red Line trunk stops:
+
+| Station | Northbound (→ Alewife) | Southbound (→ Ashmont/Braintree) |
+|---|---|---|
+| Alewife | `70061` | `70061` |
+| Davis | `70064` | `70063` |
+| Porter | `70066` | `70065` |
+| Harvard | `70068` | `70067` |
+| Central | `70070` | `70069` |
+| Kendall/MIT | `70072` | `70071` |
+| Charles/MGH | `70074` | `70073` |
+| Park Street | `70076` | `70075` |
+| Downtown Crossing | `70078` | `70077` |
+| South Station | `70080` | `70079` |
+
+You can find stop IDs for all lines via the
+[MBTA GTFS feed](https://www.mbta.com/developers/gtfs) or by calling
+`tm_facilities()`.
+
 ## Step 3: Pull data for a single day
 
-These functions just need a date. You can write it as a string `"YYYY-MM-DD"`.
+These functions need a date and, for stop-level data, one or more stop IDs.
 
 ```{r single-day, eval = FALSE}
-# Headways (how often trains arrive) on a specific day
-headways <- tm_headways("2024-01-15")
+# Headways (how often trains arrive) at Park Street northbound
+headways <- tm_headways("2024-01-15", stops = "70076")
 
-# Dwell times (how long trains stop)
-dwells <- tm_dwells("2024-01-15")
+# Multiple stops at once
+headways_multi <- tm_headways("2024-01-15", stops = c("70076", "70064"))
 
-# Travel times between stops
-travel <- tm_travel_times("2024-01-15")
+# Dwell times at Park Street northbound
+dwells <- tm_dwells("2024-01-15", stops = "70076")
 
-# Alerts (service disruptions)
-alerts <- tm_alerts("2024-01-15")
+# Travel times between two stops (Park Street → Davis, northbound)
+travel <- tm_travel_times("2024-01-15", from_stops = "70076", to_stops = "70064")
+
+# Alerts (service disruptions) — no stop ID needed, but route ID needed
+alerts <- tm_alerts("2024-01-15", routes = "Red")
 ```
 
 ## Step 4: Pull data over a date range
@@ -139,14 +166,14 @@ The API gives back a list, but most R analysis tools (like `ggplot2`) prefer a
 library(dplyr)
 library(transitmattr)
 
-# Pull ridership data
-ridership_raw <- tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+# Pull headway data for Park Street northbound
+headways_raw <- tm_headways("2024-01-15", stops = "70076")
 
-# Each item in ridership_raw is one record — bind them into rows
-ridership_df <- bind_rows(ridership_raw)
+# Each item is one headway event — bind them into rows
+headways_df <- bind_rows(headways_raw)
 
 # Now it looks like a spreadsheet
-head(ridership_df)
+head(headways_df)
 ```
 
 > **Tip:** If `bind_rows()` doesn't work, try
@@ -182,10 +209,10 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 |---|---|---|
 | `tm_healthcheck()` | API status | nothing |
 | `tm_facilities()` | All MBTA stations | nothing |
-| `tm_headways(date)` | Train frequency | one date |
-| `tm_dwells(date)` | Station dwell times | one date |
-| `tm_travel_times(date)` | Stop-to-stop travel | one date |
 | `tm_alerts(date)` | Service alerts | optional date |
+| `tm_headways(date, stops)` | Train frequency | date + stop IDs |
+| `tm_dwells(date, stops)` | Station dwell times | date + stop IDs |
+| `tm_travel_times(date, from, to)` | Stop-to-stop travel | date + stop ID pair |
 | `tm_ridership(start, end)` | Ridership counts | date range |
 | `tm_trip_metrics(start, end, agg, line)` | Trip performance | date range + line |
 | `tm_line_delays(start, end, line)` | Delay summaries | date range + line |

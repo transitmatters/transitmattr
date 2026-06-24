@@ -4,11 +4,15 @@
 \alias{tm_alerts}
 \title{Get MBTA service alerts}
 \usage{
-tm_alerts(user_date = NULL, base_url = tm_base_url())
+tm_alerts(user_date = NULL, routes = NULL, base_url = tm_base_url())
 }
 \arguments{
 \item{user_date}{A \code{Date} object, a \code{"YYYY-MM-DD"} string, or \code{NULL}
 (default) for current alerts.}
+
+\item{routes}{A character vector of route IDs to filter by (e.g.
+\code{"Red"}, \code{c("Red", "Orange")}). If \code{NULL} (default), all alerts are
+returned. Only used when \code{user_date} is supplied.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -24,5 +28,7 @@ returning current alerts. Pass a date to retrieve alerts for a specific day.
 \dontrun{
 tm_alerts()
 tm_alerts("2024-01-15")
+tm_alerts("2024-01-15", routes = "Red")
+tm_alerts("2024-01-15", routes = c("Red", "Orange"))
 }
 }

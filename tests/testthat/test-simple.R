@@ -18,7 +18,7 @@ test_that("tm_time_predictions returns a list", {
   httr2::local_mocked_responses(
     function(req) mock_response('{"predictions":[]}')
   )
-  result <- tm_time_predictions()
+  result <- tm_time_predictions("Red")
   expect_type(result, "list")
 })
 

@@ -4,10 +4,19 @@
 \alias{tm_travel_times}
 \title{Get travel time data for a date}
 \usage{
-tm_travel_times(user_date, base_url = tm_base_url())
+tm_travel_times(
+  user_date,
+  from_stops = NULL,
+  to_stops = NULL,
+  base_url = tm_base_url()
+)
 }
 \arguments{
 \item{user_date}{A \code{Date} object or a \code{"YYYY-MM-DD"} string.}
+
+\item{from_stops}{A character vector of origin stop IDs to filter by.}
+
+\item{to_stops}{A character vector of destination stop IDs to filter by.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -22,5 +31,6 @@ Get travel time data for a date
 \examples{
 \dontrun{
 tm_travel_times("2024-01-15")
+tm_travel_times("2024-01-15", from_stops = "70061", to_stops = "70063")
 }
 }

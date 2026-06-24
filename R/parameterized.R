@@ -138,28 +138,28 @@ tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
 #' Get service hours data
 #'
 #' Returns total revenue service hours aggregated over a date range. Optionally
-#' filtered to a single route.
+#' filtered to a single line.
 #'
 #' @inheritParams tm_line_delays
 #' @param agg Aggregation level, e.g. `"daily"` or `"weekly"`.
-#' @param single_route_id Optional MBTA route ID to filter results.
+#' @param line_id Optional MBTA line identifier, e.g. `"line-red"`, to filter results.
 #' @return A list of service hours records.
 #' @export
 #' @examples
 #' \dontrun{
 #' tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
 #' tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-#'                  single_route_id = "Red")
+#'                  line_id = "line-red")
 #' }
-tm_service_hours <- function(start_date, end_date, agg, single_route_id = NULL,
+tm_service_hours <- function(start_date, end_date, agg, line_id = NULL,
                              base_url = tm_base_url()) {
   tm_request(
     "api/service_hours",
     query = list(
-      start_date      = .tm_date(start_date),
-      end_date        = .tm_date(end_date),
-      agg             = agg,
-      single_route_id = single_route_id
+      start_date = .tm_date(start_date),
+      end_date   = .tm_date(end_date),
+      agg        = agg,
+      line_id    = if (!is.null(line_id)) .tm_gtfs_line_id(line_id)
     ),
     base_url = base_url
   )
