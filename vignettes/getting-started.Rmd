@@ -132,6 +132,22 @@ trips <- tm_trip_metrics(
   agg        = "daily",
   line       = "line-red"
 )
+
+# How many trips were scheduled to run each day
+scheduled <- tm_scheduled_service(
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31",
+  route_id    = "Red",
+  agg        = "daily"
+)
+
+# Total revenue service hours each day on the Red Line
+hours <- tm_service_hours(
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31",
+  agg        = "daily",
+  line_id    = "Red"
+)
 ```
 
 **Available line IDs:**
@@ -144,7 +160,7 @@ trips <- tm_trip_metrics(
 | Green Line  | `"line-green"`      |
 | Commuter    | `"line-cr"`         |
 
-## Step 6: Turn the result into a data frame
+## Step 8: Turn the result into a data frame
 
 The API gives back a list, but most R analysis tools (like `ggplot2`) prefer a
 **data frame**. Here's the easiest way to convert:
@@ -167,7 +183,7 @@ head(ridership_df)
 > `do.call(rbind, lapply(ridership_raw, as.data.frame))` — it's a bit more
 > verbose but handles some tricky list shapes.
 
-## Step 7: Make a quick plot
+## Step 9: Make a quick plot
 
 Once you have a data frame you can plot with `ggplot2`:
 
@@ -190,11 +206,54 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   theme_minimal()
 ```
 
+## Step 7: Aggregate endpoints
+
+The aggregate endpoints return long-run averages rather than individual trip
+events — useful for trend analysis over weeks or months.
+
+```{r aggregate, eval = FALSE}
+# Average travel time from Park Street to Davis, by date
+travel_agg <- tm_aggregate_travel_times(
+  from_stop  = "70076",
+  to_stop    = "70064",
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+
+# Same data via the v2 endpoint (returns by_date and by_time breakdowns)
+travel_agg2 <- tm_aggregate_travel_times2(
+  from_stop  = "70076",
+  to_stop    = "70064",
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+
+# Average headways at a stop over a date range
+headways_agg <- tm_aggregate_headways(
+  stop       = "70061",
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+
+# Average dwell times at a stop over a date range
+dwells_agg <- tm_aggregate_dwells(
+  stop       = "70061",
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+```
+
+> **Tip:** The v2 travel times endpoint (`tm_aggregate_travel_times2`) is used
+> in the Red Line Analysis vignette for a worked plotting example.
+
 ## Recap: the functions at a glance
 
 | Function | What it returns | Needs |
 |---|---|---|
 | `tm_healthcheck()` | API status | nothing |
+| `tm_git_id()` | Server git commit SHA | nothing |
+| `tm_time_predictions()` | Live time predictions | nothing |
+| `tm_service_ridership_dashboard()` | System-wide ridership summary | nothing |
 | `tm_facilities()` | All MBTA stations | nothing |
 | `tm_routes()` | All available routes by mode | nothing |
 | `tm_stops(route_id)` | Stop IDs for a route | route ID |
@@ -205,9 +264,13 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 | `tm_ridership(start, end)` | Ridership counts | date range |
 | `tm_trip_metrics(start, end, agg, line)` | Trip performance | date range + line |
 | `tm_line_delays(start, end, line)` | Delay summaries | date range + line |
+| `tm_scheduled_service(start, end, agg)` | Scheduled trip counts | date range + agg |
+| `tm_service_hours(start, end, agg, line_id)` | Revenue service hours | date range + agg + line |
 | `tm_speed_restrictions(line_id, date)` | Slow zones | line + date |
 | `tm_aggregate_travel_times(...)` | Long-run travel time trends | stop pair + range |
+| `tm_aggregate_travel_times2(...)` | Long-run travel times (v2, with by_date/by_time) | stop pair + range |
 | `tm_aggregate_headways(...)` | Long-run headway trends | stop + range |
+| `tm_aggregate_dwells(...)` | Long-run dwell time trends | stop + range |
 
 Next, check out the **Red Line Analysis** vignette for a full worked example
 that goes from raw API data to a polished chart.

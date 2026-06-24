@@ -54,17 +54,16 @@ tm_trip_metrics <- function(start_date, end_date, agg, line, base_url = tm_base_
 
 #' Get scheduled service data
 #'
-#' Returns scheduled service counts aggregated over a date range. Optionally
-#' filtered to a single route.
+#' Returns scheduled service counts aggregated over a date range for a single
+#' MBTA route.
 #'
 #' @inheritParams tm_line_delays
 #' @param agg Aggregation level, e.g. `"daily"` or `"weekly"`.
-#' @param route_id Optional MBTA route ID to filter results.
+#' @param route_id MBTA route ID, e.g. `"Red"`, `"Orange"`, `"Green-B"`.
 #' @return A list of scheduled service records.
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily")
 #' tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily",
 #'                      route_id = "Red")
 #' }
@@ -137,29 +136,33 @@ tm_speed_restrictions <- function(line_id, on_date, base_url = tm_base_url()) {
 
 #' Get service hours data
 #'
-#' Returns total revenue service hours aggregated over a date range. Optionally
-#' filtered to a single route.
+#' Returns scheduled vs. delivered service hours aggregated over a date range
+#' for a single MBTA line.
 #'
-#' @inheritParams tm_line_delays
+#' @param start_date Start of the date range. A `Date` object or `"YYYY-MM-DD"`
+#'   string.
+#' @param end_date End of the date range. A `Date` object or `"YYYY-MM-DD"`
+#'   string.
 #' @param agg Aggregation level, e.g. `"daily"` or `"weekly"`.
-#' @param single_route_id Optional MBTA route ID to filter results.
+#' @param line_id MBTA line identifier, e.g. `"line-red"`.
+#' @param base_url Base URL of the TransitMatters API. Defaults to
+#'   `getOption("tm_dashboard_base_url")` or the production host.
 #' @return A list of service hours records.
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
 #' tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-#'                  single_route_id = "Red")
+#'                  line_id = "line-red")
 #' }
-tm_service_hours <- function(start_date, end_date, agg, single_route_id = NULL,
+tm_service_hours <- function(start_date, end_date, agg, line_id = NULL,
                              base_url = tm_base_url()) {
   tm_request(
     "api/service_hours",
     query = list(
-      start_date      = .tm_date(start_date),
-      end_date        = .tm_date(end_date),
-      agg             = agg,
-      single_route_id = single_route_id
+      start_date = .tm_date(start_date),
+      end_date   = .tm_date(end_date),
+      agg        = agg,
+      line_id    = if (!is.null(line_id)) tolower(.tm_gtfs_line_id(line_id))
     ),
     base_url = base_url
   )
