@@ -55,7 +55,7 @@ tm_aggregate_travel_times2 <- function(..., base_url = tm_base_url()) {
 #' @examples
 #' \dontrun{
 #' tm_aggregate_headways(
-#'   stop       = "place-davis",
+#'   stop       = "70063",
 #'   start_date = "2024-01-01",
 #'   end_date   = "2024-01-31"
 #' )
@@ -75,7 +75,7 @@ tm_aggregate_headways <- function(..., base_url = tm_base_url()) {
 #' @examples
 #' \dontrun{
 #' tm_aggregate_dwells(
-#'   stop       = "place-davis",
+#'   stop       = "70063",
 #'   start_date = "2024-01-01",
 #'   end_date   = "2024-01-31"
 #' )
