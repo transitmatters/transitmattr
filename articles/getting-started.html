@@ -34,7 +34,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started with transitmattr</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Worked examples</h6></li>
     <li><a class="dropdown-item" href="../articles/red-line-analysis.html">Red Line Analysis: A Worked Example</a></li>
+    <li><a class="dropdown-item" href="../articles/bus-headways.html">Bus Headway Analysis: Route 1</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Reference guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/finding-stops.html">Finding Stops by Name</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -177,7 +183,7 @@ options.</p>
 <span><span class="va">ridership</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span></span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
-<span>  line_id    <span class="op">=</span> <span class="st">"line-red"</span></span>
+<span>  line_id    <span class="op">=</span> <span class="st">"Red"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Daily trip metrics for the Red Line</span></span>
@@ -185,7 +191,7 @@ options.</p>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
 <span>  agg        <span class="op">=</span> <span class="st">"daily"</span>,</span>
-<span>  line       <span class="op">=</span> <span class="st">"line-red"</span></span>
+<span>  line       <span class="op">=</span> <span class="st">"Red"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># How many trips were scheduled to run each day</span></span>
@@ -214,19 +220,19 @@ options.</p>
 <tbody>
 <tr class="odd">
 <td>Red Line</td>
-<td><code>"line-red"</code></td>
+<td><code>"Red"</code></td>
 </tr>
 <tr class="even">
 <td>Orange Line</td>
-<td><code>"line-orange"</code></td>
+<td><code>"Orange"</code></td>
 </tr>
 <tr class="odd">
 <td>Blue Line</td>
-<td><code>"line-blue"</code></td>
+<td><code>"Blue"</code></td>
 </tr>
 <tr class="even">
 <td>Green Line</td>
-<td><code>"line-green"</code></td>
+<td><code>"Green"</code></td>
 </tr>
 <tr class="odd">
 <td>Commuter</td>
@@ -246,7 +252,7 @@ easiest way to convert:</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://transitmatters.github.io/transitmattr/">transitmattr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Pull ridership data</span></span>
-<span><span class="va">ridership_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"line-red"</span><span class="op">)</span></span>
+<span><span class="va">ridership_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Each item in ridership_raw is one record — bind them into rows</span></span>
 <span><span class="va">ridership_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">ridership_raw</span><span class="op">)</span></span>
@@ -270,7 +276,7 @@ a bit more verbose but handles some tricky list shapes.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://transitmatters.github.io/transitmattr/">transitmattr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ridership_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"line-red"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ridership_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>

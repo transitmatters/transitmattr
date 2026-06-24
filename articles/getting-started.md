@@ -125,7 +125,7 @@ Most analysis requires looking at a range of dates. These functions take
 ridership <- tm_ridership(
   start_date = "2024-01-01",
   end_date   = "2024-01-31",
-  line_id    = "line-red"
+  line_id    = "Red"
 )
 
 # Daily trip metrics for the Red Line
@@ -133,7 +133,7 @@ trips <- tm_trip_metrics(
   start_date = "2024-01-01",
   end_date   = "2024-01-31",
   agg        = "daily",
-  line       = "line-red"
+  line       = "Red"
 )
 
 # How many trips were scheduled to run each day
@@ -157,10 +157,10 @@ hours <- tm_service_hours(
 
 | Line        | `line_id` / `line` |
 |-------------|--------------------|
-| Red Line    | `"line-red"`       |
-| Orange Line | `"line-orange"`    |
-| Blue Line   | `"line-blue"`      |
-| Green Line  | `"line-green"`     |
+| Red Line    | `"Red"`            |
+| Orange Line | `"Orange"`         |
+| Blue Line   | `"Blue"`           |
+| Green Line  | `"Green"`          |
 | Commuter    | `"line-cr"`        |
 
 ## Step 8: Turn the result into a data frame
@@ -174,7 +174,7 @@ library(dplyr)
 library(transitmattr)
 
 # Pull ridership data
-ridership_raw <- tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+ridership_raw <- tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 
 # Each item in ridership_raw is one record — bind them into rows
 ridership_df <- bind_rows(ridership_raw)
@@ -200,7 +200,7 @@ library(dplyr)
 library(transitmattr)
 
 ridership_df <- bind_rows(
-  tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+  tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 )
 
 ggplot(ridership_df, aes(x = as.Date(date), y = count)) +

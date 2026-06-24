@@ -5,7 +5,13 @@ Returns alert-based delay summaries for an MBTA line over a date range.
 ## Usage
 
 ``` r
-tm_line_delays(start_date, end_date, line, base_url = tm_base_url())
+tm_line_delays(
+  start_date,
+  end_date,
+  line,
+  agg = NULL,
+  base_url = tm_base_url()
+)
 ```
 
 ## Arguments
@@ -22,6 +28,11 @@ tm_line_delays(start_date, end_date, line, base_url = tm_base_url())
 
   MBTA line identifier, e.g. `"line-red"`.
 
+- agg:
+
+  Aggregation level: `"daily"` or `"weekly"`. Defaults to `"weekly"` if
+  `NULL`.
+
 - base_url:
 
   Base URL of the TransitMatters API. Defaults to
@@ -36,5 +47,6 @@ A list of line delay records.
 ``` r
 if (FALSE) { # \dontrun{
 tm_line_delays("2024-01-01", "2024-01-31", line = "line-red")
+tm_line_delays("2024-01-01", "2024-01-31", line = "line-red", agg = "daily")
 } # }
 ```

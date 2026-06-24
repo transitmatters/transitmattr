@@ -1,14 +1,18 @@
 # Get current time predictions
 
-Get current time predictions
+Returns time prediction accuracy data for an MBTA route.
 
 ## Usage
 
 ``` r
-tm_time_predictions(base_url = tm_base_url())
+tm_time_predictions(route_id, base_url = tm_base_url())
 ```
 
 ## Arguments
+
+- route_id:
+
+  Route identifier, e.g. `"Red"`, `"CR-Fairmount"`.
 
 - base_url:
 
@@ -17,12 +21,12 @@ tm_time_predictions(base_url = tm_base_url())
 
 ## Value
 
-A list of time prediction objects.
+A list with a `predictions` field.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_time_predictions()
+tm_time_predictions("Red")
 } # }
 ```

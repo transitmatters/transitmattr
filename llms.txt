@@ -111,6 +111,46 @@ MIT
 
 # Package index
 
+## Stop Lookup — Rapid Transit
+
+- [`tm_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_stop_id.md)
+  : Look up numeric stop IDs for a rapid transit station
+- [`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
+  : Look up the GTFS place ID for a rapid transit station
+- [`tm_line_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_line_stations.md)
+  : List all stations on a rapid transit line
+- [`tm_line_directions()`](https://transitmatters.github.io/transitmattr/reference/tm_line_directions.md)
+  : Get direction names for a rapid transit line
+
+## Stop Lookup — Bus
+
+- [`tm_bus_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_stop_id.md)
+  : Look up stop IDs for a bus route station
+- [`tm_bus_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_stations.md)
+  : List all stations on a bus route
+- [`tm_bus_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.md)
+  : List all available bus routes
+
+## Stop Lookup — Commuter Rail
+
+- [`tm_cr_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_stop_id.md)
+  : Look up stop IDs for a commuter rail station
+- [`tm_cr_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_place_id.md)
+  : Look up the GTFS place ID for a commuter rail station
+- [`tm_cr_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_stations.md)
+  : List all stations on a commuter rail line
+- [`tm_cr_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.md)
+  : List all available commuter rail routes
+
+## Stop Lookup — Ferry
+
+- [`tm_ferry_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_stop_id.md)
+  : Look up stop IDs for a ferry station
+- [`tm_ferry_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_stations.md)
+  : List all stations on a ferry route
+- [`tm_ferry_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.md)
+  : List all available ferry routes
+
 ## Travel Times
 
 - [`tm_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_travel_times.md)
@@ -173,9 +213,19 @@ MIT
 
 # Articles
 
-### All vignettes
+### Getting started
 
 - [Getting Started with
   transitmattr](https://transitmatters.github.io/transitmattr/articles/getting-started.md):
+
+### Worked examples
+
 - [Red Line Analysis: A Worked
   Example](https://transitmatters.github.io/transitmattr/articles/red-line-analysis.md):
+- [Bus Headway Analysis: Route
+  1](https://transitmatters.github.io/transitmattr/articles/bus-headways.md):
+
+### Reference
+
+- [Finding Stops by
+  Name](https://transitmatters.github.io/transitmattr/articles/finding-stops.md):

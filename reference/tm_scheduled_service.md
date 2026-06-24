@@ -1,7 +1,7 @@
 # Get scheduled service data
 
-Returns scheduled service counts aggregated over a date range.
-Optionally filtered to a single route.
+Returns scheduled service counts aggregated over a date range for a
+single MBTA route.
 
 ## Usage
 
@@ -31,7 +31,7 @@ tm_scheduled_service(
 
 - route_id:
 
-  Optional MBTA route ID to filter results.
+  MBTA route ID, e.g. `"Red"`, `"Orange"`, `"Green-B"`.
 
 - base_url:
 
@@ -46,7 +46,6 @@ A list of scheduled service records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily")
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily",
                      route_id = "Red")
 } # }

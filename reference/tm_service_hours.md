@@ -1,7 +1,7 @@
 # Get service hours data
 
-Returns total revenue service hours aggregated over a date range.
-Optionally filtered to a single route.
+Returns scheduled vs. delivered service hours aggregated over a date
+range for a single MBTA line.
 
 ## Usage
 
@@ -10,7 +10,7 @@ tm_service_hours(
   start_date,
   end_date,
   agg,
-  single_route_id = NULL,
+  line_id = NULL,
   base_url = tm_base_url()
 )
 ```
@@ -29,9 +29,9 @@ tm_service_hours(
 
   Aggregation level, e.g. `"daily"` or `"weekly"`.
 
-- single_route_id:
+- line_id:
 
-  Optional MBTA route ID to filter results.
+  MBTA line identifier, e.g. `"line-red"`.
 
 - base_url:
 
@@ -46,8 +46,7 @@ A list of service hours records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-                 single_route_id = "Red")
+                 line_id = "line-red")
 } # }
 ```

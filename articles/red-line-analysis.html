@@ -34,7 +34,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started with transitmattr</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Worked examples</h6></li>
     <li><a class="dropdown-item" href="../articles/red-line-analysis.html">Red Line Analysis: A Worked Example</a></li>
+    <li><a class="dropdown-item" href="../articles/bus-headways.html">Bus Headway Analysis: Route 1</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Reference guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/finding-stops.html">Finding Stops by Name</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -102,7 +108,7 @@ needed.</p>
 <code class="sourceCode R"><span><span class="va">ridership_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span></span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
-<span>  line_id    <span class="op">=</span> <span class="st">"line-Red"</span></span>
+<span>  line_id    <span class="op">=</span> <span class="st">"Red"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><code>ridership_raw</code> is a <strong>list</strong> where each item
 represents one day’s record. Let’s flatten it into a data frame:</p>
@@ -164,7 +170,7 @@ long-run averages rather than individual trips.</p>
 parent station IDs. Each station has separate IDs for each direction.
 Use <code><a href="../reference/tm_stops.html">tm_stops()</a></code> to look them up:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">red_stops</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_stops.html">tm_stops</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span>  <span class="co"># MBTA route ID, not "line-red"</span></span>
+<code class="sourceCode R"><span><span class="va">red_stops</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_stops.html">tm_stops</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Stations are in red_stops$stations — explore one</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">red_stops</span><span class="op">$</span><span class="va">stations</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
@@ -244,7 +250,7 @@ section 3.</p>
 <p>Speed restrictions (“slow zones”) are places where trains must go
 slower than normal, usually because of track issues.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">slow_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_speed_restrictions.html">tm_speed_restrictions</a></span><span class="op">(</span><span class="st">"line-Red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">slow_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_speed_restrictions.html">tm_speed_restrictions</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">slow_raw</span><span class="op">$</span><span class="va">available</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>

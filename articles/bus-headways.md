@@ -1,0 +1,198 @@
+# Bus Headway Analysis: Route 1
+
+Route 1 is one of the busiest bus routes in the MBTA system, running
+between Harvard Square and Nubian Station through Cambridge and the
+South End. This vignette uses the stop lookup functions to pull and plot
+headway data without needing to know a single stop ID up front.
+
+## Setup
+
+``` r
+
+library(transitmattr)
+library(dplyr)
+library(ggplot2)
+```
+
+## Step 1: Discover the route
+
+Start by listing all stops on Route 1 so you can pick the ones you care
+about.
+
+``` r
+
+tm_bus_stations("1")
+```
+
+You’ll see stops listed in order from Harvard to Nubian. The `station`
+column holds the short code used internally; `stop_name` is what you’ll
+use with
+[`tm_bus_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_stop_id.md).
+
+Since bus directions are always `"outbound"` (away from downtown) and
+`"inbound"` (toward downtown), we don’t need a discovery step for
+directions.
+
+## Step 2: Pull headways for a single day
+
+Let’s look at headways at **MIT @ Mass Ave** — a busy mid-route stop —
+for both directions on a typical winter weekday.
+
+``` r
+
+date <- "2024-01-16"  # Tuesday
+
+inbound  <- tm_headways(date,
+                        stop = tm_bus_stop_id("1", "MIT @ Mass Ave", "inbound"))
+outbound <- tm_headways(date,
+                        stop = tm_bus_stop_id("1", "MIT @ Mass Ave", "outbound"))
+```
+
+Each result is a list of individual bus arrivals. Bind them into a
+single data frame and add a `direction` label:
+
+``` r
+
+headways_df <- bind_rows(
+  bind_rows(inbound)  |> mutate(direction = "Inbound (→ Nubian)"),
+  bind_rows(outbound) |> mutate(direction = "Outbound (→ Harvard)")
+)
+
+glimpse(headways_df)
+```
+
+## Step 3: Convert times and filter
+
+The departure timestamp (`current_dep_dt`) comes back as an ISO 8601
+string (e.g. `"2024-01-16T09:30:00"`). Convert it and keep only the
+daytime service window.
+
+``` r
+
+headways_df <- headways_df |>
+  mutate(
+    dep_time      = as.POSIXct(current_dep_dt, format = "%Y-%m-%dT%H:%M:%S",
+                                tz = "America/New_York"),
+    headway_min   = headway_time_sec / 60,
+    benchmark_min = benchmark_headway_time_sec / 60,
+    hour          = as.integer(format(dep_time, "%H"))
+  ) |>
+  filter(hour >= 6, hour <= 22)
+```
+
+## Step 4: Plot headways over the day
+
+``` r
+
+ggplot(headways_df, aes(x = dep_time, y = headway_min, color = direction)) +
+  geom_point(alpha = 0.4, size = 1.2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  scale_color_manual(values = c(
+    "Inbound (→ Nubian)"    = "#003DA5",
+    "Outbound (→ Harvard)"  = "#80A8DD"
+  )) +
+  labs(
+    title    = "Route 1 Headways at MIT @ Mass Ave",
+    subtitle = paste("January 16, 2024 ·", date),
+    x        = NULL,
+    y        = "Minutes between buses",
+    color    = NULL
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+> **What to look for:** Peaks in headway mean longer waits between buses
+> — often during the AM peak (more inbound demand) or the PM peak (more
+> outbound demand). A headway above 15 minutes on a route that’s
+> supposed to run every 8 minutes suggests a gap in service.
+
+## Step 5: Compare actual vs. scheduled headway
+
+The `benchmark_headway_time_sec` field is what the schedule promised.
+Comparing it to actual headway shows where the route is running behind
+schedule.
+
+``` r
+
+headways_df |>
+  filter(direction == "Inbound (→ Nubian)") |>
+  mutate(
+    excess_min = headway_min - benchmark_min
+  ) |>
+  ggplot(aes(x = dep_time, y = excess_min)) +
+  geom_col(aes(fill = excess_min > 0), width = 60) +
+    scale_fill_manual(
+      values = c("FALSE" = "#80A8DD", "TRUE" = "#DA291C"),
+      labels = c("Under schedule", "Over schedule"),
+      name   = NULL
+    ) +
+    geom_hline(yintercept = 0, linewidth = 0.4) +
+    labs(
+      title    = "Route 1 Inbound — Excess Wait vs. Schedule",
+      subtitle = "MIT @ Mass Ave · January 16, 2024",
+      x        = NULL,
+      y        = "Extra minutes beyond scheduled headway"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "top")
+```
+
+> **Red bars** are moments when the actual gap between buses exceeded
+> the scheduled gap. Clusters of red bars often indicate bus bunching —
+> a common problem on long surface routes where small delays compound.
+
+## Step 6: Aggregate over a month
+
+For a broader view, use
+[`tm_aggregate_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_headways.md),
+which returns daily averages rather than individual events.
+
+``` r
+
+agg_raw <- tm_aggregate_headways(
+  stop       = tm_bus_stop_id("1", "MIT @ Mass Ave", "inbound"),
+  start_date = "2024-01-01",
+  end_date   = "2024-01-31"
+)
+
+agg_df <- bind_rows(agg_raw) |>
+  mutate(date = as.Date(service_date))
+```
+
+``` r
+
+ggplot(agg_df, aes(x = date, y = mean / 60)) +
+  geom_line(color = "#003DA5") +
+  geom_smooth(method = "loess", se = FALSE, linetype = "dashed",
+              color = "grey50") +
+  labs(
+    title    = "Route 1 Average Inbound Headway — January 2024",
+    subtitle = "MIT @ Mass Ave",
+    x        = NULL,
+    y        = "Average headway (minutes)"
+  ) +
+  theme_minimal()
+```
+
+## Going further
+
+Now that you can look up stops by name, try exploring other routes and
+stops:
+
+``` r
+
+# Which bus routes are available?
+tm_bus_routes()
+
+# Stops on Route 66 (Harvard → Dudley)
+tm_bus_stations("66")
+
+# Headways at Nubian on Route 1 — the southern terminus
+tm_headways("2024-01-16",
+  stop = tm_bus_stop_id("1", "Nubian Station", "inbound")
+)
+```
+
+See the **Finding Stops by Name** vignette for the full lookup API
+across all transit modes, including commuter rail and ferry.

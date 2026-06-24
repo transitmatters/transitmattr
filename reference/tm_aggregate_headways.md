@@ -30,7 +30,7 @@ A list of aggregated headway data.
 ``` r
 if (FALSE) { # \dontrun{
 tm_aggregate_headways(
-  stop       = "place-davis",
+  stop       = "70063",
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )

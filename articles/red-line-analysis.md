@@ -37,7 +37,7 @@ library(ggplot2)
 ridership_raw <- tm_ridership(
   start_date = "2024-01-01",
   end_date   = "2024-01-31",
-  line_id    = "line-Red"
+  line_id    = "Red"
 )
 ```
 
@@ -109,7 +109,7 @@ to look them up:
 
 ``` r
 
-red_stops <- tm_stops("Red")  # MBTA route ID, not "line-red"
+red_stops <- tm_stops("Red")
 
 # Stations are in red_stops$stations — explore one
 str(red_stops$stations[[1]])
@@ -190,7 +190,7 @@ than normal, usually because of track issues.
 
 ``` r
 
-slow_raw <- tm_speed_restrictions("line-Red", "2024-01-15")
+slow_raw <- tm_speed_restrictions("Red", "2024-01-15")
 ```
 
 ``` r
