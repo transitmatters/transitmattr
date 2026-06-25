@@ -21,7 +21,8 @@ string.}
 
 \item{agg}{Aggregation level, e.g. \code{"daily"} or \code{"weekly"}.}
 
-\item{line_id}{MBTA line identifier, e.g. \code{"line-red"}.}
+\item{line_id}{MBTA line identifier. Accepts any of \code{"Red"}, \code{"red"},
+\code{"line-red"}, or \code{"line-Red"} — all are equivalent.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -36,6 +37,6 @@ for a single MBTA line.
 \examples{
 \dontrun{
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-                 line_id = "line-red")
+                 line_id = "Red")
 }
 }

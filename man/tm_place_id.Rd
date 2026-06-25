@@ -17,8 +17,10 @@ tm_place_id(line, stop_name)
 A single GTFS place ID string.
 }
 \description{
-Returns the GTFS place identifier used by the aggregate travel-time
-endpoints (e.g. \code{"place-alfcl"}, \code{"place-davis"}).
+Returns the GTFS parent-station identifier (e.g. \code{"place-alfcl"},
+\code{"place-davis"}). These are provided for cross-referencing with the MBTA v3
+API. The TransitMatters aggregate endpoints expect stop IDs from
+\code{\link[=tm_stop_id]{tm_stop_id()}}, not place IDs.
 }
 \examples{
 tm_place_id("Red", "Alewife")

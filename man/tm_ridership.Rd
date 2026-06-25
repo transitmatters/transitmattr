@@ -13,7 +13,8 @@ string.}
 \item{end_date}{End of the date range. A \code{Date} object or \code{"YYYY-MM-DD"}
 string.}
 
-\item{line_id}{Optional MBTA line identifier, e.g. \code{"line-red"}.}
+\item{line_id}{Optional MBTA line identifier. Accepts any of \code{"Red"},
+\code{"red"}, \code{"line-red"}, or \code{"line-Red"} — all are equivalent.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -28,6 +29,6 @@ MBTA line.
 \examples{
 \dontrun{
 tm_ridership("2024-01-01", "2024-01-31")
-tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 }
 }

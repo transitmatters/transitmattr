@@ -15,7 +15,8 @@ string.}
 
 \item{agg}{Aggregation level, e.g. \code{"daily"} or \code{"weekly"}.}
 
-\item{line}{MBTA line identifier, e.g. \code{"line-red"}.}
+\item{line}{MBTA line identifier. Accepts any of \code{"Red"}, \code{"red"},
+\code{"line-red"}, or \code{"line-Red"} — all are equivalent.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -28,6 +29,6 @@ Returns per-trip performance metrics aggregated over a date range.
 }
 \examples{
 \dontrun{
-tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "line-red")
+tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "Red")
 }
 }

@@ -2,7 +2,10 @@
 #'
 #' Retrieves aggregated travel time data over a date range and stop pair.
 #' Common query parameters include `from_stop`, `to_stop`, `start_date`, and
-#' `end_date`.
+#' `end_date`. `from_stop` and `to_stop` take **stop IDs** (as returned by
+#' [tm_stop_id()], [tm_bus_stop_id()], or [tm_cr_stop_id()]), not place IDs.
+#' Multiple stop IDs for the same station can be passed by repeating the
+#' argument (e.g. `from_stop = c("70076", "70077")`).
 #'
 #' @param ... Named query parameters passed to the API (e.g., `from_stop`,
 #'   `to_stop`, `start_date`, `end_date`).
@@ -13,8 +16,8 @@
 #' @examples
 #' \dontrun{
 #' tm_aggregate_travel_times(
-#'   from_stop  = "place-pktrm",
-#'   to_stop    = "place-davis",
+#'   from_stop  = "70076",
+#'   to_stop    = "70061",
 #'   start_date = "2024-01-01",
 #'   end_date   = "2024-01-31"
 #' )
@@ -34,8 +37,8 @@ tm_aggregate_travel_times <- function(..., base_url = tm_base_url()) {
 #' @examples
 #' \dontrun{
 #' tm_aggregate_travel_times2(
-#'   from_stop  = "place-pktrm",
-#'   to_stop    = "place-davis",
+#'   from_stop  = "70076",
+#'   to_stop    = "70061",
 #'   start_date = "2024-01-01",
 #'   end_date   = "2024-01-31"
 #' )

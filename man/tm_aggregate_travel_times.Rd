@@ -19,13 +19,16 @@ A list with a \code{data} element.
 \description{
 Retrieves aggregated travel time data over a date range and stop pair.
 Common query parameters include \code{from_stop}, \code{to_stop}, \code{start_date}, and
-\code{end_date}.
+\code{end_date}. \code{from_stop} and \code{to_stop} take \strong{stop IDs} (as returned by
+\code{\link[=tm_stop_id]{tm_stop_id()}}, \code{\link[=tm_bus_stop_id]{tm_bus_stop_id()}}, or \code{\link[=tm_cr_stop_id]{tm_cr_stop_id()}}), not place IDs.
+Multiple stop IDs for the same station can be passed by repeating the
+argument (e.g. \code{from_stop = c("70076", "70077")}).
 }
 \examples{
 \dontrun{
 tm_aggregate_travel_times(
-  from_stop  = "place-pktrm",
-  to_stop    = "place-davis",
+  from_stop  = "70076",
+  to_stop    = "70061",
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )

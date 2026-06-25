@@ -19,7 +19,8 @@ string.}
 \item{end_date}{End of the date range. A \code{Date} object or \code{"YYYY-MM-DD"}
 string.}
 
-\item{line}{MBTA line identifier, e.g. \code{"Red"}.}
+\item{line}{MBTA line identifier. Accepts any of \code{"Red"}, \code{"red"},
+\code{"line-red"}, or \code{"line-Red"} — all are equivalent.}
 
 \item{agg}{Aggregation level: \code{"daily"} or \code{"weekly"}. Defaults to
 \code{"weekly"} if \code{NULL}.}

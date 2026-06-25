@@ -78,8 +78,10 @@ tm_stop_id <- function(line, stop_name, direction) {
 
 #' Look up the GTFS place ID for a rapid transit station
 #'
-#' Returns the GTFS place identifier used by the aggregate travel-time
-#' endpoints (e.g. `"place-alfcl"`, `"place-davis"`).
+#' Returns the GTFS parent-station identifier (e.g. `"place-alfcl"`,
+#' `"place-davis"`). These are provided for cross-referencing with the MBTA v3
+#' API. The TransitMatters aggregate endpoints expect stop IDs from
+#' [tm_stop_id()], not place IDs.
 #'
 #' @inheritParams tm_stop_id
 #' @return A single GTFS place ID string.
@@ -187,7 +189,7 @@ tm_line_directions <- function(line) {
 #' @export
 #' @examples
 #' tm_bus_stop_id("1", "Harvard", "inbound")
-#' tm_bus_stop_id("66", "Harvard Square", "outbound")
+#' tm_bus_stop_id("66", "Harvard", "outbound")
 tm_bus_stop_id <- function(route, stop_name, direction) {
   key       <- .tm_normalize_route(route, .tm_bus_stations, "bus", "tm_bus_routes")
   rd        <- .tm_bus_stations[[key]]
@@ -245,6 +247,10 @@ tm_cr_stop_id <- function(route, stop_name, direction) {
 }
 
 #' Look up the GTFS place ID for a commuter rail station
+#'
+#' Returns the GTFS parent-station identifier (e.g. `"place-sstat"`). These
+#' are provided for cross-referencing with the MBTA v3 API. The TransitMatters
+#' aggregate endpoints expect stop IDs from [tm_cr_stop_id()], not place IDs.
 #'
 #' @param route CR route ID. Use [tm_cr_routes()] to see all valid IDs.
 #' @param stop_name Station name (case-insensitive).

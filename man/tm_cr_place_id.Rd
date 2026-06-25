@@ -15,7 +15,9 @@ tm_cr_place_id(route, stop_name)
 A single GTFS place ID string (e.g. \code{"place-sstat"}).
 }
 \description{
-Look up the GTFS place ID for a commuter rail station
+Returns the GTFS parent-station identifier (e.g. \code{"place-sstat"}). These
+are provided for cross-referencing with the MBTA v3 API. The TransitMatters
+aggregate endpoints expect stop IDs from \code{\link[=tm_cr_stop_id]{tm_cr_stop_id()}}, not place IDs.
 }
 \examples{
 tm_cr_place_id("CR-Fairmount", "South Station")

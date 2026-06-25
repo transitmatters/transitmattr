@@ -23,8 +23,8 @@ query parameters as \code{\link[=tm_aggregate_travel_times]{tm_aggregate_travel_
 \examples{
 \dontrun{
 tm_aggregate_travel_times2(
-  from_stop  = "place-pktrm",
-  to_stop    = "place-davis",
+  from_stop  = "70076",
+  to_stop    = "70061",
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )

@@ -139,10 +139,11 @@ tm_ridership <- function(start_date, end_date, line_id = NULL,
 #' Get slow zone / speed restriction data
 #'
 #' Returns current or historical speed restrictions for an MBTA line on a given
-#' date.
+#' date. Only rapid transit lines are supported.
 #'
-#' @param line_id MBTA line identifier. Accepts any of `"Red"`, `"red"`,
-#'   `"line-red"`, or `"line-Red"` — all are equivalent.
+#' @param line_id Rapid transit line identifier. Valid lines: `"Red"`,
+#'   `"Orange"`, `"Blue"`, `"Green"`. Also accepts `"red"`, `"line-red"`,
+#'   `"line-Red"`, etc. — all are normalized internally.
 #' @param on_date The date to query. A `Date` object or `"YYYY-MM-DD"` string.
 #' @param base_url Base URL of the TransitMatters API. Defaults to
 #'   `getOption("tm_dashboard_base_url")` or the production host.

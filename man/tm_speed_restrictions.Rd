@@ -7,7 +7,9 @@
 tm_speed_restrictions(line_id, on_date, base_url = tm_base_url())
 }
 \arguments{
-\item{line_id}{MBTA line identifier, e.g. \code{"line-red"}.}
+\item{line_id}{Rapid transit line identifier. Valid lines: \code{"Red"},
+\code{"Orange"}, \code{"Blue"}, \code{"Green"}. Also accepts \code{"red"}, \code{"line-red"},
+\code{"line-Red"}, etc. — all are normalized internally.}
 
 \item{on_date}{The date to query. A \code{Date} object or \code{"YYYY-MM-DD"} string.}
 
@@ -19,10 +21,10 @@ A list of speed restriction records.
 }
 \description{
 Returns current or historical speed restrictions for an MBTA line on a given
-date.
+date. Only rapid transit lines are supported.
 }
 \examples{
 \dontrun{
-tm_speed_restrictions("line-red", "2024-01-15")
+tm_speed_restrictions("Red", "2024-01-15")
 }
 }

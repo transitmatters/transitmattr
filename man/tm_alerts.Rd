@@ -4,14 +4,14 @@
 \alias{tm_alerts}
 \title{Get MBTA service alerts}
 \usage{
-tm_alerts(user_date = NULL, route, base_url = tm_base_url())
+tm_alerts(user_date = NULL, route = NULL, base_url = tm_base_url())
 }
 \arguments{
 \item{user_date}{A \code{Date} object, a \code{"YYYY-MM-DD"} string, or \code{NULL}
 (default) for current alerts.}
 
-\item{route}{One or more MBTA route IDs (e.g. \code{"Red"}, \code{"Orange"}). Required.
-Use \code{\link[=tm_routes]{tm_routes()}} to list valid IDs.}
+\item{route}{One or more MBTA route IDs (e.g. \code{"Red"}, \code{"Orange"}). Only
+used when \code{user_date} is provided. Use \code{\link[=tm_routes]{tm_routes()}} to list valid IDs.}
 
 \item{base_url}{Base URL of the TransitMatters API. Defaults to
 \code{getOption("tm_dashboard_base_url")} or the production host.}
@@ -21,11 +21,12 @@ A list with an \code{alerts} element.
 }
 \description{
 When \code{user_date} is \code{NULL} the undated \verb{/api/alerts} endpoint is called,
-returning current alerts. Pass a date to retrieve alerts for a specific day.
+returning current live alerts (no parameters accepted). Pass a date to
+retrieve historical alerts for a specific day, optionally filtered by route.
 }
 \examples{
 \dontrun{
-tm_alerts(route = "Red")
+tm_alerts()
 tm_alerts("2024-01-15", route = "Red")
 }
 }

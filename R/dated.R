@@ -59,25 +59,32 @@ tm_travel_times <- function(user_date, from_stop, to_stop,
 #' Get MBTA service alerts
 #'
 #' When `user_date` is `NULL` the undated `/api/alerts` endpoint is called,
-#' returning current alerts. Pass a date to retrieve alerts for a specific day.
+#' returning current live alerts (no parameters accepted). Pass a date to
+#' retrieve historical alerts for a specific day, optionally filtered by route.
 #'
 #' @param user_date A `Date` object, a `"YYYY-MM-DD"` string, or `NULL`
 #'   (default) for current alerts.
-#' @param route One or more MBTA route IDs (e.g. `"Red"`, `"Orange"`). Required.
-#'   Use [tm_routes()] to list valid IDs.
+#' @param route One or more MBTA route IDs (e.g. `"Red"`, `"Orange"`). Only
+#'   used when `user_date` is provided. Use [tm_routes()] to list valid IDs.
 #' @param base_url Base URL of the TransitMatters API. Defaults to
 #'   `getOption("tm_dashboard_base_url")` or the production host.
 #' @return A list with an `alerts` element.
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_alerts(route = "Red")
+#' tm_alerts()
 #' tm_alerts("2024-01-15", route = "Red")
 #' }
-tm_alerts <- function(user_date = NULL, route, base_url = tm_base_url()) {
-  path <- if (is.null(user_date)) "api/alerts"
-          else c("api", "alerts", .tm_date(user_date))
-  tm_request(path, query = list(route = route), base_url = base_url)
+tm_alerts <- function(user_date = NULL, route = NULL, base_url = tm_base_url()) {
+  if (is.null(user_date)) {
+    tm_request("api/alerts", base_url = base_url)
+  } else {
+    tm_request(
+      c("api", "alerts", .tm_date(user_date)),
+      query = list(route = route),
+      base_url = base_url
+    )
+  }
 }
 
 #' Get stops for a route

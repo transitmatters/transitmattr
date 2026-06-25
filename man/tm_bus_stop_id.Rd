@@ -23,5 +23,5 @@ Look up stop IDs for a bus route station
 }
 \examples{
 tm_bus_stop_id("1", "Harvard", "inbound")
-tm_bus_stop_id("66", "Harvard Square", "outbound")
+tm_bus_stop_id("66", "Harvard", "outbound")
 }

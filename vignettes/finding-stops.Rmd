@@ -37,7 +37,6 @@ The five rapid transit lines are **Red**, **Orange**, **Blue**, **Green**, and
 ### Discover: what stations are on this line?
 
 ```{r rt-stations}
-library(transitmattr)
 tm_line_stations("Red")
 ```
 
@@ -70,8 +69,10 @@ tm_stop_id("Red", "Davis", 1)  # same as "southbound"
 
 ### Look up a place ID
 
-Some aggregate endpoints (like `tm_aggregate_travel_times()`) take a **place
-ID** instead of a stop ID. Place IDs refer to a whole station, not a platform.
+`tm_place_id()` returns the GTFS parent-station identifier for a rapid transit
+station (e.g. `"place-pktrm"`). These are **not** used by the TransitMatters
+aggregate endpoints — they are provided as a convenience if you need to cross-
+reference with the MBTA v3 API.
 
 ```{r rt-place-id}
 tm_place_id("Red", "Park Street")
@@ -80,19 +81,20 @@ tm_place_id("Red", "Davis")
 
 ### Using these in API calls
 
-```{r rt-api, eval = FALSE}
+```{r rt-api}
 # Headways at Davis, trains heading toward Alewife
-tm_headways("2024-01-15",
+davis_headways = tm_headways("2024-01-15",
   stop = tm_stop_id("Red", "Davis", "northbound")
 )
 
-# Travel time: Park Street → Davis (aggregate endpoint uses place IDs)
-tm_aggregate_travel_times2(
-  from_stop  = tm_place_id("Red", "Park Street"),
-  to_stop    = tm_place_id("Red", "Davis"),
+# Travel time: Park Street → Davis (aggregate endpoint uses stop IDs)
+parkst_2_davis_tt = tm_aggregate_travel_times2(
+  from_stop  = tm_stop_id("Red", "Park Street", "northbound"),
+  to_stop    = tm_stop_id("Red", "Davis", "northbound"),
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )
+
 ```
 
 ---
@@ -131,7 +133,7 @@ direction 1 (inbound), stop sequence 110.
 
 ### Using these in API calls
 
-```{r bus-api, eval = FALSE}
+```{r bus-api}
 # Headways at Harvard on Route 1, inbound, on a specific day
 harvard_headways = tm_headways("2024-01-15",
   stop = tm_bus_stop_id("1", "Harvard", "inbound")
@@ -185,8 +187,10 @@ tm_cr_stop_id("CR-Fairmount", "South Station", "outbound")
 
 ### Look up a place ID
 
-CR stations have proper GTFS place IDs (unlike bus or ferry). Use these with
-`tm_aggregate_travel_times()`.
+`tm_cr_place_id()` returns the GTFS parent-station identifier for a CR station
+(e.g. `"place-sstat"`). Like `tm_place_id()` for rapid transit, these are **not**
+used by the TransitMatters aggregate endpoints — they are provided for cross-
+referencing with the MBTA v3 API.
 
 ```{r cr-place-id}
 tm_cr_place_id("CR-Fairmount", "South Station")
@@ -195,16 +199,16 @@ tm_cr_place_id("CR-Fairmount", "Fairmount")
 
 ### Using these in API calls
 
-```{r cr-api, eval = FALSE}
+```{r cr-api}
 # Headways at Fairmount station, outbound
 tm_headways("2024-01-15",
   stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
 )
 
-# Aggregate travel time, Fairmount → South Station
+# Aggregate travel time, Fairmount → South Station (pass all platform stop IDs)
 tm_aggregate_travel_times(
-  from_stop  = tm_cr_place_id("CR-Fairmount", "Fairmount"),
-  to_stop    = tm_cr_place_id("CR-Fairmount", "South Station"),
+  from_stop  = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound"),
+  to_stop    = tm_cr_stop_id("CR-Fairmount", "South Station", "outbound"),
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )
@@ -242,7 +246,7 @@ tm_ferry_stop_id("Boat-F1", "Long Wharf (North)", "outbound")
 
 ### Using these in API calls
 
-```{r ferry-api, eval = FALSE}
+```{r ferry-api}
 # Headways at Hingham, inbound
 ferry_headways = tm_headways("2024-06-01",
   stop = tm_ferry_stop_id("Boat-F1", "Hingham", "inbound")
