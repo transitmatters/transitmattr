@@ -1,7 +1,10 @@
 # Look up the GTFS place ID for a rapid transit station
 
-Returns the GTFS place identifier used by the aggregate travel-time
-endpoints (e.g. `"place-alfcl"`, `"place-davis"`).
+Returns the GTFS parent-station identifier (e.g. `"place-alfcl"`,
+`"place-davis"`). These are provided for cross-referencing with the MBTA
+v3 API. The TransitMatters aggregate endpoints expect stop IDs from
+[`tm_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_stop_id.md),
+not place IDs.
 
 ## Usage
 

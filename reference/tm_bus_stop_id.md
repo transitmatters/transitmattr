@@ -35,6 +35,6 @@ A character vector of stop IDs.
 ``` r
 tm_bus_stop_id("1", "Harvard", "inbound")
 #> [1] "1-1-110"
-tm_bus_stop_id("66", "Harvard Square", "outbound")
-#> Error in .tm_find_station(rd, stop_name): Station 'Harvard Square' not found. Use tm_line_stations() to see valid station names.
+tm_bus_stop_id("66", "Harvard", "outbound")
+#> [1] "66-0-22549"
 ```

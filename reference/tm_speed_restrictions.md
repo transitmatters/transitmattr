@@ -1,7 +1,7 @@
 # Get slow zone / speed restriction data
 
 Returns current or historical speed restrictions for an MBTA line on a
-given date.
+given date. Only rapid transit lines are supported.
 
 ## Usage
 
@@ -13,7 +13,9 @@ tm_speed_restrictions(line_id, on_date, base_url = tm_base_url())
 
 - line_id:
 
-  MBTA line identifier, e.g. `"line-red"`.
+  Rapid transit line identifier. Valid lines: `"Red"`, `"Orange"`,
+  `"Blue"`, `"Green"`. Also accepts `"red"`, `"line-red"`, `"line-Red"`,
+  etc. — all are normalized internally.
 
 - on_date:
 
@@ -32,6 +34,6 @@ A list of speed restriction records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_speed_restrictions("line-red", "2024-01-15")
+tm_speed_restrictions("Red", "2024-01-15")
 } # }
 ```

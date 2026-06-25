@@ -31,7 +31,8 @@ tm_service_hours(
 
 - line_id:
 
-  MBTA line identifier, e.g. `"line-red"`.
+  MBTA line identifier. Accepts any of `"Red"`, `"red"`, `"line-red"`,
+  or `"line-Red"` — all are equivalent.
 
 - base_url:
 
@@ -47,6 +48,6 @@ A list of service hours records.
 ``` r
 if (FALSE) { # \dontrun{
 tm_service_hours("2024-01-01", "2024-01-31", agg = "daily",
-                 line_id = "line-red")
+                 line_id = "Red")
 } # }
 ```

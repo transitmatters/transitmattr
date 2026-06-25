@@ -1,6 +1,10 @@
 # Look up the GTFS place ID for a commuter rail station
 
-Look up the GTFS place ID for a commuter rail station
+Returns the GTFS parent-station identifier (e.g. `"place-sstat"`). These
+are provided for cross-referencing with the MBTA v3 API. The
+TransitMatters aggregate endpoints expect stop IDs from
+[`tm_cr_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_stop_id.md),
+not place IDs.
 
 ## Usage
 

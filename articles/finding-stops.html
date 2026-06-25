@@ -90,8 +90,7 @@ and <strong>Mattapan</strong>.</p>
 <h3 id="discover-what-stations-are-on-this-line">Discover: what stations are on this line?<a class="anchor" aria-label="anchor" href="#discover-what-stations-are-on-this-line"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://transitmatters.github.io/transitmattr/">transitmattr</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/tm_line_stations.html">tm_line_stations</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_line_stations.html">tm_line_stations</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                stop_name     station order branches</span></span>
 <span><span class="co">#&gt; 1                Alewife place-alfcl     1     A, B</span></span>
 <span><span class="co">#&gt; 2                  Davis place-davis     2     A, B</span></span>
@@ -154,10 +153,11 @@ names if you prefer:</p>
 <div class="section level3">
 <h3 id="look-up-a-place-id">Look up a place ID<a class="anchor" aria-label="anchor" href="#look-up-a-place-id"></a>
 </h3>
-<p>Some aggregate endpoints (like
-<code><a href="../reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times()</a></code>) take a <strong>place
-ID</strong> instead of a stop ID. Place IDs refer to a whole station,
-not a platform.</p>
+<p><code><a href="../reference/tm_place_id.html">tm_place_id()</a></code> returns the GTFS parent-station identifier
+for a rapid transit station (e.g. <code>"place-pktrm"</code>). These are
+<strong>not</strong> used by the TransitMatters aggregate endpoints —
+they are provided as a convenience if you need to cross- reference with
+the MBTA v3 API.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_place_id.html">tm_place_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Park Street"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "place-pktrm"</span></span>
@@ -169,14 +169,14 @@ not a platform.</p>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Headways at Davis, trains heading toward Alewife</span></span>
-<span><span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
+<span><span class="va">davis_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
 <span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="st">"northbound"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Travel time: Park Street → Davis (aggregate endpoint uses place IDs)</span></span>
-<span><span class="fu"><a href="../reference/tm_aggregate_travel_times2.html">tm_aggregate_travel_times2</a></span><span class="op">(</span></span>
-<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_place_id.html">tm_place_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Park Street"</span><span class="op">)</span>,</span>
-<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_place_id.html">tm_place_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span><span class="op">)</span>,</span>
+<span><span class="co"># Travel time: Park Street → Davis (aggregate endpoint uses stop IDs)</span></span>
+<span><span class="va">parkst_2_davis_tt</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_aggregate_travel_times2.html">tm_aggregate_travel_times2</a></span><span class="op">(</span></span>
+<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Park Street"</span>, <span class="st">"northbound"</span><span class="op">)</span>,</span>
+<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="st">"northbound"</span><span class="op">)</span>,</span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -306,8 +306,11 @@ At <strong>terminus</strong> stations, one direction may have no stops
 <div class="section level3">
 <h3 id="look-up-a-place-id-1">Look up a place ID<a class="anchor" aria-label="anchor" href="#look-up-a-place-id-1"></a>
 </h3>
-<p>CR stations have proper GTFS place IDs (unlike bus or ferry). Use
-these with <code><a href="../reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times()</a></code>.</p>
+<p><code><a href="../reference/tm_cr_place_id.html">tm_cr_place_id()</a></code> returns the GTFS parent-station
+identifier for a CR station (e.g. <code>"place-sstat"</code>). Like
+<code><a href="../reference/tm_place_id.html">tm_place_id()</a></code> for rapid transit, these are
+<strong>not</strong> used by the TransitMatters aggregate endpoints —
+they are provided for cross- referencing with the MBTA v3 API.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_cr_place_id.html">tm_cr_place_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "place-sstat"</span></span>
@@ -322,14 +325,16 @@ these with <code><a href="../reference/tm_aggregate_travel_times.html">tm_aggreg
 <span><span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
 <span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; list()</span></span>
 <span></span>
-<span><span class="co"># Aggregate travel time, Fairmount → South Station</span></span>
+<span><span class="co"># Aggregate travel time, Fairmount → South Station (pass all platform stop IDs)</span></span>
 <span><span class="fu"><a href="../reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times</a></span><span class="op">(</span></span>
-<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_place_id.html">tm_cr_place_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span><span class="op">)</span>,</span>
-<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_place_id.html">tm_cr_place_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span><span class="op">)</span>,</span>
+<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"outbound"</span><span class="op">)</span>,</span>
+<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span>, <span class="st">"outbound"</span><span class="op">)</span>,</span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; list()</span></span></code></pre></div>
 <hr>
 </div>
 </div>

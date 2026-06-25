@@ -22,7 +22,6 @@ The five rapid transit lines are **Red**, **Orange**, **Blue**,
 
 ``` r
 
-library(transitmattr)
 tm_line_stations("Red")
 #>                stop_name     station order branches
 #> 1                Alewife place-alfcl     1     A, B
@@ -92,10 +91,11 @@ tm_stop_id("Red", "Davis", 1)  # same as "southbound"
 
 ### Look up a place ID
 
-Some aggregate endpoints (like
-[`tm_aggregate_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times.md))
-take a **place ID** instead of a stop ID. Place IDs refer to a whole
-station, not a platform.
+[`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
+returns the GTFS parent-station identifier for a rapid transit station
+(e.g. `"place-pktrm"`). These are **not** used by the TransitMatters
+aggregate endpoints — they are provided as a convenience if you need to
+cross- reference with the MBTA v3 API.
 
 ``` r
 
@@ -110,14 +110,14 @@ tm_place_id("Red", "Davis")
 ``` r
 
 # Headways at Davis, trains heading toward Alewife
-tm_headways("2024-01-15",
+davis_headways = tm_headways("2024-01-15",
   stop = tm_stop_id("Red", "Davis", "northbound")
 )
 
-# Travel time: Park Street → Davis (aggregate endpoint uses place IDs)
-tm_aggregate_travel_times2(
-  from_stop  = tm_place_id("Red", "Park Street"),
-  to_stop    = tm_place_id("Red", "Davis"),
+# Travel time: Park Street → Davis (aggregate endpoint uses stop IDs)
+parkst_2_davis_tt = tm_aggregate_travel_times2(
+  from_stop  = tm_stop_id("Red", "Park Street", "northbound"),
+  to_stop    = tm_stop_id("Red", "Davis", "northbound"),
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )
@@ -256,9 +256,13 @@ tm_cr_stop_id("CR-Fairmount", "South Station", "outbound")
 
 ### Look up a place ID
 
-CR stations have proper GTFS place IDs (unlike bus or ferry). Use these
-with
-[`tm_aggregate_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times.md).
+[`tm_cr_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_place_id.md)
+returns the GTFS parent-station identifier for a CR station
+(e.g. `"place-sstat"`). Like
+[`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
+for rapid transit, these are **not** used by the TransitMatters
+aggregate endpoints — they are provided for cross- referencing with the
+MBTA v3 API.
 
 ``` r
 
@@ -276,14 +280,16 @@ tm_cr_place_id("CR-Fairmount", "Fairmount")
 tm_headways("2024-01-15",
   stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
 )
+#> list()
 
-# Aggregate travel time, Fairmount → South Station
+# Aggregate travel time, Fairmount → South Station (pass all platform stop IDs)
 tm_aggregate_travel_times(
-  from_stop  = tm_cr_place_id("CR-Fairmount", "Fairmount"),
-  to_stop    = tm_cr_place_id("CR-Fairmount", "South Station"),
+  from_stop  = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound"),
+  to_stop    = tm_cr_stop_id("CR-Fairmount", "South Station", "outbound"),
   start_date = "2024-01-01",
   end_date   = "2024-01-31"
 )
+#> list()
 ```
 
 ------------------------------------------------------------------------

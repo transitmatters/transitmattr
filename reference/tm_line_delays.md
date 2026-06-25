@@ -26,7 +26,8 @@ tm_line_delays(
 
 - line:
 
-  MBTA line identifier, e.g. `"Red"`.
+  MBTA line identifier. Accepts any of `"Red"`, `"red"`, `"line-red"`,
+  or `"line-Red"` — all are equivalent.
 
 - agg:
 

@@ -21,7 +21,8 @@ tm_ridership(start_date, end_date, line_id = NULL, base_url = tm_base_url())
 
 - line_id:
 
-  Optional MBTA line identifier, e.g. `"line-red"`.
+  Optional MBTA line identifier. Accepts any of `"Red"`, `"red"`,
+  `"line-red"`, or `"line-Red"` — all are equivalent.
 
 - base_url:
 
@@ -37,6 +38,6 @@ A list of ridership records.
 ``` r
 if (FALSE) { # \dontrun{
 tm_ridership("2024-01-01", "2024-01-31")
-tm_ridership("2024-01-01", "2024-01-31", line_id = "line-red")
+tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
 } # }
 ```

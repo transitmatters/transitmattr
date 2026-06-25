@@ -24,7 +24,8 @@ tm_trip_metrics(start_date, end_date, agg, line, base_url = tm_base_url())
 
 - line:
 
-  MBTA line identifier, e.g. `"line-red"`.
+  MBTA line identifier. Accepts any of `"Red"`, `"red"`, `"line-red"`,
+  or `"line-Red"` — all are equivalent.
 
 - base_url:
 
@@ -39,6 +40,6 @@ A list of trip metric records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "line-red")
+tm_trip_metrics("2024-01-01", "2024-01-31", agg = "daily", line = "Red")
 } # }
 ```
