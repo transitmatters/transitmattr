@@ -32,58 +32,33 @@ articles:
       - finding-stops
 
 reference:
-  - title: "Stop Lookup — Rapid Transit"
+  - title: "Query Builders — Rapid Transit"
     contents:
-      - tm_stop_id
-      - tm_place_id
-      - tm_line_stations
-      - tm_line_directions
-  - title: "Stop Lookup — Bus"
+      - tm_rt_query
+  - title: "Query Builders — Bus"
     contents:
-      - tm_bus_stop_id
-      - tm_bus_stations
+      - tm_bus_query
       - tm_bus_routes
-  - title: "Stop Lookup — Commuter Rail"
+  - title: "Query Builders — Commuter Rail"
     contents:
-      - tm_cr_stop_id
-      - tm_cr_place_id
-      - tm_cr_stations
+      - tm_cr_query
       - tm_cr_routes
-  - title: "Stop Lookup — Ferry"
+  - title: "Query Builders — Ferry"
     contents:
-      - tm_ferry_stop_id
-      - tm_ferry_stations
+      - tm_ferry_query
       - tm_ferry_routes
-  - title: "Travel Times"
-    contents:
-      - tm_travel_times
-      - tm_aggregate_travel_times
-      - tm_aggregate_travel_times2
-  - title: "Headways"
-    contents:
-      - tm_headways
-      - tm_aggregate_headways
-  - title: "Dwells"
-    contents:
-      - tm_dwells
-      - tm_aggregate_dwells
   - title: "Service & Ridership"
     contents:
-      - tm_ridership
       - tm_scheduled_service
-      - tm_service_hours
       - tm_service_ridership_dashboard
-      - tm_trip_metrics
-  - title: "Alerts & Delays"
+  - title: "Alerts"
     contents:
       - tm_alerts
-      - tm_line_delays
   - title: "Other"
     contents:
       - tm_facilities
       - tm_routes
       - tm_stops
-      - tm_speed_restrictions
       - tm_time_predictions
       - tm_healthcheck
       - tm_git_id
