@@ -1,5 +1,6 @@
 #' @keywords internal
 #' @import httr2
+#' @importFrom R6 R6Class
 "_PACKAGE"
 
 #' @noRd
@@ -31,7 +32,8 @@ tm_base_url <- function() {
 }
 
 #' @noRd
-tm_request <- function(path, query = list(), base_url = tm_base_url()) {
+tm_request <- function(path, query = list(), base_url = tm_base_url(),
+                       simplify = FALSE) {
   query <- Filter(Negate(is.null), query)
 
   req <- request(base_url)
@@ -46,5 +48,5 @@ tm_request <- function(path, query = list(), base_url = tm_base_url()) {
   }
 
   resp <- req_perform(req)
-  resp_body_json(resp, simplifyVector = FALSE)
+  resp_body_json(resp, simplifyVector = simplify)
 }

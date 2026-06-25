@@ -21,8 +21,8 @@ knitr::opts_chunk$set(
 directly into R. You can get things like:
 
 - Which routes and stops are available
-- How often trains are coming (headways)
-- How long trains sit at stations (dwell times)
+- How often trains/buses are coming (headways)
+- How long vehicles sit at stations (dwell times)
 - How long it takes to travel between stops (travel times)
 - How many people are riding (ridership)
 - Where slow zones are affecting service
@@ -59,142 +59,207 @@ $status
 
 If you see `"pass"` you're good to go.
 
-## Step 2: Understanding what you get back
+## Step 2: The query builder pattern
 
-All `tm_*` functions return a **list** — R's way of bundling different pieces
-of data together. Most dated endpoints return an unnamed list of event records,
-one per observation (e.g. one per train departure). Use `str()` to see the
-shape and `[[1]]` to inspect a single record.
+The core of `transitmattr` is the **query builder**: you create a query object
+for your transit mode, chain methods to set context (line, stop, date), and then
+call a terminal method to fetch the data.
 
-```{r list-example, eval = FALSE}
-result <- tm_headways("2024-01-15", stop = "70061")
+There are four query constructors — one per transit mode:
 
-length(result)    # number of events
-str(result[[1]])  # fields: route_id, direction, current_dep_dt,
-                  #   headway_time_sec, benchmark_headway_time_sec,
-                  #   vehicle_label, vehicle_consist
+| Mode | Constructor |
+|---|---|
+| Rapid transit (subway) | `tm_rt_query(line)` |
+| Bus | `tm_bus_query(route)` |
+| Commuter Rail | `tm_cr_query(route)` |
+| Ferry | `tm_ferry_query(route)` |
+
+All query methods return a **data frame** ready for analysis — no conversion needed.
+
+Here is what a typical call looks like:
+
+```{r query-example, eval = FALSE}
+# Headways at Harvard Square on the Red Line, January 15 2024
+df <- tm_rt_query("Red")$stop("Harvard")$headways("2024-01-15")
+
+head(df)
 ```
 
-## Step 3: Discover routes and stops
+You can also set context step by step and reuse the query object:
 
-Before pulling event data you often need to know which routes and stop IDs exist.
+```{r query-step-by-step, eval = FALSE}
+q <- tm_rt_query("Red")
+q$stop("Harvard")
+q$date("2024-01-15")
 
-```{r routes-stops, eval = FALSE}
+headways_df <- q$headways()
+dwells_df   <- q$dwells()
+headways_df
+dwells_df
+```
+
+## Step 3: Discover routes
+
+Before building a query you need to know which route or line ID to use.
+
+```{r routes, eval = FALSE}
 # All available routes, grouped by mode
 routes <- tm_routes()
 names(routes)  # "rapid_transit" "bus" "commuter_rail" "ferry"
 
-# Stop IDs for a specific route (needed for filtering headways, travel times, etc.)
-# Route IDs come from tm_routes() — e.g. "Red", "Orange", "Green-B"
-red_stops <- tm_stops("Red")
+# All bus route IDs (local lookup, no API call)
+tm_bus_routes()
+
+# All commuter rail route IDs
+tm_cr_routes()
+
+# All ferry route IDs
+tm_ferry_routes()
 ```
 
-## Step 4: Pull data for a single day
+**Rapid transit line IDs:** `"Red"`, `"Orange"`, `"Blue"`, `"Green"`,
+`"Mattapan"`. The prefix form (`"line-red"`) is also accepted.
 
-These functions need a date. You can also pass stop IDs to narrow the results —
-without them you get every stop, which can be a large response.
+## Step 4: Discover stops with `$stations()`
+
+Every query object has a `$stations()` method that returns a data frame of all
+stops for that line or route. Use this to find the exact station name to pass to
+`$stop()`, `$from_stop()`, or `$to_stop()`.
+
+```{r stations, eval = FALSE}
+# Red Line stations
+tm_rt_query("Red")$stations()
+
+# Which commuter rail stops are on the Fairmount Line?
+tm_cr_query("CR-Fairmount")$stations()
+
+# Route 66 bus stops
+tm_bus_query("66")$stations()
+```
+
+You can also call `$directions()` to see which direction names apply to the line:
+
+```{r directions, eval = FALSE}
+tm_rt_query("Red")$directions()
+# 0 = "southbound", 1 = "northbound" (example)
+```
+
+## Step 5: Fetch data for a single day
+
+These terminal methods need a date (a `"YYYY-MM-DD"` string or a `Date` object).
+You can pass the date directly to the terminal method or set it earlier with
+`$date()`.
 
 ```{r single-day, eval = FALSE}
-# Headways at one stop (or a vector of stops)
-headways <- tm_headways("2024-01-15", stop = "70061")
-headways <- tm_headways("2024-01-15", stop = c("70061", "70063"))
+# Headways at Harvard on the Red Line
+tm_rt_query("Red")$stop("Harvard")$headways("2024-01-15")
 
-# Dwell times at a stop
-dwells <- tm_dwells("2024-01-15", stop = "70063")
+# Dwell times at the same stop
+tm_rt_query("Red")$stop("Harvard")$dwells("2024-01-15")
 
-# Travel times between a stop pair
-travel <- tm_travel_times("2024-01-15", from_stop = "70076", to_stop = "70064")
+# Travel times — direction is required for travel time queries
+tm_rt_query("Red")$
+  from_stop("Alewife")$
+  to_stop("Kendall/MIT")$
+  direction("southbound")$
+  travel_times("2024-01-15")
 
-# Alerts for a specific day and route
-alerts <- tm_alerts("2024-01-15", route = "Red")
+# Speed restrictions on the Red Line for that day
+tm_rt_query("Red")$speed_restrictions("2024-01-15")
 
-# Current live alerts for a route
-alerts_now <- tm_alerts(route = "Red")
+# Service alerts for a route on a specific day
+tm_alerts("2024-01-15", route = "Red")
+
+# Current live alerts (no date needed)
+tm_alerts(route = "Red")
 ```
 
-## Step 5: Pull data over a date range
+## Step 6: Fetch data over a date range
 
-Most analysis requires looking at a range of dates. These functions take
-`start_date` and `end_date` plus some extra options.
+For multi-day analysis use `$date_range(start, end)` instead of `$date()`.
 
 ```{r range, eval = FALSE}
-# Daily Red Line ridership for January 2024
-ridership <- tm_ridership(
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31",
-  line_id    = "Red"
-)
+# Red Line ridership for January 2024
+tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$ridership()
 
 # Daily trip metrics for the Red Line
-trips <- tm_trip_metrics(
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31",
-  agg        = "daily",
-  line       = "Red"
-)
+tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$trip_metrics("daily")
 
-# How many trips were scheduled to run each day
-scheduled <- tm_scheduled_service(
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31",
-  route_id    = "Red",
-  agg        = "daily"
-)
+# Delay summaries for the Red Line
+tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$line_delays()
 
-# Total revenue service hours each day on the Red Line
-hours <- tm_service_hours(
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31",
-  agg        = "daily",
-  line_id    = "Red"
-)
+# Revenue service hours (daily aggregation)
+tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$service_hours("daily")
+
+# Scheduled service counts across all routes
+tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily", route_id = "Red")
 ```
 
-**Available line IDs:**
+## Step 7: Aggregate endpoints
 
-| Line        | `line_id` / `line` |
-|-------------|--------------------|
-| Red Line    | `"Red"`            |
-| Orange Line | `"Orange"`         |
-| Blue Line   | `"Blue"`           |
-| Green Line  | `"Green"`          |
-| Commuter    | `"line-cr"`        |
+Aggregate endpoints return long-run averages over a date range, useful for
+trend analysis.
 
-## Step 8: Turn the result into a data frame
+```{r aggregate, eval = FALSE}
+# Average headways at Harvard over January 2024
+tm_rt_query("Red")$
+  stop("Harvard")$
+  date_range("2024-01-01", "2024-01-31")$
+  aggregate_headways()
 
-The API gives back a list, but most R analysis tools (like `ggplot2`) prefer a
-**data frame**. Here's the easiest way to convert:
+# Average dwell times at Harvard
+tm_rt_query("Red")$
+  stop("Harvard")$
+  date_range("2024-01-01", "2024-01-31")$
+  aggregate_dwells()
 
-```{r to-df, eval = FALSE}
-library(dplyr)
-library(transitmattr)
-
-# Pull ridership data
-ridership_raw <- tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
-
-# Each item in ridership_raw is one record — bind them into rows
-ridership_df <- bind_rows(ridership_raw)
-
-# Now it looks like a spreadsheet
-head(ridership_df)
+# Average travel times from Park Street to Davis
+tm_rt_query("Red")$
+  from_stop("Park Street")$
+  to_stop("Davis")$
+  date_range("2024-01-01", "2024-01-31")$
+  aggregate_travel_times()
 ```
 
-> **Tip:** If `bind_rows()` doesn't work, try
-> `do.call(rbind, lapply(ridership_raw, as.data.frame))` — it's a bit more
-> verbose but handles some tricky list shapes.
+## Step 8: Bus, Commuter Rail, and Ferry
+
+The same builder pattern applies to other modes. Bus and ferry support
+`$headways()`, `$dwells()`, `$aggregate_headways()`, and `$aggregate_dwells()`.
+Commuter rail additionally supports `$travel_times()` and
+`$aggregate_travel_times()`.
+
+```{r other-modes, eval = FALSE}
+# Bus headways at Harvard on Route 66
+tm_bus_query("66")$stop("Harvard")$headways("2024-01-15")
+
+# Aggregate bus dwell times over a month
+tm_bus_query("1")$
+  stop("Hynes Station")$
+  date_range("2024-01-01", "2024-01-31")$
+  aggregate_dwells()
+
+# Commuter rail headways at Back Bay on the Fairmount Line
+tm_cr_query("CR-Fairmount")$stop("Newmarket")$headways("2026-01-15")
+
+# Ferry headways at Hingham
+tm_ferry_query("Boat-F1")$stop("Hingham")$headways("2024-01-15")
+```
+
+> **Tip:** Terminus stations on commuter rail and ferry may have incomplete stop
+> IDs in one direction. `$stop()` will warn you if you pick a terminus.
 
 ## Step 9: Make a quick plot
 
-Once you have a data frame you can plot with `ggplot2`:
+Query methods return data frames, so you can pipe them directly into `ggplot2`:
 
 ```{r plot, eval = FALSE}
 library(ggplot2)
 library(dplyr)
 library(transitmattr)
 
-ridership_df <- bind_rows(
-  tm_ridership("2024-01-01", "2024-01-31", line_id = "Red")
-)
+ridership_df <- tm_rt_query("Red")$
+  date_range("2024-01-01", "2024-01-31")$
+  ridership()
 
 ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   geom_line(color = "#DA291C") +   # Red Line color
@@ -206,71 +271,61 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   theme_minimal()
 ```
 
-## Step 7: Aggregate endpoints
+## Recap: functions and methods at a glance
 
-The aggregate endpoints return long-run averages rather than individual trip
-events — useful for trend analysis over weeks or months.
+**Standalone functions** (no query object needed):
 
-```{r aggregate, eval = FALSE}
-# Average travel time from Park Street to Davis, by date
-travel_agg <- tm_aggregate_travel_times(
-  from_stop  = "70076",
-  to_stop    = "70064",
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
+| Function | What it returns |
+|---|---|
+| `tm_healthcheck()` | API status |
+| `tm_git_id()` | Server git commit SHA |
+| `tm_routes()` | All routes grouped by mode |
+| `tm_bus_routes()` | Bus route IDs (local) |
+| `tm_cr_routes()` | Commuter rail route IDs (local) |
+| `tm_ferry_routes()` | Ferry route IDs (local) |
+| `tm_stops(route_id)` | Stop info from the API |
+| `tm_alerts(date, route)` | Service alerts |
+| `tm_scheduled_service(start, end, agg)` | Scheduled trip counts |
+| `tm_time_predictions(route_id)` | Live prediction accuracy |
+| `tm_facilities()` | All MBTA stations |
+| `tm_service_ridership_dashboard()` | System-wide ridership summary |
 
-# Same data via the v2 endpoint (returns by_date and by_time breakdowns)
-travel_agg2 <- tm_aggregate_travel_times2(
-  from_stop  = "70076",
-  to_stop    = "70064",
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
+**Query constructors** → chain methods → call a terminal method:
 
-# Average headways at a stop over a date range
-headways_agg <- tm_aggregate_headways(
-  stop       = "70061",
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
+| Constructor | Requires |
+|---|---|
+| `tm_rt_query(line)` | `"Red"`, `"Orange"`, `"Blue"`, `"Green"`, `"Mattapan"` |
+| `tm_bus_query(route)` | Route ID from `tm_bus_routes()` |
+| `tm_cr_query(route)` | Route ID from `tm_cr_routes()` |
+| `tm_ferry_query(route)` | Route ID from `tm_ferry_routes()` |
 
-# Average dwell times at a stop over a date range
-dwells_agg <- tm_aggregate_dwells(
-  stop       = "70063",
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
-```
+**Shared builder methods** (all query types):
 
-> **Tip:** The v2 travel times endpoint (`tm_aggregate_travel_times2`) is used
-> in the Red Line Analysis vignette for a worked plotting example.
+| Method | What it does |
+|---|---|
+| `$stations()` | Browse available stops |
+| `$directions()` | See direction labels |
+| `$date(d)` | Set a single date |
+| `$date_range(start, end)` | Set a date range |
+| `$stop(name)` | Set the stop |
+| `$direction(dir)` | Set the direction |
 
-## Recap: the functions at a glance
+**Terminal methods** (fetch data, return a data frame):
 
-| Function | What it returns | Needs |
-|---|---|---|
-| `tm_healthcheck()` | API status | nothing |
-| `tm_git_id()` | Server git commit SHA | nothing |
-| `tm_time_predictions()` | Live time predictions | nothing |
-| `tm_service_ridership_dashboard()` | System-wide ridership summary | nothing |
-| `tm_facilities()` | All MBTA stations | nothing |
-| `tm_routes()` | All available routes by mode | nothing |
-| `tm_stops(route_id)` | Stop IDs for a route | route ID |
-| `tm_headways(date, stop)` | Train frequency | date + stop(s) |
-| `tm_dwells(date, stop)` | Station dwell times | date + stop(s) |
-| `tm_travel_times(date, from_stop, to_stop)` | Stop-to-stop travel | date + stop pair |
-| `tm_alerts(date, route)` | Service alerts | optional date + route |
-| `tm_ridership(start, end)` | Ridership counts | date range |
-| `tm_trip_metrics(start, end, agg, line)` | Trip performance | date range + line |
-| `tm_line_delays(start, end, line)` | Delay summaries | date range + line |
-| `tm_scheduled_service(start, end, agg)` | Scheduled trip counts | date range + agg |
-| `tm_service_hours(start, end, agg, line_id)` | Revenue service hours | date range + agg + line |
-| `tm_speed_restrictions(line_id, date)` | Slow zones | line + date |
-| `tm_aggregate_travel_times(...)` | Long-run travel time trends | stop pair + range |
-| `tm_aggregate_travel_times2(...)` | Long-run travel times (v2, with by_date/by_time) | stop pair + range |
-| `tm_aggregate_headways(...)` | Long-run headway trends | stop + range |
-| `tm_aggregate_dwells(...)` | Long-run dwell time trends | stop + range |
+| Method | Needs |
+|---|---|
+| `$headways(date)` | stop + date |
+| `$dwells(date)` | stop + date |
+| `$travel_times(date)` | from/to stops + direction + date (RT and CR only) |
+| `$aggregate_headways()` | stop + date_range |
+| `$aggregate_dwells()` | stop + date_range |
+| `$aggregate_travel_times()` | from/to stops + date_range (RT and CR only) |
+| `$ridership()` | date_range (RT only) |
+| `$trip_metrics(agg)` | date_range (RT only) |
+| `$line_delays(agg)` | date_range (RT only) |
+| `$service_hours(agg)` | date_range (RT only) |
+| `$scheduled_service(agg)` | date_range (RT only) |
+| `$speed_restrictions(date)` | date (RT only) |
 
 Next, check out the **Red Line Analysis** vignette for a full worked example
 that goes from raw API data to a polished chart.

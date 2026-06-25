@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
-  eval     = TRUE   # set to TRUE locally to actually hit the API
+  eval     = FALSE  # set to TRUE locally to actually hit the API
 )
 ```
 
@@ -24,7 +24,7 @@ January 2024. By the end you'll have three charts:
 
 ## Setup
 
-```{r load}
+```{r load, eval = FALSE}
 library(transitmattr)
 library(dplyr)
 library(ggplot2)
@@ -38,102 +38,57 @@ library(ggplot2)
 
 ### Pull the data
 
-```{r ridership-pull}
-ridership_raw <- tm_ridership(
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31",
-  line_id    = "Red"
-)
-```
+Build a Red Line query, set a date range, and call `$ridership()`. The result
+is already a `data.frame` — no `bind_rows()` needed.
 
-`ridership_raw` is a **list** where each item represents one day's record.
-Let's flatten it into a data frame:
-
-```{r ridership-df}
-library(dplyr)
-ridership_df <- bind_rows(ridership_raw)
+```{r ridership-pull, eval = FALSE}
+ridership_df <- tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$ridership()
 head(ridership_df)
-```
-
-### Explore the columns
-
-```{r ridership-cols}
-glimpse(ridership_df)
 ```
 
 ### Plot it
 
-```{r ridership-plot}
-library(ggplot2)
+```{r ridership-plot, eval = FALSE}
 ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   geom_col(fill = "#DA291C") +
   scale_y_continuous(labels = scales::comma) +
   labs(
-    title = "Red Line Daily Ridership",
+    title    = "Red Line Daily Ridership",
     subtitle = "January 2024",
-    x = NULL,
-    y = "Riders"
+    x        = NULL,
+    y        = "Riders"
   ) +
   theme_minimal()
 ```
 
-> **What to notice:** Weekends typically show lower ridership. If a day is
-> unusually low on a weekday, there may have been a service disruption — check
+> **What to notice:** Weekends typically show lower ridership. If a weekday is
+> unusually low, there may have been a service disruption — check
 > `tm_alerts()` for that date.
 
 ## 2. Travel time from Park Street to Davis
 
-This uses the **aggregate** endpoint, which gives you long-run averages
+This uses the **aggregate** endpoint, which gives you long-run daily averages
 rather than individual trips.
-
-### Finding stop IDs
-
-Travel time endpoints need **platform stop IDs**, not parent station IDs. Each
-station has separate IDs for each direction. Use `tm_stops()` to look them up:
-
-```{r stops-lookup, eval = FALSE}
-red_stops <- tm_stops("Red")
-
-# Stations are in red_stops$stations — explore one
-str(red_stops$stations[[1]])
-```
-
-> **Tip:** Northbound (toward Alewife) stop IDs are even numbers; southbound
-> (toward Ashmont/Braintree) are odd. For example, Park Street northbound is
-> `70076` and southbound is `70075`.
 
 ### Pull the data
 
-```{r travel-pull}
-# Northbound: Park Street (70076) → Davis (70064)
-travel_raw <- tm_aggregate_travel_times2(
-  from_stop  = "70076",
-  to_stop    = "70064",
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
+Specify from/to by station name. The library handles stop ID resolution
+internally — no need to look up `"70076"` or `"70064"`.
+
+```{r travel-pull, eval = FALSE}
+travel_df <- tm_rt_query("Red")$from_stop("Park Street")$to_stop("Davis")$date_range("2024-01-01", "2024-01-31")$aggregate_travel_times()
+head(travel_df)
 ```
 
-### Clean it up
+### Clean and plot
 
-```{r travel-df}
-library(dplyr)
-travel_df <- bind_rows(travel_raw$by_date)
-
-# Travel times come back in seconds — convert to minutes
+```{r travel-plot, eval = FALSE}
 travel_df <- travel_df |>
   mutate(
     date       = as.Date(service_date),
     travel_min = mean / 60
   )
 
-head(travel_df)
-```
-
-### Plot it
-
-```{r travel-plot}
-library(ggplot2)
 ggplot(travel_df, aes(x = date, y = travel_min)) +
   geom_line(color = "#DA291C") +
   geom_smooth(method = "loess", se = FALSE, linetype = "dashed",
@@ -153,25 +108,23 @@ ggplot(travel_df, aes(x = date, y = travel_min)) +
 ## 3. Slow zones on a specific day
 
 Speed restrictions ("slow zones") are places where trains must go slower than
-normal, usually because of track issues.
+normal, usually because of track issues. Unlike most endpoints, this one
+returns a **list** (not a data.frame) because its structure is more complex.
 
-```{r slow-pull}
-slow_raw <- tm_speed_restrictions("Red", "2024-01-15")
+```{r slow-pull, eval = FALSE}
+slow_raw <- tm_rt_query("Red")$speed_restrictions("2024-01-15")
 ```
 
-```{r slow-df}
-library(dplyr)
+```{r slow-df, eval = FALSE}
 if (!isTRUE(slow_raw$available)) {
   message("No slow zone data available for this date.")
 } else {
   slow_df <- bind_rows(slow_raw$zones)
-  glimpse(slow_df)
+  slow_df
 }
 ```
 
-```{r slow-plot}
-library(ggplot2)
-# Each row is a slow zone segment; visualize by location and speed limit
+```{r slow-plot, eval = FALSE}
 ggplot(slow_df, aes(x = reorder(description, speedMph), y = speedMph, fill = speedMph)) +
   geom_col() +
   coord_flip() +
@@ -191,20 +144,27 @@ ggplot(slow_df, aes(x = reorder(description, speedMph), y = speedMph, fill = spe
 
 ## 4. Putting it all together
 
-Here's a pattern you'll use over and over: **pull → bind_rows → mutate →
-ggplot**. Once you're comfortable with it, try exploring:
+Here's the pattern you'll use over and over with `transitmattr`:
 
-- `tm_routes()` — see all available lines before picking one
-- `tm_stops("Orange")` — look up stop IDs for a different line
-- `tm_aggregate_headways()` — how often trains come, over time
-- `tm_line_delays()` — delay minutes caused by alerts
-- `tm_trip_metrics()` — on-time performance per trip
+```r
+tm_rt_query("Red")             # pick a line
+  $stop("Harvard")             # set a station
+  $date("2024-01-15")          # set a date
+  $headways()                  # fetch — returns a data.frame
+```
+
+Once you're comfortable with it, try exploring other methods:
+
+- `$line_delays()` — delay minutes caused by alerts
+- `$trip_metrics("daily")` — on-time performance per trip
+- `$aggregate_headways()` — how often trains come, over time
+- `$service_hours("weekly")` — scheduled vs. delivered service hours
 
 ## Troubleshooting
 
 | Problem | What to try |
 |---|---|
-| `bind_rows()` gives an error | Use `str(raw_result)` to see the exact structure, then drill in with `$` |
+| "requires a stop" error | Call `$stop("Name")` before the terminal method |
+| "requires a date range" error | Call `$date_range(start, end)` before the terminal method |
 | All values are `NULL` | The API may have no data for that date; try a nearby weekday |
-| Columns have unexpected names | Run `names(df)` and adjust your `mutate()` references |
 | The API call fails | Run `tm_healthcheck()` to verify the API is up |
