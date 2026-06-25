@@ -274,22 +274,30 @@ tm_cr_place_id("CR-Fairmount", "Fairmount")
 
 ### Using these in API calls
 
+CR stops work with
+[`tm_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_headways.md)
+and
+[`tm_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_travel_times.md).
+The key is to pass stop IDs whose **direction matches the direction of
+travel**. For a trip heading toward South Station (inbound, direction
+1), use `"inbound"` stop IDs for both `from_stop` and `to_stop`.
+
+Note: South Station is the inbound terminus, so it has no inbound stop
+IDs — you cannot use it as a `to_stop` for inbound travel times.
+
 ``` r
 
-# Headways at Fairmount station, outbound
-tm_headways("2024-01-15",
-  stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
+# Headways at Fairmount, inbound trains (toward South Station)
+fairmount_headways = tm_headways("2026-06-18",
+  stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "inbound")
 )
-#> list()
 
-# Aggregate travel time, Fairmount → South Station (pass all platform stop IDs)
-tm_aggregate_travel_times(
-  from_stop  = tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound"),
-  to_stop    = tm_cr_stop_id("CR-Fairmount", "South Station", "outbound"),
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
+# Travel time, Fairmount → Blue Hill Avenue, inbound
+# Both stops use "inbound" because the train is traveling toward South Station
+fairmount_2_bha_tt = tm_travel_times("2026-06-18",
+  from_stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "inbound"),
+  to_stop   = tm_cr_stop_id("CR-Fairmount", "Blue Hill Avenue", "inbound")
 )
-#> list()
 ```
 
 ------------------------------------------------------------------------

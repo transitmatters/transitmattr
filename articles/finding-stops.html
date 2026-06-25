@@ -320,21 +320,27 @@ they are provided for cross- referencing with the MBTA v3 API.</p>
 <div class="section level3">
 <h3 id="using-these-in-api-calls-2">Using these in API calls<a class="anchor" aria-label="anchor" href="#using-these-in-api-calls-2"></a>
 </h3>
+<p>CR stops work with <code><a href="../reference/tm_headways.html">tm_headways()</a></code> and
+<code><a href="../reference/tm_travel_times.html">tm_travel_times()</a></code>. The key is to pass stop IDs whose
+<strong>direction matches the direction of travel</strong>. For a trip
+heading toward South Station (inbound, direction 1), use
+<code>"inbound"</code> stop IDs for both <code>from_stop</code> and
+<code>to_stop</code>.</p>
+<p>Note: South Station is the inbound terminus, so it has no inbound
+stop IDs — you cannot use it as a <code>to_stop</code> for inbound
+travel times.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Headways at Fairmount station, outbound</span></span>
-<span><span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
-<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Headways at Fairmount, inbound trains (toward South Station)</span></span>
+<span><span class="va">fairmount_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2026-06-18"</span>,</span>
+<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; list()</span></span>
 <span></span>
-<span><span class="co"># Aggregate travel time, Fairmount → South Station (pass all platform stop IDs)</span></span>
-<span><span class="fu"><a href="../reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times</a></span><span class="op">(</span></span>
-<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"outbound"</span><span class="op">)</span>,</span>
-<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span>, <span class="st">"outbound"</span><span class="op">)</span>,</span>
-<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; list()</span></span></code></pre></div>
+<span><span class="co"># Travel time, Fairmount → Blue Hill Avenue, inbound</span></span>
+<span><span class="co"># Both stops use "inbound" because the train is traveling toward South Station</span></span>
+<span><span class="va">fairmount_2_bha_tt</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2026-06-18"</span>,</span>
+<span>  from_stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"inbound"</span><span class="op">)</span>,</span>
+<span>  to_stop   <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Blue Hill Avenue"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
