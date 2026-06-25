@@ -1,9 +1,8 @@
 # Get MBTA service alerts
 
 When `user_date` is `NULL` the undated `/api/alerts` endpoint is called,
-returning current live alerts (no parameters accepted). Pass a date to
-retrieve historical alerts for a specific day, optionally filtered by
-route.
+returning current live alerts. Pass a date to retrieve historical
+alerts, optionally filtered by route.
 
 ## Usage
 
@@ -21,14 +20,11 @@ tm_alerts(user_date = NULL, route = NULL, base_url = tm_base_url())
 - route:
 
   One or more MBTA route IDs (e.g. `"Red"`, `"Orange"`). Only used when
-  `user_date` is provided. Use
-  [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
-  to list valid IDs.
+  `user_date` is provided.
 
 - base_url:
 
-  Base URL of the TransitMatters API. Defaults to
-  `getOption("tm_dashboard_base_url")` or the production host.
+  Base URL of the TransitMatters API.
 
 ## Value
 

@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,9 +93,9 @@
 </h3>
 <p>Functions accept either a <code>Date</code> object or a <code>"YYYY-MM-DD"</code> string.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/tm_dwells.html">tm_dwells</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">tm_headways</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<span><span class="fu">tm_dwells</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">tm_travel_times</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Dated or current alerts</span></span>
 <span><span class="fu"><a href="reference/tm_alerts.html">tm_alerts</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -105,14 +105,14 @@
 <h3 id="aggregate-endpoints">Aggregate endpoints<a class="anchor" aria-label="anchor" href="#aggregate-endpoints"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/tm_aggregate_travel_times.html">tm_aggregate_travel_times</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tm_aggregate_travel_times</span><span class="op">(</span></span>
 <span>  from_stop  <span class="op">=</span> <span class="st">"place-pktrm"</span>,</span>
 <span>  to_stop    <span class="op">=</span> <span class="st">"place-davis"</span>,</span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/tm_aggregate_headways.html">tm_aggregate_headways</a></span><span class="op">(</span></span>
+<span><span class="fu">tm_aggregate_headways</span><span class="op">(</span></span>
 <span>  stop       <span class="op">=</span> <span class="st">"place-davis"</span>,</span>
 <span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
 <span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
@@ -123,23 +123,23 @@
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ridership for the Red Line</span></span>
-<span><span class="fu"><a href="reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
+<span><span class="fu">tm_ridership</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Delay summary by line</span></span>
-<span><span class="fu"><a href="reference/tm_line_delays.html">tm_line_delays</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
+<span><span class="fu">tm_line_delays</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, line <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Trip metrics</span></span>
-<span><span class="fu"><a href="reference/tm_trip_metrics.html">tm_trip_metrics</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span>, line <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
+<span><span class="fu">tm_trip_metrics</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span>, line <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scheduled service (optionally filtered to one route)</span></span>
 <span><span class="fu"><a href="reference/tm_scheduled_service.html">tm_scheduled_service</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/tm_scheduled_service.html">tm_scheduled_service</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span>, route_id <span class="op">=</span> <span class="st">"Red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Speed restrictions / slow zones</span></span>
-<span><span class="fu"><a href="reference/tm_speed_restrictions.html">tm_speed_restrictions</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span>
+<span><span class="fu">tm_speed_restrictions</span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Service hours</span></span>
-<span><span class="fu"><a href="reference/tm_service_hours.html">tm_service_hours</a></span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">tm_service_hours</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span>, agg <span class="op">=</span> <span class="st">"daily"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="overriding-the-base-url">Overriding the base URL<a class="anchor" aria-label="anchor" href="#overriding-the-base-url"></a>

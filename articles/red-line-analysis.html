@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,14 +82,6 @@ performance in January 2024. By the end you’ll have three charts:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://transitmatters.github.io/transitmattr/">transitmattr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p><strong>New to these packages?</strong> <code>dplyr</code> is for
@@ -104,57 +96,31 @@ needed.</p>
 <div class="section level3">
 <h3 id="pull-the-data">Pull the data<a class="anchor" aria-label="anchor" href="#pull-the-data"></a>
 </h3>
+<p>Build a Red Line query, set a date range, and call
+<code>$ridership()</code>. The result is already a
+<code>data.frame</code> — no <code><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows()</a></code> needed.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ridership_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_ridership.html">tm_ridership</a></span><span class="op">(</span></span>
-<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span>,</span>
-<span>  line_id    <span class="op">=</span> <span class="st">"Red"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><code>ridership_raw</code> is a <strong>list</strong> where each item
-represents one day’s record. Let’s flatten it into a data frame:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">ridership_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">ridership_raw</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ridership_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span></span>
-<span><span class="co">#&gt;   date       count</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2024-01-01 <span style="text-decoration: underline;">72</span>986</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2024-01-08 <span style="text-decoration: underline;">78</span>348</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2024-01-15 <span style="text-decoration: underline;">79</span>336</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2024-01-22 <span style="text-decoration: underline;">84</span>922</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2024-01-29 <span style="text-decoration: underline;">88</span>096</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="explore-the-columns">Explore the columns<a class="anchor" aria-label="anchor" href="#explore-the-columns"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">ridership_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 5</span></span>
-<span><span class="co">#&gt; Columns: 2</span></span>
-<span><span class="co">#&gt; $ date  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "2024-01-01"<span style="color: #949494;">, </span>"2024-01-08"<span style="color: #949494;">, </span>"2024-01-15"<span style="color: #949494;">, </span>"2024-01-22"<span style="color: #949494;">, </span>"2024-01…</span></span>
-<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 72986<span style="color: #949494;">, </span>78348<span style="color: #949494;">, </span>79336<span style="color: #949494;">, </span>84922<span style="color: #949494;">, </span>88096</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ridership_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">date_range</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span><span class="op">)</span><span class="op">$</span><span class="fu">ridership</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ridership_df</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-it">Plot it<a class="anchor" aria-label="anchor" href="#plot-it"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ridership_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ridership_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#DA291C"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="va"><a href="https://scales.r-lib.org/reference/comma.html" class="external-link">comma</a></span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Red Line Daily Ridership"</span>,</span>
+<span>    title    <span class="op">=</span> <span class="st">"Red Line Daily Ridership"</span>,</span>
 <span>    subtitle <span class="op">=</span> <span class="st">"January 2024"</span>,</span>
-<span>    x <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"Riders"</span></span>
+<span>    x        <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    y        <span class="op">=</span> <span class="st">"Riders"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="red-line-analysis_files/figure-html/ridership-plot-1.png" class="r-plt" alt="" width="700"></p>
 <blockquote>
 <p><strong>What to notice:</strong> Weekends typically show lower
-ridership. If a day is unusually low on a weekday, there may have been a
-service disruption — check <code><a href="../reference/tm_alerts.html">tm_alerts()</a></code> for that date.</p>
+ridership. If a weekday is unusually low, there may have been a service
+disruption — check <code><a href="../reference/tm_alerts.html">tm_alerts()</a></code> for that date.</p>
 </blockquote>
 </div>
 </div>
@@ -162,68 +128,27 @@ service disruption — check <code><a href="../reference/tm_alerts.html">tm_aler
 <h2 id="travel-time-from-park-street-to-davis">2. Travel time from Park Street to Davis<a class="anchor" aria-label="anchor" href="#travel-time-from-park-street-to-davis"></a>
 </h2>
 <p>This uses the <strong>aggregate</strong> endpoint, which gives you
-long-run averages rather than individual trips.</p>
-<div class="section level3">
-<h3 id="finding-stop-ids">Finding stop IDs<a class="anchor" aria-label="anchor" href="#finding-stop-ids"></a>
-</h3>
-<p>Travel time endpoints need <strong>platform stop IDs</strong>, not
-parent station IDs. Each station has separate IDs for each direction.
-Use <code><a href="../reference/tm_stops.html">tm_stops()</a></code> to look them up:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">red_stops</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_stops.html">tm_stops</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Stations are in red_stops$stations — explore one</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">red_stops</span><span class="op">$</span><span class="va">stations</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<blockquote>
-<p><strong>Tip:</strong> Northbound (toward Alewife) stop IDs are even
-numbers; southbound (toward Ashmont/Braintree) are odd. For example,
-Park Street northbound is <code>70076</code> and southbound is
-<code>70075</code>.</p>
-</blockquote>
-</div>
+long-run daily averages rather than individual trips.</p>
 <div class="section level3">
 <h3 id="pull-the-data-1">Pull the data<a class="anchor" aria-label="anchor" href="#pull-the-data-1"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Northbound: Park Street (70076) → Davis (70064)</span></span>
-<span><span class="va">travel_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_aggregate_travel_times2.html">tm_aggregate_travel_times2</a></span><span class="op">(</span></span>
-<span>  from_stop  <span class="op">=</span> <span class="st">"70076"</span>,</span>
-<span>  to_stop    <span class="op">=</span> <span class="st">"70064"</span>,</span>
-<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>Specify from/to by station name. The library handles stop ID
+resolution internally — no need to look up <code>"70076"</code> or
+<code>"70064"</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">travel_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">from_stop</span><span class="op">(</span><span class="st">"Park Street"</span><span class="op">)</span><span class="op">$</span><span class="fu">to_stop</span><span class="op">(</span><span class="st">"Davis"</span><span class="op">)</span><span class="op">$</span><span class="fu">date_range</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span><span class="op">)</span><span class="op">$</span><span class="fu">aggregate_travel_times</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">travel_df</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="clean-it-up">Clean it up<a class="anchor" aria-label="anchor" href="#clean-it-up"></a>
+<h3 id="clean-and-plot">Clean and plot<a class="anchor" aria-label="anchor" href="#clean-and-plot"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">travel_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">travel_raw</span><span class="op">$</span><span class="va">by_date</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Travel times come back in seconds — convert to minutes</span></span>
-<span><span class="va">travel_df</span> <span class="op">&lt;-</span> <span class="va">travel_df</span> <span class="op">|&gt;</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">travel_df</span> <span class="op">&lt;-</span> <span class="va">travel_df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    date       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">service_date</span><span class="op">)</span>,</span>
 <span>    travel_min <span class="op">=</span> <span class="va">mean</span> <span class="op">/</span> <span class="fl">60</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">travel_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 15</span></span></span>
-<span><span class="co">#&gt;   `25%` `50%` `75%` count holiday   max  mean   min peak  service_date   std</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="text-decoration: underline;">1</span>235. <span style="text-decoration: underline;">1</span>270. <span style="text-decoration: underline;">1</span>334.   112 TRUE     <span style="text-decoration: underline;">2</span>011 <span style="text-decoration: underline;">1</span>298.  <span style="text-decoration: underline;">1</span>132 all   2024-01-01   108. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="text-decoration: underline;">1</span>251  <span style="text-decoration: underline;">1</span>302  <span style="text-decoration: underline;">1</span>362    133 FALSE    <span style="text-decoration: underline;">2</span>234 <span style="text-decoration: underline;">1</span>326.  <span style="text-decoration: underline;">1</span>178 all   2024-01-02   128. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="text-decoration: underline;">1</span>237. <span style="text-decoration: underline;">1</span>294. <span style="text-decoration: underline;">1</span>356    132 FALSE    <span style="text-decoration: underline;">1</span>572 <span style="text-decoration: underline;">1</span>305.  <span style="text-decoration: underline;">1</span>172 all   2024-01-03    82.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="text-decoration: underline;">1</span>257. <span style="text-decoration: underline;">1</span>308. <span style="text-decoration: underline;">1</span>370.   130 FALSE    <span style="text-decoration: underline;">2</span>674 <span style="text-decoration: underline;">1</span>336.  <span style="text-decoration: underline;">1</span>178 all   2024-01-04   156. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> <span style="text-decoration: underline;">1</span>241  <span style="text-decoration: underline;">1</span>288  <span style="text-decoration: underline;">1</span>344.   131 FALSE    <span style="text-decoration: underline;">2</span>305 <span style="text-decoration: underline;">1</span>318.  <span style="text-decoration: underline;">1</span>167 all   2024-01-05   135. </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> <span style="text-decoration: underline;">1</span>230. <span style="text-decoration: underline;">1</span>304. <span style="text-decoration: underline;">1</span>379    116 FALSE    <span style="text-decoration: underline;">1</span>893 <span style="text-decoration: underline;">1</span>337.  <span style="text-decoration: underline;">1</span>134 all   2024-01-06   142. </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: sum &lt;dbl&gt;, weekend &lt;lgl&gt;, date &lt;date&gt;, travel_min &lt;dbl&gt;</span></span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="plot-it-1">Plot it<a class="anchor" aria-label="anchor" href="#plot-it-1"></a>
-</h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">travel_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">date</span>, y <span class="op">=</span> <span class="va">travel_min</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#DA291C"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"loess"</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
@@ -234,9 +159,7 @@ Park Street northbound is <code>70076</code> and southbound is
 <span>    x        <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    y        <span class="op">=</span> <span class="st">"Minutes"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using formula = 'y ~ x'</span></span></code></pre></div>
-<p><img src="red-line-analysis_files/figure-html/travel-plot-1.png" class="r-plt" alt="" width="700"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p><strong>Dashed line</strong> is a smooth trend. If travel times creep
 up over time it can signal slow zones accumulating — which leads us to
@@ -248,34 +171,20 @@ section 3.</p>
 <h2 id="slow-zones-on-a-specific-day">3. Slow zones on a specific day<a class="anchor" aria-label="anchor" href="#slow-zones-on-a-specific-day"></a>
 </h2>
 <p>Speed restrictions (“slow zones”) are places where trains must go
-slower than normal, usually because of track issues.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">slow_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_speed_restrictions.html">tm_speed_restrictions</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">slow_raw</span><span class="op">$</span><span class="va">available</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+slower than normal, usually because of track issues. Unlike most
+endpoints, this one returns a <strong>list</strong> (not a data.frame)
+because its structure is more complex.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">slow_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">speed_restrictions</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">slow_raw</span><span class="op">$</span><span class="va">available</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"No slow zone data available for this date."</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="va">slow_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">slow_raw</span><span class="op">$</span><span class="va">zones</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">slow_df</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; Rows: 60</span></span>
-<span><span class="co">#&gt; Columns: 11</span></span>
-<span><span class="co">#&gt; $ date        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "2024-01-15"<span style="color: #949494;">, </span>"2024-01-15"<span style="color: #949494;">, </span>"2024-01-15"<span style="color: #949494;">, </span>"2024-01-15"<span style="color: #949494;">, </span>"2…</span></span>
-<span><span class="co">#&gt; $ trackFeet   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 699<span style="color: #949494;">, </span>412<span style="color: #949494;">, </span>599<span style="color: #949494;">, </span>500<span style="color: #949494;">, </span>300<span style="color: #949494;">, </span>86<span style="color: #949494;">, </span>475<span style="color: #949494;">, </span>99<span style="color: #949494;">, </span>513<span style="color: #949494;">, </span>100<span style="color: #949494;">, </span>100<span style="color: #949494;">, </span>800<span style="color: #949494;">, </span>…</span></span>
-<span><span class="co">#&gt; $ reason      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Track"<span style="color: #949494;">, </span>"Track"<span style="color: #949494;">, </span>"Track"<span style="color: #949494;">, </span>"Track"<span style="color: #949494;">, </span>"Track"<span style="color: #949494;">, </span>"Track"<span style="color: #949494;">, </span>"Tra…</span></span>
-<span><span class="co">#&gt; $ speedMph    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>25…</span></span>
-<span><span class="co">#&gt; $ fromStopId  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "place-pktrm"<span style="color: #949494;">, </span>"place-andrw"<span style="color: #949494;">, </span>"place-chmnl"<span style="color: #949494;">, </span>"place-chmnl"…</span></span>
-<span><span class="co">#&gt; $ reported    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "2023-08-25"<span style="color: #949494;">, </span>"2023-08-01"<span style="color: #949494;">, </span>"2023-08-02"<span style="color: #949494;">, </span>"2023-10-19"<span style="color: #949494;">, </span>"2…</span></span>
-<span><span class="co">#&gt; $ lineId      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "line-Red"<span style="color: #949494;">, </span>"line-Red"<span style="color: #949494;">, </span>"line-Red"<span style="color: #949494;">, </span>"line-Red"<span style="color: #949494;">, </span>"line-Red"…</span></span>
-<span><span class="co">#&gt; $ description <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "SB Park to Downtown Cross."<span style="color: #949494;">, </span>"SB Andrew to JFK"<span style="color: #949494;">, </span>"SB Char…</span></span>
-<span><span class="co">#&gt; $ id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "572027"<span style="color: #949494;">, </span>"565480"<span style="color: #949494;">, </span>"567089"<span style="color: #949494;">, </span>"000108R"<span style="color: #949494;">, </span>"000108R"<span style="color: #949494;">, </span>"50852…</span></span>
-<span><span class="co">#&gt; $ toStopId    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "place-dwnxg"<span style="color: #949494;">, </span>"place-jfk"<span style="color: #949494;">, </span>"place-pktrm"<span style="color: #949494;">, </span>"place-knncl"<span style="color: #949494;">, </span>…</span></span>
-<span><span class="co">#&gt; $ direction   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "SB"<span style="color: #949494;">, </span>"SB"<span style="color: #949494;">, </span>"SB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"NB"<span style="color: #949494;">, </span>"SB"…</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="co"># Each row is a slow zone segment; visualize by location and speed limit</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">slow_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">description</span>, <span class="va">speedMph</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">speedMph</span>, fill <span class="op">=</span> <span class="va">speedMph</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">slow_df</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">slow_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">description</span>, <span class="va">speedMph</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">speedMph</span>, fill <span class="op">=</span> <span class="va">speedMph</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient</a></span><span class="op">(</span>low <span class="op">=</span> <span class="st">"#DA291C"</span>, high <span class="op">=</span> <span class="st">"#f9c0c0"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -287,7 +196,6 @@ slower than normal, usually because of track issues.</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="red-line-analysis_files/figure-html/slow-plot-1.png" class="r-plt" alt="" width="700"></p>
 <blockquote>
 <p><strong>Note:</strong> If <code>slow_raw$available</code> is
 <code>FALSE</code>, there were no active slow zones that day. Try a
@@ -297,23 +205,25 @@ different date or check during a period with known track work.</p>
 <div class="section level2">
 <h2 id="putting-it-all-together">4. Putting it all together<a class="anchor" aria-label="anchor" href="#putting-it-all-together"></a>
 </h2>
-<p>Here’s a pattern you’ll use over and over: <strong>pull → bind_rows →
-mutate → ggplot</strong>. Once you’re comfortable with it, try
-exploring:</p>
+<p>Here’s the pattern you’ll use over and over with
+<code>transitmattr</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">tm_rt_query</span>(<span class="st">"Red"</span>)             <span class="co"># pick a line</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="sc">$</span><span class="fu">stop</span>(<span class="st">"Harvard"</span>)             <span class="co"># set a station</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="sc">$</span><span class="fu">date</span>(<span class="st">"2024-01-15"</span>)          <span class="co"># set a date</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="sc">$</span><span class="fu">headways</span>()                  <span class="co"># fetch — returns a data.frame</span></span></code></pre></div>
+<p>Once you’re comfortable with it, try exploring other methods:</p>
 <ul>
 <li>
-<code><a href="../reference/tm_routes.html">tm_routes()</a></code> — see all available lines before picking
-one</li>
+<code>$line_delays()</code> — delay minutes caused by alerts</li>
 <li>
-<code>tm_stops("Orange")</code> — look up stop IDs for a different
-line</li>
+<code>$trip_metrics("daily")</code> — on-time performance per
+trip</li>
 <li>
-<code><a href="../reference/tm_aggregate_headways.html">tm_aggregate_headways()</a></code> — how often trains come, over
+<code>$aggregate_headways()</code> — how often trains come, over
 time</li>
 <li>
-<code><a href="../reference/tm_line_delays.html">tm_line_delays()</a></code> — delay minutes caused by alerts</li>
-<li>
-<code><a href="../reference/tm_trip_metrics.html">tm_trip_metrics()</a></code> — on-time performance per trip</li>
+<code>$service_hours("weekly")</code> — scheduled vs. delivered
+service hours</li>
 </ul>
 </div>
 <div class="section level2">
@@ -330,21 +240,18 @@ time</li>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>
-<code><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows()</a></code> gives an error</td>
-<td>Use <code>str(raw_result)</code> to see the exact structure, then
-drill in with <code>$</code>
-</td>
+<td>“requires a stop” error</td>
+<td>Call <code>$stop("Name")</code> before the terminal method</td>
 </tr>
 <tr class="even">
+<td>“requires a date range” error</td>
+<td>Call <code>$date_range(start, end)</code> before the terminal
+method</td>
+</tr>
+<tr class="odd">
 <td>All values are <code>NULL</code>
 </td>
 <td>The API may have no data for that date; try a nearby weekday</td>
-</tr>
-<tr class="odd">
-<td>Columns have unexpected names</td>
-<td>Run <code>names(df)</code> and adjust your <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>
-references</td>
 </tr>
 <tr class="even">
 <td>The API call fails</td>

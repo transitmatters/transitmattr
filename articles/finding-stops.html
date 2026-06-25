@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,16 +69,13 @@
 
     
     
-<p>Every API function that returns per-trip data (headways, dwells,
-travel times) needs a <strong>stop ID</strong> — a string that
-identifies exactly where on the network you want to look. These IDs are
-opaque by design: <code>"70061"</code> is Alewife,
-<code>"1-1-110"</code> is Harvard inbound on Route 1,
-<code>"Boat-F1|1|Boat-Hingham"</code> is Hingham Ferry inbound. Nobody
-has these memorised.</p>
-<p>The <code>tm_*_stop_id()</code> family converts human-readable names
-into the IDs the API expects. This vignette is a quick reference for all
-four transit modes.</p>
+<p>In <code>transitmattr</code>, you never have to look up or memorise
+stop IDs. Instead, you build a <strong>query object</strong> for a
+transit mode and line/route, then call
+<code>$stop("Station Name")</code> — the library resolves the correct
+stop ID automatically.</p>
+<p>This vignette shows how to discover valid station names and build
+queries for all four transit modes.</p>
 <hr>
 <div class="section level2">
 <h2 id="rapid-transit">Rapid Transit<a class="anchor" aria-label="anchor" href="#rapid-transit"></a>
@@ -90,7 +87,7 @@ and <strong>Mattapan</strong>.</p>
 <h3 id="discover-what-stations-are-on-this-line">Discover: what stations are on this line?<a class="anchor" aria-label="anchor" href="#discover-what-stations-are-on-this-line"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_line_stations.html">tm_line_stations</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">stations</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                stop_name     station order branches</span></span>
 <span><span class="co">#&gt; 1                Alewife place-alfcl     1     A, B</span></span>
 <span><span class="co">#&gt; 2                  Davis place-davis     2     A, B</span></span>
@@ -122,78 +119,42 @@ and <strong>Mattapan</strong>.</p>
 <p>Rapid transit lines use geographic direction names rather than
 inbound/outbound.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_line_directions.html">tm_line_directions</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span>   <span class="co"># northbound / southbound</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">directions</span><span class="op">(</span><span class="op">)</span>   <span class="co"># northbound / southbound</span></span>
 <span><span class="co">#&gt;            0            1 </span></span>
 <span><span class="co">#&gt; "northbound" "southbound"</span></span>
-<span><span class="fu"><a href="../reference/tm_line_directions.html">tm_line_directions</a></span><span class="op">(</span><span class="st">"Green"</span><span class="op">)</span> <span class="co"># eastbound  / westbound</span></span>
+<span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Green"</span><span class="op">)</span><span class="op">$</span><span class="fu">directions</span><span class="op">(</span><span class="op">)</span> <span class="co"># eastbound  / westbound</span></span>
 <span><span class="co">#&gt;           0           1 </span></span>
 <span><span class="co">#&gt; "eastbound" "westbound"</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="look-up-a-stop-id">Look up a stop ID<a class="anchor" aria-label="anchor" href="#look-up-a-stop-id"></a>
+<h3 id="build-a-query-and-fetch-data">Build a query and fetch data<a class="anchor" aria-label="anchor" href="#build-a-query-and-fetch-data"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Davis, trains heading toward Alewife (northbound)</span></span>
-<span><span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="st">"northbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "70064"</span></span>
+<code class="sourceCode R"><span><span class="co"># Headways at Davis, all trains (direction resolved from stop ID)</span></span>
+<span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Davis"</span><span class="op">)</span><span class="op">$</span><span class="fu">headways</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Alewife is a terminus — same stop ID in both directions</span></span>
-<span><span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Alewife"</span>, <span class="st">"northbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "70061"</span></span>
-<span><span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Alewife"</span>, <span class="st">"southbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "70061"</span></span></code></pre></div>
-<p>You can also use <code>0</code>/<code>1</code> instead of direction
-names if you prefer:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="fl">0</span><span class="op">)</span>  <span class="co"># same as "northbound"</span></span>
-<span><span class="co">#&gt; [1] "70064"</span></span>
-<span><span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="fl">1</span><span class="op">)</span>  <span class="co"># same as "southbound"</span></span>
-<span><span class="co">#&gt; [1] "70063"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="look-up-a-place-id">Look up a place ID<a class="anchor" aria-label="anchor" href="#look-up-a-place-id"></a>
-</h3>
-<p><code><a href="../reference/tm_place_id.html">tm_place_id()</a></code> returns the GTFS parent-station identifier
-for a rapid transit station (e.g. <code>"place-pktrm"</code>). These are
-<strong>not</strong> used by the TransitMatters aggregate endpoints —
-they are provided as a convenience if you need to cross- reference with
-the MBTA v3 API.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_place_id.html">tm_place_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Park Street"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "place-pktrm"</span></span>
-<span><span class="fu"><a href="../reference/tm_place_id.html">tm_place_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "place-davis"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="using-these-in-api-calls">Using these in API calls<a class="anchor" aria-label="anchor" href="#using-these-in-api-calls"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Headways at Davis, trains heading toward Alewife</span></span>
-<span><span class="va">davis_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
-<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="st">"northbound"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="co"># For travel times, specify direction (determines which platform stop ID to use)</span></span>
+<span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="fu">from_stop</span><span class="op">(</span><span class="st">"Park Street"</span><span class="op">)</span><span class="op">$</span><span class="fu">to_stop</span><span class="op">(</span><span class="st">"Davis"</span><span class="op">)</span><span class="op">$</span><span class="fu">direction</span><span class="op">(</span><span class="st">"northbound"</span><span class="op">)</span><span class="op">$</span><span class="fu">travel_times</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Travel time: Park Street → Davis (aggregate endpoint uses stop IDs)</span></span>
-<span><span class="va">parkst_2_davis_tt</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_aggregate_travel_times2.html">tm_aggregate_travel_times2</a></span><span class="op">(</span></span>
-<span>  from_stop  <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Park Street"</span>, <span class="st">"northbound"</span><span class="op">)</span>,</span>
-<span>  to_stop    <span class="op">=</span> <span class="fu"><a href="../reference/tm_stop_id.html">tm_stop_id</a></span><span class="op">(</span><span class="st">"Red"</span>, <span class="st">"Davis"</span>, <span class="st">"northbound"</span><span class="op">)</span>,</span>
-<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Aggregate headways for January 2024 (direction filters to one platform)</span></span>
+<span><span class="fu"><a href="../reference/tm_rt_query.html">tm_rt_query</a></span><span class="op">(</span><span class="st">"Red"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Davis"</span><span class="op">)</span><span class="op">$</span><span class="fu">direction</span><span class="op">(</span><span class="st">"southbound"</span><span class="op">)</span><span class="op">$</span><span class="fu">date_range</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span><span class="op">)</span><span class="op">$</span><span class="fu">aggregate_headways</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>You can chain builder calls before the terminal call. The query
+object accumulates context and validates each input as you set it —
+typos in station names produce an error immediately, not at request
+time.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="bus">Bus<a class="anchor" aria-label="anchor" href="#bus"></a>
 </h2>
-<p>There are 121 bus routes in the constants. Directions are always
+<p>There are 121 bus routes. Directions are always
 <code>"outbound"</code> and <code>"inbound"</code>.</p>
 <div class="section level3">
 <h3 id="discover-what-routes-are-available">Discover: what routes are available?<a class="anchor" aria-label="anchor" href="#discover-what-routes-are-available"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Returns all route IDs — sorted, so standard routes come first</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/tm_bus_routes.html">tm_bus_routes</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">15</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/tm_bus_routes.html">tm_bus_routes</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "1"           "10"          "100"         "101"         "104"        </span></span>
 <span><span class="co">#&gt;  [6] "104/109"     "105"         "106"         "108"         "109"        </span></span>
 <span><span class="co">#&gt; [11] "11"          "110"         "111"         "112"         "114/116/117"</span></span></code></pre></div>
@@ -201,9 +162,8 @@ the MBTA v3 API.</p>
 <div class="section level3">
 <h3 id="discover-what-stops-are-on-this-route">Discover: what stops are on this route?<a class="anchor" aria-label="anchor" href="#discover-what-stops-are-on-this-route"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Route 1 runs between Harvard and Nubian</span></span>
-<span><span class="fu"><a href="../reference/tm_bus_stations.html">tm_bus_stations</a></span><span class="op">(</span><span class="st">"1"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_bus_query.html">tm_bus_query</a></span><span class="op">(</span><span class="st">"1"</span><span class="op">)</span><span class="op">$</span><span class="fu">stations</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                    stop_name station order</span></span>
 <span><span class="co">#&gt; 1                    Harvard   hhgat     1</span></span>
 <span><span class="co">#&gt; 2      Mass Ave &amp; Putnam Ave   maput     2</span></span>
@@ -216,34 +176,14 @@ the MBTA v3 API.</p>
 <span><span class="co">#&gt; 9             Nubian Station    nubn     9</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="look-up-a-stop-id-1">Look up a stop ID<a class="anchor" aria-label="anchor" href="#look-up-a-stop-id-1"></a>
+<h3 id="build-a-query-and-fetch-data-1">Build a query and fetch data<a class="anchor" aria-label="anchor" href="#build-a-query-and-fetch-data-1"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Harvard, boarding a Route 1 toward Nubian (inbound)</span></span>
-<span><span class="fu"><a href="../reference/tm_bus_stop_id.html">tm_bus_stop_id</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"Harvard"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "1-1-110"</span></span>
-<span></span>
-<span><span class="co"># Harvard, boarding a Route 1 toward Watertown (outbound)</span></span>
-<span><span class="fu"><a href="../reference/tm_bus_stop_id.html">tm_bus_stop_id</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"Harvard"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "1-0-110"</span></span></code></pre></div>
-<p>Bus stop IDs encode the route and direction — <code>"1-1-110"</code>
-means route 1, direction 1 (inbound), stop sequence 110.</p>
-</div>
-<div class="section level3">
-<h3 id="using-these-in-api-calls-1">Using these in API calls<a class="anchor" aria-label="anchor" href="#using-these-in-api-calls-1"></a>
-</h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Headways at Harvard on Route 1, inbound, on a specific day</span></span>
-<span><span class="va">harvard_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-01-15"</span>,</span>
-<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_bus_stop_id.html">tm_bus_stop_id</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"Harvard"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/tm_bus_query.html">tm_bus_query</a></span><span class="op">(</span><span class="st">"1"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Harvard"</span><span class="op">)</span><span class="op">$</span><span class="fu">headways</span><span class="op">(</span><span class="st">"2024-01-15"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Aggregate headways at Nubian over a month</span></span>
-<span><span class="va">aggregate_headways_1</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_aggregate_headways.html">tm_aggregate_headways</a></span><span class="op">(</span></span>
-<span>  stop       <span class="op">=</span> <span class="fu"><a href="../reference/tm_bus_stop_id.html">tm_bus_stop_id</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"Nubian Station"</span>, <span class="st">"inbound"</span><span class="op">)</span>,</span>
-<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  end_date   <span class="op">=</span> <span class="st">"2024-01-31"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Aggregate headways at Harvard over a month</span></span>
+<span><span class="fu"><a href="../reference/tm_bus_query.html">tm_bus_query</a></span><span class="op">(</span><span class="st">"1"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Harvard"</span><span class="op">)</span><span class="op">$</span><span class="fu">direction</span><span class="op">(</span><span class="st">"inbound"</span><span class="op">)</span><span class="op">$</span><span class="fu">date_range</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span><span class="op">)</span><span class="op">$</span><span class="fu">aggregate_headways</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -255,7 +195,7 @@ lines are available.</p>
 <div class="section level3">
 <h3 id="discover-what-routes-are-available-1">Discover: what routes are available?<a class="anchor" aria-label="anchor" href="#discover-what-routes-are-available-1"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_cr_routes.html">tm_cr_routes</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "CR-Fairmount"     "CR-Fitchburg"     "CR-Franklin"      "CR-Greenbush"    </span></span>
 <span><span class="co">#&gt;  [5] "CR-Haverhill"     "CR-Kingston"      "CR-Lowell"        "CR-Middleborough"</span></span>
@@ -265,10 +205,13 @@ lines are available.</p>
 <div class="section level3">
 <h3 id="discover-what-stops-are-on-this-line">Discover: what stops are on this line?<a class="anchor" aria-label="anchor" href="#discover-what-stops-are-on-this-line"></a>
 </h3>
-<p>The <code>terminus</code> column flags the endpoints of each
-line.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_cr_stations.html">tm_cr_stations</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span><span class="op">)</span></span>
+<p>The <code>terminus</code> column flags the endpoints of each line.
+Terminus stations have stop IDs for only one direction — calling
+<code>$stop()</code> on a terminus station will issue a
+<strong>warning</strong> to alert you that data may be incomplete in one
+direction.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_cr_query.html">tm_cr_query</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span><span class="op">)</span><span class="op">$</span><span class="fu">stations</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             stop_name       station order terminus</span></span>
 <span><span class="co">#&gt; 1           Readville place-DB-0095     1     TRUE</span></span>
 <span><span class="co">#&gt; 2           Fairmount place-DB-2205     2    FALSE</span></span>
@@ -281,66 +224,20 @@ line.</p>
 <span><span class="co">#&gt; 9       South Station   place-sstat     9     TRUE</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="look-up-a-stop-id-2">Look up a stop ID<a class="anchor" aria-label="anchor" href="#look-up-a-stop-id-2"></a>
+<h3 id="build-a-query-and-fetch-data-2">Build a query and fetch data<a class="anchor" aria-label="anchor" href="#build-a-query-and-fetch-data-2"></a>
 </h3>
-<p>CR stations can have multiple platform stop IDs for the same station.
-At <strong>terminus</strong> stations, one direction may have no stops
-(trains only depart, not arrive, in the other direction).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Fairmount station, outbound (toward Readville)</span></span>
-<span><span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "CR-Fairmount_0_DB-2205-01" "CR-Fairmount_0_DB-2205-02"</span></span>
-<span></span>
-<span><span class="co"># South Station, inbound — terminus, so no inbound stops</span></span>
-<span><span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; character(0)</span></span>
-<span></span>
-<span><span class="co"># South Station, outbound — all platforms</span></span>
-<span><span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "CR-Fairmount_0_NEC-2287"    "CR-Fairmount_0_NEC-2287-01"</span></span>
-<span><span class="co">#&gt; [3] "CR-Fairmount_0_NEC-2287-07" "CR-Fairmount_0_NEC-2287-08"</span></span>
-<span><span class="co">#&gt; [5] "CR-Fairmount_0_NEC-2287-09" "CR-Fairmount_0_NEC-2287-10"</span></span>
-<span><span class="co">#&gt; [7] "CR-Fairmount_0_NEC-2287-11" "CR-Fairmount_0_NEC-2287-12"</span></span>
-<span><span class="co">#&gt; [9] "CR-Fairmount_0_NEC-2287-13"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="look-up-a-place-id-1">Look up a place ID<a class="anchor" aria-label="anchor" href="#look-up-a-place-id-1"></a>
-</h3>
-<p><code><a href="../reference/tm_cr_place_id.html">tm_cr_place_id()</a></code> returns the GTFS parent-station
-identifier for a CR station (e.g. <code>"place-sstat"</code>). Like
-<code><a href="../reference/tm_place_id.html">tm_place_id()</a></code> for rapid transit, these are
-<strong>not</strong> used by the TransitMatters aggregate endpoints —
-they are provided for cross- referencing with the MBTA v3 API.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_cr_place_id.html">tm_cr_place_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"South Station"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "place-sstat"</span></span>
-<span><span class="fu"><a href="../reference/tm_cr_place_id.html">tm_cr_place_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "place-DB-2205"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="using-these-in-api-calls-2">Using these in API calls<a class="anchor" aria-label="anchor" href="#using-these-in-api-calls-2"></a>
-</h3>
-<p>CR stops work with <code><a href="../reference/tm_headways.html">tm_headways()</a></code> and
-<code><a href="../reference/tm_travel_times.html">tm_travel_times()</a></code>. The key is to pass stop IDs whose
-<strong>direction matches the direction of travel</strong>. For a trip
-heading toward South Station (inbound, direction 1), use
-<code>"inbound"</code> stop IDs for both <code>from_stop</code> and
-<code>to_stop</code>.</p>
-<p>Note: South Station is the inbound terminus, so it has no inbound
-stop IDs — you cannot use it as a <code>to_stop</code> for inbound
-travel times.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Headways at Fairmount, inbound trains (toward South Station)</span></span>
-<span><span class="va">fairmount_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2026-06-18"</span>,</span>
-<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/tm_cr_query.html">tm_cr_query</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Fairmount"</span><span class="op">)</span><span class="op">$</span><span class="fu">headways</span><span class="op">(</span><span class="st">"2026-06-18"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Travel time, Fairmount → Blue Hill Avenue, inbound</span></span>
-<span><span class="co"># Both stops use "inbound" because the train is traveling toward South Station</span></span>
-<span><span class="va">fairmount_2_bha_tt</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_travel_times.html">tm_travel_times</a></span><span class="op">(</span><span class="st">"2026-06-18"</span>,</span>
-<span>  from_stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Fairmount"</span>, <span class="st">"inbound"</span><span class="op">)</span>,</span>
-<span>  to_stop   <span class="op">=</span> <span class="fu"><a href="../reference/tm_cr_stop_id.html">tm_cr_stop_id</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span>, <span class="st">"Blue Hill Avenue"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/tm_cr_query.html">tm_cr_query</a></span><span class="op">(</span><span class="st">"CR-Fairmount"</span><span class="op">)</span><span class="op">$</span><span class="fu">from_stop</span><span class="op">(</span><span class="st">"Fairmount"</span><span class="op">)</span><span class="op">$</span><span class="fu">to_stop</span><span class="op">(</span><span class="st">"Blue Hill Avenue"</span><span class="op">)</span><span class="op">$</span><span class="fu">direction</span><span class="op">(</span><span class="st">"inbound"</span><span class="op">)</span><span class="op">$</span><span class="fu">travel_times</span><span class="op">(</span><span class="st">"2026-06-18"</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p><strong>Terminus warning:</strong> If you call
+<code>$stop("South Station")</code> on a CR query, you will see a
+warning — South Station is a terminus and has stop IDs in only one
+direction. The query still works; the warning is informational.</p>
+</blockquote>
 <hr>
 </div>
 </div>
@@ -352,7 +249,7 @@ travel times.</p>
 <div class="section level3">
 <h3 id="discover-what-routes-are-available-2">Discover: what routes are available?<a class="anchor" aria-label="anchor" href="#discover-what-routes-are-available-2"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_ferry_routes.html">tm_ferry_routes</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Boat-EastBoston" "Boat-F1"         "Boat-F4"         "Boat-F6"        </span></span>
 <span><span class="co">#&gt; [5] "Boat-F7"         "Boat-Lynn"</span></span></code></pre></div>
@@ -360,9 +257,8 @@ travel times.</p>
 <div class="section level3">
 <h3 id="discover-what-stops-are-on-this-route-1">Discover: what stops are on this route?<a class="anchor" aria-label="anchor" href="#discover-what-stops-are-on-this-route-1"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># F1: Long Wharf ↔ Hingham</span></span>
-<span><span class="fu"><a href="../reference/tm_ferry_stations.html">tm_ferry_stations</a></span><span class="op">(</span><span class="st">"Boat-F1"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tm_ferry_query.html">tm_ferry_query</a></span><span class="op">(</span><span class="st">"Boat-F1"</span><span class="op">)</span><span class="op">$</span><span class="fu">stations</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                      stop_name      station order terminus</span></span>
 <span><span class="co">#&gt; 1           Long Wharf (North)    Boat-Long     6     TRUE</span></span>
 <span><span class="co">#&gt; 2                  Rowes Wharf   Boat-Rowes     5    FALSE</span></span>
@@ -372,80 +268,60 @@ travel times.</p>
 <span><span class="co">#&gt; 6                      Hingham Boat-Hingham     1     TRUE</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="look-up-a-stop-id-3">Look up a stop ID<a class="anchor" aria-label="anchor" href="#look-up-a-stop-id-3"></a>
+<h3 id="build-a-query-and-fetch-data-3">Build a query and fetch data<a class="anchor" aria-label="anchor" href="#build-a-query-and-fetch-data-3"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Hingham, boarding a ferry to Long Wharf (inbound)</span></span>
-<span><span class="fu"><a href="../reference/tm_ferry_stop_id.html">tm_ferry_stop_id</a></span><span class="op">(</span><span class="st">"Boat-F1"</span>, <span class="st">"Hingham"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Boat-F1|1|Boat-Hingham"</span></span>
-<span></span>
-<span><span class="co"># Long Wharf (North), boarding a ferry to Hingham (outbound)</span></span>
-<span><span class="fu"><a href="../reference/tm_ferry_stop_id.html">tm_ferry_stop_id</a></span><span class="op">(</span><span class="st">"Boat-F1"</span>, <span class="st">"Long Wharf (North)"</span>, <span class="st">"outbound"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Boat-F1|0|Boat-Long"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="using-these-in-api-calls-3">Using these in API calls<a class="anchor" aria-label="anchor" href="#using-these-in-api-calls-3"></a>
-</h3>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Headways at Hingham, inbound</span></span>
-<span><span class="va">ferry_headways</span> <span class="op">=</span> <span class="fu"><a href="../reference/tm_headways.html">tm_headways</a></span><span class="op">(</span><span class="st">"2024-06-01"</span>,</span>
-<span>  stop <span class="op">=</span> <span class="fu"><a href="../reference/tm_ferry_stop_id.html">tm_ferry_stop_id</a></span><span class="op">(</span><span class="st">"Boat-F1"</span>, <span class="st">"Hingham"</span>, <span class="st">"inbound"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Headways at Hingham, inbound (toward Long Wharf)</span></span>
+<span><span class="fu"><a href="../reference/tm_ferry_query.html">tm_ferry_query</a></span><span class="op">(</span><span class="st">"Boat-F1"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"Hingham"</span><span class="op">)</span><span class="op">$</span><span class="fu">headways</span><span class="op">(</span><span class="st">"2024-06-01"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="quick-reference">Quick reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
-<col width="10%">
+<col width="11%">
 <col width="20%">
-<col width="23%">
-<col width="21%">
-<col width="23%">
+<col width="35%">
+<col width="32%">
 </colgroup>
 <thead><tr class="header">
 <th>Mode</th>
 <th>Routes fn</th>
-<th>Stations fn</th>
-<th>Stop ID fn</th>
-<th>Place ID fn</th>
+<th>Query constructor</th>
+<th>Stations method</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td>Rapid transit</td>
 <td>—</td>
-<td><code>tm_line_stations(line)</code></td>
-<td><code>tm_stop_id(line, stop, dir)</code></td>
-<td><code>tm_place_id(line, stop)</code></td>
+<td><code>tm_rt_query(line)</code></td>
+<td><code>$stations()</code></td>
 </tr>
 <tr class="even">
 <td>Bus</td>
 <td><code><a href="../reference/tm_bus_routes.html">tm_bus_routes()</a></code></td>
-<td><code>tm_bus_stations(route)</code></td>
-<td><code>tm_bus_stop_id(route, stop, dir)</code></td>
-<td>—</td>
+<td><code>tm_bus_query(route)</code></td>
+<td><code>$stations()</code></td>
 </tr>
 <tr class="odd">
 <td>Commuter Rail</td>
 <td><code><a href="../reference/tm_cr_routes.html">tm_cr_routes()</a></code></td>
-<td><code>tm_cr_stations(route)</code></td>
-<td><code>tm_cr_stop_id(route, stop, dir)</code></td>
-<td><code>tm_cr_place_id(route, stop)</code></td>
+<td><code>tm_cr_query(route)</code></td>
+<td><code>$stations()</code></td>
 </tr>
 <tr class="even">
 <td>Ferry</td>
 <td><code><a href="../reference/tm_ferry_routes.html">tm_ferry_routes()</a></code></td>
-<td><code>tm_ferry_stations(route)</code></td>
-<td><code>tm_ferry_stop_id(route, stop, dir)</code></td>
-<td>—</td>
+<td><code>tm_ferry_query(route)</code></td>
+<td><code>$stations()</code></td>
 </tr>
 </tbody>
 </table>
-<p>All stop-name arguments are <strong>case-insensitive</strong>. Line
-and route arguments are also case-insensitive (<code>"red"</code> and
-<code>"Red"</code> both work).</p>
+<p>All station name arguments are <strong>case-insensitive</strong>.
+Line and route arguments accept multiple forms (<code>"red"</code>,
+<code>"Red"</code>, and <code>"line-Red"</code> are all equivalent).</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

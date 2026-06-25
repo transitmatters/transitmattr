@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,10 +42,45 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="transitmattr-020">transitmattr 0.2.0<a class="anchor" aria-label="anchor" href="#transitmattr-020"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-2-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-2-0"></a></h3>
+<ul><li><p>All mode-specific data functions (<code>tm_headways()</code>, <code>tm_dwells()</code>, <code>tm_travel_times()</code>, <code>tm_ridership()</code>, <code>tm_trip_metrics()</code>, <code>tm_line_delays()</code>, <code>tm_service_hours()</code>, <code>tm_speed_restrictions()</code>, <code>tm_aggregate_headways()</code>, <code>tm_aggregate_dwells()</code>, <code>tm_aggregate_travel_times()</code>, <code>tm_aggregate_travel_times2()</code>) have been removed. Use the new query builder interface instead (see below).</p></li>
+<li><p><code><a href="../reference/tm_time_predictions.html">tm_time_predictions()</a></code> now requires a <code>route_id</code> argument.</p></li>
+<li><p>All data-fetching functions previously returned a list of records. Query builder terminal methods now return a <code>data.frame</code> directly, so <code><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows()</a></code> or <code>do.call(rbind, ...)</code> conversions are no longer needed.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-query-builder-interface-0-2-0">New query builder interface<a class="anchor" aria-label="anchor" href="#new-query-builder-interface-0-2-0"></a></h3>
+<p>Data is now fetched through mode-specific R6 query objects. Each object is created with a constructor, configured by chaining builder methods, and activated by a terminal method:</p>
+<ul><li>
+<code>tm_rt_query(line)</code> — rapid transit (Red, Orange, Blue, Green, Mattapan)</li>
+<li>
+<code>tm_bus_query(route)</code> — bus routes</li>
+<li>
+<code>tm_cr_query(route)</code> — commuter rail routes</li>
+<li>
+<code>tm_ferry_query(route)</code> — ferry routes</li>
+</ul><p><strong>Builder methods</strong> (return the object invisibly for chaining): <code>$stop()</code>, <code>$from_stop()</code>, <code>$to_stop()</code>, <code>$direction()</code>, <code>$date()</code>, <code>$date_range()</code></p>
+<p><strong>Discovery methods</strong>: <code>$stations()</code> and <code>$directions()</code> return data frames of available stops/directions without hitting the data API.</p>
+<p><strong>Terminal methods</strong> (return a <code>data.frame</code>): <code>$headways()</code>, <code>$dwells()</code>, <code>$travel_times()</code>, <code>$aggregate_headways()</code>, <code>$aggregate_dwells()</code>, <code>$aggregate_travel_times()</code>, <code>$ridership()</code>, <code>$trip_metrics()</code>, <code>$line_delays()</code>, <code>$service_hours()</code>, <code>$scheduled_service()</code>, <code>$speed_restrictions()</code></p>
+<p>Commuter rail and ferry terminus stations now emit a warning when selected via <code>$stop()</code>, <code>$from_stop()</code>, or <code>$to_stop()</code>, as stop IDs may be missing in one direction.</p>
+</div>
+<div class="section level3">
+<h3 id="new-functions-0-2-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/tm_bus_routes.html">tm_bus_routes()</a></code> — returns a sorted character vector of all supported bus route IDs (local lookup, no API call).</li>
+<li>
+<code><a href="../reference/tm_cr_routes.html">tm_cr_routes()</a></code> — same for commuter rail routes.</li>
+<li>
+<code><a href="../reference/tm_ferry_routes.html">tm_ferry_routes()</a></code> — same for ferry routes.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="transitmattr-010">transitmattr 0.1.0<a class="anchor" aria-label="anchor" href="#transitmattr-010"></a></h2>
 <ul><li>Initial CRAN release.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

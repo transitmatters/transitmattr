@@ -10,7 +10,7 @@ tm_ferry_routes()
 
 ## Value
 
-A sorted character vector of ferry route IDs available for stop lookup.
+A sorted character vector of ferry route IDs.
 
 ## Examples
 

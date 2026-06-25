@@ -10,7 +10,7 @@ tm_cr_routes()
 
 ## Value
 
-A sorted character vector of CR route IDs available for stop lookup.
+A sorted character vector of CR route IDs.
 
 ## Examples
 

@@ -1,7 +1,6 @@
 # Get scheduled service data
 
-Returns scheduled service counts aggregated over a date range for a
-single MBTA route.
+Returns scheduled service counts aggregated over a date range.
 
 ## Usage
 
@@ -23,20 +22,20 @@ tm_scheduled_service(
 
 - end_date:
 
-  End of the date range. A `Date` object or `"YYYY-MM-DD"` string.
+  End of the date range.
 
 - agg:
 
-  Aggregation level, e.g. `"daily"` or `"weekly"`.
+  Aggregation level: `"daily"` or `"weekly"`.
 
 - route_id:
 
-  MBTA route ID, e.g. `"Red"`, `"Orange"`, `"Green-B"`.
+  Optional MBTA route ID (e.g. `"Red"`, `"Green-B"`). When `NULL`,
+  returns data for all routes.
 
 - base_url:
 
-  Base URL of the TransitMatters API. Defaults to
-  `getOption("tm_dashboard_base_url")` or the production host.
+  Base URL of the TransitMatters API.
 
 ## Value
 
@@ -46,7 +45,6 @@ A list of scheduled service records.
 
 ``` r
 if (FALSE) { # \dontrun{
-tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily",
-                     route_id = "Red")
+tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily", route_id = "Red")
 } # }
 ```

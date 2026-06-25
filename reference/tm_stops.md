@@ -1,6 +1,7 @@
-# Get stops for a route
+# Get stops for a route from the API
 
-Get stops for a route
+Returns live stop data from the API for a given route. For local lookups
+backed by embedded data, use the `$stations()` method on a query object.
 
 ## Usage
 
@@ -12,15 +13,11 @@ tm_stops(route_id, base_url = tm_base_url())
 
 - route_id:
 
-  An MBTA route ID string (e.g. `"Red"`, `"Orange"`, `"Green-B"`,
-  `"CR-Fairmount"`). Use
-  [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
-  to list all valid IDs.
+  An MBTA route ID string (e.g. `"Red"`, `"CR-Fairmount"`).
 
 - base_url:
 
-  Base URL of the TransitMatters API. Defaults to
-  `getOption("tm_dashboard_base_url")` or the production host.
+  Base URL of the TransitMatters API.
 
 ## Value
 
@@ -31,6 +28,5 @@ A list with `type`, `direction`, and `stations` elements.
 ``` r
 if (FALSE) { # \dontrun{
 tm_stops("Red")
-tm_stops("Green-B")
 } # }
 ```

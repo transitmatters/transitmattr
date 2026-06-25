@@ -1,15 +1,12 @@
 # Finding Stops by Name
 
-Every API function that returns per-trip data (headways, dwells, travel
-times) needs a **stop ID** — a string that identifies exactly where on
-the network you want to look. These IDs are opaque by design: `"70061"`
-is Alewife, `"1-1-110"` is Harvard inbound on Route 1,
-`"Boat-F1|1|Boat-Hingham"` is Hingham Ferry inbound. Nobody has these
-memorised.
+In `transitmattr`, you never have to look up or memorise stop IDs.
+Instead, you build a **query object** for a transit mode and line/route,
+then call `$stop("Station Name")` — the library resolves the correct
+stop ID automatically.
 
-The `tm_*_stop_id()` family converts human-readable names into the IDs
-the API expects. This vignette is a quick reference for all four transit
-modes.
+This vignette shows how to discover valid station names and build
+queries for all four transit modes.
 
 ------------------------------------------------------------------------
 
@@ -22,7 +19,7 @@ The five rapid transit lines are **Red**, **Orange**, **Blue**,
 
 ``` r
 
-tm_line_stations("Red")
+tm_rt_query("Red")$stations()
 #>                stop_name     station order branches
 #> 1                Alewife place-alfcl     1     A, B
 #> 2                  Davis place-davis     2     A, B
@@ -56,85 +53,43 @@ inbound/outbound.
 
 ``` r
 
-tm_line_directions("Red")   # northbound / southbound
+tm_rt_query("Red")$directions()   # northbound / southbound
 #>            0            1 
 #> "northbound" "southbound"
-tm_line_directions("Green") # eastbound  / westbound
+tm_rt_query("Green")$directions() # eastbound  / westbound
 #>           0           1 
 #> "eastbound" "westbound"
 ```
 
-### Look up a stop ID
+### Build a query and fetch data
 
 ``` r
 
-# Davis, trains heading toward Alewife (northbound)
-tm_stop_id("Red", "Davis", "northbound")
-#> [1] "70064"
+# Headways at Davis, all trains (direction resolved from stop ID)
+tm_rt_query("Red")$stop("Davis")$headways("2024-01-15")
 
-# Alewife is a terminus — same stop ID in both directions
-tm_stop_id("Red", "Alewife", "northbound")
-#> [1] "70061"
-tm_stop_id("Red", "Alewife", "southbound")
-#> [1] "70061"
+# For travel times, specify direction (determines which platform stop ID to use)
+tm_rt_query("Red")$from_stop("Park Street")$to_stop("Davis")$direction("northbound")$travel_times("2024-01-15")
+
+# Aggregate headways for January 2024 (direction filters to one platform)
+tm_rt_query("Red")$stop("Davis")$direction("southbound")$date_range("2024-01-01", "2024-01-31")$aggregate_headways()
 ```
 
-You can also use `0`/`1` instead of direction names if you prefer:
-
-``` r
-
-tm_stop_id("Red", "Davis", 0)  # same as "northbound"
-#> [1] "70064"
-tm_stop_id("Red", "Davis", 1)  # same as "southbound"
-#> [1] "70063"
-```
-
-### Look up a place ID
-
-[`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
-returns the GTFS parent-station identifier for a rapid transit station
-(e.g. `"place-pktrm"`). These are **not** used by the TransitMatters
-aggregate endpoints — they are provided as a convenience if you need to
-cross- reference with the MBTA v3 API.
-
-``` r
-
-tm_place_id("Red", "Park Street")
-#> [1] "place-pktrm"
-tm_place_id("Red", "Davis")
-#> [1] "place-davis"
-```
-
-### Using these in API calls
-
-``` r
-
-# Headways at Davis, trains heading toward Alewife
-davis_headways = tm_headways("2024-01-15",
-  stop = tm_stop_id("Red", "Davis", "northbound")
-)
-
-# Travel time: Park Street → Davis (aggregate endpoint uses stop IDs)
-parkst_2_davis_tt = tm_aggregate_travel_times2(
-  from_stop  = tm_stop_id("Red", "Park Street", "northbound"),
-  to_stop    = tm_stop_id("Red", "Davis", "northbound"),
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
-```
+You can chain builder calls before the terminal call. The query object
+accumulates context and validates each input as you set it — typos in
+station names produce an error immediately, not at request time.
 
 ------------------------------------------------------------------------
 
 ## Bus
 
-There are 121 bus routes in the constants. Directions are always
-`"outbound"` and `"inbound"`.
+There are 121 bus routes. Directions are always `"outbound"` and
+`"inbound"`.
 
 ### Discover: what routes are available?
 
 ``` r
 
-# Returns all route IDs — sorted, so standard routes come first
 head(tm_bus_routes(), 15)
 #>  [1] "1"           "10"          "100"         "101"         "104"        
 #>  [6] "104/109"     "105"         "106"         "108"         "109"        
@@ -145,8 +100,7 @@ head(tm_bus_routes(), 15)
 
 ``` r
 
-# Route 1 runs between Harvard and Nubian
-tm_bus_stations("1")
+tm_bus_query("1")$stations()
 #>                    stop_name station order
 #> 1                    Harvard   hhgat     1
 #> 2      Mass Ave & Putnam Ave   maput     2
@@ -159,37 +113,15 @@ tm_bus_stations("1")
 #> 9             Nubian Station    nubn     9
 ```
 
-### Look up a stop ID
-
-``` r
-
-# Harvard, boarding a Route 1 toward Nubian (inbound)
-tm_bus_stop_id("1", "Harvard", "inbound")
-#> [1] "1-1-110"
-
-# Harvard, boarding a Route 1 toward Watertown (outbound)
-tm_bus_stop_id("1", "Harvard", "outbound")
-#> [1] "1-0-110"
-```
-
-Bus stop IDs encode the route and direction — `"1-1-110"` means route 1,
-direction 1 (inbound), stop sequence 110.
-
-### Using these in API calls
+### Build a query and fetch data
 
 ``` r
 
 # Headways at Harvard on Route 1, inbound, on a specific day
-harvard_headways = tm_headways("2024-01-15",
-  stop = tm_bus_stop_id("1", "Harvard", "inbound")
-)
+tm_bus_query("1")$stop("Harvard")$headways("2024-01-15")
 
-# Aggregate headways at Nubian over a month
-aggregate_headways_1 = tm_aggregate_headways(
-  stop       = tm_bus_stop_id("1", "Nubian Station", "inbound"),
-  start_date = "2024-01-01",
-  end_date   = "2024-01-31"
-)
+# Aggregate headways at Harvard over a month
+tm_bus_query("1")$stop("Harvard")$direction("inbound")$date_range("2024-01-01", "2024-01-31")$aggregate_headways()
 ```
 
 ------------------------------------------------------------------------
@@ -212,11 +144,14 @@ tm_cr_routes()
 
 ### Discover: what stops are on this line?
 
-The `terminus` column flags the endpoints of each line.
+The `terminus` column flags the endpoints of each line. Terminus
+stations have stop IDs for only one direction — calling `$stop()` on a
+terminus station will issue a **warning** to alert you that data may be
+incomplete in one direction.
 
 ``` r
 
-tm_cr_stations("CR-Fairmount")
+tm_cr_query("CR-Fairmount")$stations()
 #>             stop_name       station order terminus
 #> 1           Readville place-DB-0095     1     TRUE
 #> 2           Fairmount place-DB-2205     2    FALSE
@@ -229,76 +164,21 @@ tm_cr_stations("CR-Fairmount")
 #> 9       South Station   place-sstat     9     TRUE
 ```
 
-### Look up a stop ID
-
-CR stations can have multiple platform stop IDs for the same station. At
-**terminus** stations, one direction may have no stops (trains only
-depart, not arrive, in the other direction).
-
-``` r
-
-# Fairmount station, outbound (toward Readville)
-tm_cr_stop_id("CR-Fairmount", "Fairmount", "outbound")
-#> [1] "CR-Fairmount_0_DB-2205-01" "CR-Fairmount_0_DB-2205-02"
-
-# South Station, inbound — terminus, so no inbound stops
-tm_cr_stop_id("CR-Fairmount", "South Station", "inbound")
-#> character(0)
-
-# South Station, outbound — all platforms
-tm_cr_stop_id("CR-Fairmount", "South Station", "outbound")
-#> [1] "CR-Fairmount_0_NEC-2287"    "CR-Fairmount_0_NEC-2287-01"
-#> [3] "CR-Fairmount_0_NEC-2287-07" "CR-Fairmount_0_NEC-2287-08"
-#> [5] "CR-Fairmount_0_NEC-2287-09" "CR-Fairmount_0_NEC-2287-10"
-#> [7] "CR-Fairmount_0_NEC-2287-11" "CR-Fairmount_0_NEC-2287-12"
-#> [9] "CR-Fairmount_0_NEC-2287-13"
-```
-
-### Look up a place ID
-
-[`tm_cr_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_place_id.md)
-returns the GTFS parent-station identifier for a CR station
-(e.g. `"place-sstat"`). Like
-[`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
-for rapid transit, these are **not** used by the TransitMatters
-aggregate endpoints — they are provided for cross- referencing with the
-MBTA v3 API.
-
-``` r
-
-tm_cr_place_id("CR-Fairmount", "South Station")
-#> [1] "place-sstat"
-tm_cr_place_id("CR-Fairmount", "Fairmount")
-#> [1] "place-DB-2205"
-```
-
-### Using these in API calls
-
-CR stops work with
-[`tm_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_headways.md)
-and
-[`tm_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_travel_times.md).
-The key is to pass stop IDs whose **direction matches the direction of
-travel**. For a trip heading toward South Station (inbound, direction
-1), use `"inbound"` stop IDs for both `from_stop` and `to_stop`.
-
-Note: South Station is the inbound terminus, so it has no inbound stop
-IDs — you cannot use it as a `to_stop` for inbound travel times.
+### Build a query and fetch data
 
 ``` r
 
 # Headways at Fairmount, inbound trains (toward South Station)
-fairmount_headways = tm_headways("2026-06-18",
-  stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "inbound")
-)
+tm_cr_query("CR-Fairmount")$stop("Fairmount")$headways("2026-06-18")
 
 # Travel time, Fairmount → Blue Hill Avenue, inbound
-# Both stops use "inbound" because the train is traveling toward South Station
-fairmount_2_bha_tt = tm_travel_times("2026-06-18",
-  from_stop = tm_cr_stop_id("CR-Fairmount", "Fairmount", "inbound"),
-  to_stop   = tm_cr_stop_id("CR-Fairmount", "Blue Hill Avenue", "inbound")
-)
+tm_cr_query("CR-Fairmount")$from_stop("Fairmount")$to_stop("Blue Hill Avenue")$direction("inbound")$travel_times("2026-06-18")
 ```
+
+> **Terminus warning:** If you call `$stop("South Station")` on a CR
+> query, you will see a warning — South Station is a terminus and has
+> stop IDs in only one direction. The query still works; the warning is
+> informational.
 
 ------------------------------------------------------------------------
 
@@ -320,8 +200,7 @@ tm_ferry_routes()
 
 ``` r
 
-# F1: Long Wharf ↔ Hingham
-tm_ferry_stations("Boat-F1")
+tm_ferry_query("Boat-F1")$stations()
 #>                      stop_name      station order terminus
 #> 1           Long Wharf (North)    Boat-Long     6     TRUE
 #> 2                  Rowes Wharf   Boat-Rowes     5    FALSE
@@ -331,39 +210,25 @@ tm_ferry_stations("Boat-F1")
 #> 6                      Hingham Boat-Hingham     1     TRUE
 ```
 
-### Look up a stop ID
+### Build a query and fetch data
 
 ``` r
 
-# Hingham, boarding a ferry to Long Wharf (inbound)
-tm_ferry_stop_id("Boat-F1", "Hingham", "inbound")
-#> [1] "Boat-F1|1|Boat-Hingham"
-
-# Long Wharf (North), boarding a ferry to Hingham (outbound)
-tm_ferry_stop_id("Boat-F1", "Long Wharf (North)", "outbound")
-#> [1] "Boat-F1|0|Boat-Long"
-```
-
-### Using these in API calls
-
-``` r
-
-# Headways at Hingham, inbound
-ferry_headways = tm_headways("2024-06-01",
-  stop = tm_ferry_stop_id("Boat-F1", "Hingham", "inbound")
-)
+# Headways at Hingham, inbound (toward Long Wharf)
+tm_ferry_query("Boat-F1")$stop("Hingham")$headways("2024-06-01")
 ```
 
 ------------------------------------------------------------------------
 
 ## Quick reference
 
-| Mode | Routes fn | Stations fn | Stop ID fn | Place ID fn |
-|----|----|----|----|----|
-| Rapid transit | — | `tm_line_stations(line)` | `tm_stop_id(line, stop, dir)` | `tm_place_id(line, stop)` |
-| Bus | [`tm_bus_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.md) | `tm_bus_stations(route)` | `tm_bus_stop_id(route, stop, dir)` | — |
-| Commuter Rail | [`tm_cr_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.md) | `tm_cr_stations(route)` | `tm_cr_stop_id(route, stop, dir)` | `tm_cr_place_id(route, stop)` |
-| Ferry | [`tm_ferry_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.md) | `tm_ferry_stations(route)` | `tm_ferry_stop_id(route, stop, dir)` | — |
+| Mode | Routes fn | Query constructor | Stations method |
+|----|----|----|----|
+| Rapid transit | — | `tm_rt_query(line)` | `$stations()` |
+| Bus | [`tm_bus_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.md) | `tm_bus_query(route)` | `$stations()` |
+| Commuter Rail | [`tm_cr_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.md) | `tm_cr_query(route)` | `$stations()` |
+| Ferry | [`tm_ferry_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.md) | `tm_ferry_query(route)` | `$stations()` |
 
-All stop-name arguments are **case-insensitive**. Line and route
-arguments are also case-insensitive (`"red"` and `"Red"` both work).
+All station name arguments are **case-insensitive**. Line and route
+arguments accept multiple forms (`"red"`, `"Red"`, and `"line-Red"` are
+all equivalent).

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="stop-lookup-rapid-transit">Stop Lookup — Rapid Transit<a class="anchor" aria-label="anchor" href="#stop-lookup-rapid-transit"></a></h2>
+      <h2 id="query-builders-rapid-transit">Query Builders — Rapid Transit<a class="anchor" aria-label="anchor" href="#query-builders-rapid-transit"></a></h2>
 
 
 
@@ -52,33 +52,12 @@
 
       <dl><dt>
 
-          <code><a href="tm_stop_id.html">tm_stop_id()</a></code>
+          <code><a href="tm_rt_query.html">tm_rt_query()</a></code>
 
         </dt>
-        <dd>Look up numeric stop IDs for a rapid transit station</dd>
-
-        <dt>
-
-          <code><a href="tm_place_id.html">tm_place_id()</a></code>
-
-        </dt>
-        <dd>Look up the GTFS place ID for a rapid transit station</dd>
-
-        <dt>
-
-          <code><a href="tm_line_stations.html">tm_line_stations()</a></code>
-
-        </dt>
-        <dd>List all stations on a rapid transit line</dd>
-
-        <dt>
-
-          <code><a href="tm_line_directions.html">tm_line_directions()</a></code>
-
-        </dt>
-        <dd>Get direction names for a rapid transit line</dd>
+        <dd>Create a rapid transit query</dd>
       </dl></div><div class="section level2">
-      <h2 id="stop-lookup-bus">Stop Lookup — Bus<a class="anchor" aria-label="anchor" href="#stop-lookup-bus"></a></h2>
+      <h2 id="query-builders-bus">Query Builders — Bus<a class="anchor" aria-label="anchor" href="#query-builders-bus"></a></h2>
 
 
 
@@ -89,17 +68,10 @@
 
       <dl><dt>
 
-          <code><a href="tm_bus_stop_id.html">tm_bus_stop_id()</a></code>
+          <code><a href="tm_bus_query.html">tm_bus_query()</a></code>
 
         </dt>
-        <dd>Look up stop IDs for a bus route station</dd>
-
-        <dt>
-
-          <code><a href="tm_bus_stations.html">tm_bus_stations()</a></code>
-
-        </dt>
-        <dd>List all stations on a bus route</dd>
+        <dd>Create a bus query</dd>
 
         <dt>
 
@@ -108,7 +80,7 @@
         </dt>
         <dd>List all available bus routes</dd>
       </dl></div><div class="section level2">
-      <h2 id="stop-lookup-commuter-rail">Stop Lookup — Commuter Rail<a class="anchor" aria-label="anchor" href="#stop-lookup-commuter-rail"></a></h2>
+      <h2 id="query-builders-commuter-rail">Query Builders — Commuter Rail<a class="anchor" aria-label="anchor" href="#query-builders-commuter-rail"></a></h2>
 
 
 
@@ -119,24 +91,10 @@
 
       <dl><dt>
 
-          <code><a href="tm_cr_stop_id.html">tm_cr_stop_id()</a></code>
+          <code><a href="tm_cr_query.html">tm_cr_query()</a></code>
 
         </dt>
-        <dd>Look up stop IDs for a commuter rail station</dd>
-
-        <dt>
-
-          <code><a href="tm_cr_place_id.html">tm_cr_place_id()</a></code>
-
-        </dt>
-        <dd>Look up the GTFS place ID for a commuter rail station</dd>
-
-        <dt>
-
-          <code><a href="tm_cr_stations.html">tm_cr_stations()</a></code>
-
-        </dt>
-        <dd>List all stations on a commuter rail line</dd>
+        <dd>Create a commuter rail query</dd>
 
         <dt>
 
@@ -145,7 +103,7 @@
         </dt>
         <dd>List all available commuter rail routes</dd>
       </dl></div><div class="section level2">
-      <h2 id="stop-lookup-ferry">Stop Lookup — Ferry<a class="anchor" aria-label="anchor" href="#stop-lookup-ferry"></a></h2>
+      <h2 id="query-builders-ferry">Query Builders — Ferry<a class="anchor" aria-label="anchor" href="#query-builders-ferry"></a></h2>
 
 
 
@@ -156,17 +114,10 @@
 
       <dl><dt>
 
-          <code><a href="tm_ferry_stop_id.html">tm_ferry_stop_id()</a></code>
+          <code><a href="tm_ferry_query.html">tm_ferry_query()</a></code>
 
         </dt>
-        <dd>Look up stop IDs for a ferry station</dd>
-
-        <dt>
-
-          <code><a href="tm_ferry_stations.html">tm_ferry_stations()</a></code>
-
-        </dt>
-        <dd>List all stations on a ferry route</dd>
+        <dd>Create a ferry query</dd>
 
         <dt>
 
@@ -174,82 +125,6 @@
 
         </dt>
         <dd>List all available ferry routes</dd>
-      </dl></div><div class="section level2">
-      <h2 id="travel-times">Travel Times<a class="anchor" aria-label="anchor" href="#travel-times"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="tm_travel_times.html">tm_travel_times()</a></code>
-
-        </dt>
-        <dd>Get travel time data for a date</dd>
-
-        <dt>
-
-          <code><a href="tm_aggregate_travel_times.html">tm_aggregate_travel_times()</a></code>
-
-        </dt>
-        <dd>Get aggregate travel times</dd>
-
-        <dt>
-
-          <code><a href="tm_aggregate_travel_times2.html">tm_aggregate_travel_times2()</a></code>
-
-        </dt>
-        <dd>Get aggregate travel times (v2)</dd>
-      </dl></div><div class="section level2">
-      <h2 id="headways">Headways<a class="anchor" aria-label="anchor" href="#headways"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="tm_headways.html">tm_headways()</a></code>
-
-        </dt>
-        <dd>Get headway data for a date</dd>
-
-        <dt>
-
-          <code><a href="tm_aggregate_headways.html">tm_aggregate_headways()</a></code>
-
-        </dt>
-        <dd>Get aggregate headways</dd>
-      </dl></div><div class="section level2">
-      <h2 id="dwells">Dwells<a class="anchor" aria-label="anchor" href="#dwells"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="tm_dwells.html">tm_dwells()</a></code>
-
-        </dt>
-        <dd>Get dwell time data for a date</dd>
-
-        <dt>
-
-          <code><a href="tm_aggregate_dwells.html">tm_aggregate_dwells()</a></code>
-
-        </dt>
-        <dd>Get aggregate dwells</dd>
       </dl></div><div class="section level2">
       <h2 id="service-ridership">Service &amp; Ridership<a class="anchor" aria-label="anchor" href="#service-ridership"></a></h2>
 
@@ -262,13 +137,6 @@
 
       <dl><dt>
 
-          <code><a href="tm_ridership.html">tm_ridership()</a></code>
-
-        </dt>
-        <dd>Get ridership data</dd>
-
-        <dt>
-
           <code><a href="tm_scheduled_service.html">tm_scheduled_service()</a></code>
 
         </dt>
@@ -276,26 +144,12 @@
 
         <dt>
 
-          <code><a href="tm_service_hours.html">tm_service_hours()</a></code>
-
-        </dt>
-        <dd>Get service hours data</dd>
-
-        <dt>
-
           <code><a href="tm_service_ridership_dashboard.html">tm_service_ridership_dashboard()</a></code>
 
         </dt>
         <dd>Get the service ridership dashboard summary</dd>
-
-        <dt>
-
-          <code><a href="tm_trip_metrics.html">tm_trip_metrics()</a></code>
-
-        </dt>
-        <dd>Get trip metrics by line</dd>
       </dl></div><div class="section level2">
-      <h2 id="alerts-delays">Alerts &amp; Delays<a class="anchor" aria-label="anchor" href="#alerts-delays"></a></h2>
+      <h2 id="alerts">Alerts<a class="anchor" aria-label="anchor" href="#alerts"></a></h2>
 
 
 
@@ -310,13 +164,6 @@
 
         </dt>
         <dd>Get MBTA service alerts</dd>
-
-        <dt>
-
-          <code><a href="tm_line_delays.html">tm_line_delays()</a></code>
-
-        </dt>
-        <dd>Get delay data by line</dd>
       </dl></div><div class="section level2">
       <h2 id="other">Other<a class="anchor" aria-label="anchor" href="#other"></a></h2>
 
@@ -346,14 +193,7 @@
           <code><a href="tm_stops.html">tm_stops()</a></code>
 
         </dt>
-        <dd>Get stops for a route</dd>
-
-        <dt>
-
-          <code><a href="tm_speed_restrictions.html">tm_speed_restrictions()</a></code>
-
-        </dt>
-        <dd>Get slow zone / speed restriction data</dd>
+        <dd>Get stops for a route from the API</dd>
 
         <dt>
 

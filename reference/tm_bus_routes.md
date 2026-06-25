@@ -10,7 +10,7 @@ tm_bus_routes()
 
 ## Value
 
-A sorted character vector of bus route IDs available for stop lookup.
+A sorted character vector of bus route IDs.
 
 ## Examples
 

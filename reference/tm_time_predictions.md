@@ -16,8 +16,7 @@ tm_time_predictions(route_id, base_url = tm_base_url())
 
 - base_url:
 
-  Base URL of the TransitMatters API. Defaults to
-  `getOption("tm_dashboard_base_url")` or the production host.
+  Base URL of the TransitMatters API.
 
 ## Value
 

@@ -111,88 +111,43 @@ MIT
 
 # Package index
 
-## Stop Lookup — Rapid Transit
+## Query Builders — Rapid Transit
 
-- [`tm_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_stop_id.md)
-  : Look up numeric stop IDs for a rapid transit station
-- [`tm_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_place_id.md)
-  : Look up the GTFS place ID for a rapid transit station
-- [`tm_line_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_line_stations.md)
-  : List all stations on a rapid transit line
-- [`tm_line_directions()`](https://transitmatters.github.io/transitmattr/reference/tm_line_directions.md)
-  : Get direction names for a rapid transit line
+- [`tm_rt_query()`](https://transitmatters.github.io/transitmattr/reference/tm_rt_query.md)
+  : Create a rapid transit query
 
-## Stop Lookup — Bus
+## Query Builders — Bus
 
-- [`tm_bus_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_stop_id.md)
-  : Look up stop IDs for a bus route station
-- [`tm_bus_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_stations.md)
-  : List all stations on a bus route
+- [`tm_bus_query()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_query.md)
+  : Create a bus query
 - [`tm_bus_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.md)
   : List all available bus routes
 
-## Stop Lookup — Commuter Rail
+## Query Builders — Commuter Rail
 
-- [`tm_cr_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_stop_id.md)
-  : Look up stop IDs for a commuter rail station
-- [`tm_cr_place_id()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_place_id.md)
-  : Look up the GTFS place ID for a commuter rail station
-- [`tm_cr_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_stations.md)
-  : List all stations on a commuter rail line
+- [`tm_cr_query()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_query.md)
+  : Create a commuter rail query
 - [`tm_cr_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.md)
   : List all available commuter rail routes
 
-## Stop Lookup — Ferry
+## Query Builders — Ferry
 
-- [`tm_ferry_stop_id()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_stop_id.md)
-  : Look up stop IDs for a ferry station
-- [`tm_ferry_stations()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_stations.md)
-  : List all stations on a ferry route
+- [`tm_ferry_query()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_query.md)
+  : Create a ferry query
 - [`tm_ferry_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.md)
   : List all available ferry routes
 
-## Travel Times
-
-- [`tm_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_travel_times.md)
-  : Get travel time data for a date
-- [`tm_aggregate_travel_times()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times.md)
-  : Get aggregate travel times
-- [`tm_aggregate_travel_times2()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_travel_times2.md)
-  : Get aggregate travel times (v2)
-
-## Headways
-
-- [`tm_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_headways.md)
-  : Get headway data for a date
-- [`tm_aggregate_headways()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_headways.md)
-  : Get aggregate headways
-
-## Dwells
-
-- [`tm_dwells()`](https://transitmatters.github.io/transitmattr/reference/tm_dwells.md)
-  : Get dwell time data for a date
-- [`tm_aggregate_dwells()`](https://transitmatters.github.io/transitmattr/reference/tm_aggregate_dwells.md)
-  : Get aggregate dwells
-
 ## Service & Ridership
 
-- [`tm_ridership()`](https://transitmatters.github.io/transitmattr/reference/tm_ridership.md)
-  : Get ridership data
 - [`tm_scheduled_service()`](https://transitmatters.github.io/transitmattr/reference/tm_scheduled_service.md)
   : Get scheduled service data
-- [`tm_service_hours()`](https://transitmatters.github.io/transitmattr/reference/tm_service_hours.md)
-  : Get service hours data
 - [`tm_service_ridership_dashboard()`](https://transitmatters.github.io/transitmattr/reference/tm_service_ridership_dashboard.md)
   : Get the service ridership dashboard summary
-- [`tm_trip_metrics()`](https://transitmatters.github.io/transitmattr/reference/tm_trip_metrics.md)
-  : Get trip metrics by line
 
-## Alerts & Delays
+## Alerts
 
 - [`tm_alerts()`](https://transitmatters.github.io/transitmattr/reference/tm_alerts.md)
   : Get MBTA service alerts
-- [`tm_line_delays()`](https://transitmatters.github.io/transitmattr/reference/tm_line_delays.md)
-  : Get delay data by line
 
 ## Other
 
@@ -201,9 +156,7 @@ MIT
 - [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md)
   : List all available routes
 - [`tm_stops()`](https://transitmatters.github.io/transitmattr/reference/tm_stops.md)
-  : Get stops for a route
-- [`tm_speed_restrictions()`](https://transitmatters.github.io/transitmattr/reference/tm_speed_restrictions.md)
-  : Get slow zone / speed restriction data
+  : Get stops for a route from the API
 - [`tm_time_predictions()`](https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.md)
   : Get current time predictions
 - [`tm_healthcheck()`](https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.md)
