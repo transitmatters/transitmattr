@@ -21,6 +21,11 @@ calls <- list(
   headways = function() {
     tm_rt_query("Red")$stop("Alewife")$headways("2024-01-15")
   },
+  # One request per day; 2024-01-15 is shared with `headways`.
+  headways_range = function() {
+    tm_rt_query("Red")$stop("Alewife")$date_range("2024-01-15", "2024-01-16")$
+      headways()
+  },
   travel_times = function() {
     tm_rt_query("Red")$from_stop("Park Street")$to_stop("Davis")$
       direction("northbound")$travel_times("2024-01-15")
@@ -39,6 +44,10 @@ calls <- list(
   },
   trip_metrics = function() {
     tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$trip_metrics("daily")
+  },
+  # Longer than 150 days, so split into two requests.
+  trip_metrics_spans = function() {
+    tm_rt_query("Red")$date_range("2024-01-01", "2024-07-31")$trip_metrics("daily")
   },
   service_hours = function() {
     tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$service_hours("daily")
@@ -94,6 +103,9 @@ if (length(unknown)) {
 }
 
 httptest2::.mockPaths(file.path("tests", "testthat"))
+# httptest2 records responses from httr2::req_perform(), not from
+# req_perform_parallel(), so send one request at a time.
+options(transitmattr.max_concurrency = 1L)
 httptest2::start_capturing(simplify = FALSE)
 for (name in names_wanted) {
   message("recording ", name)

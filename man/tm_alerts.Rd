@@ -4,7 +4,12 @@
 \alias{tm_alerts}
 \title{Get MBTA service alerts}
 \usage{
-tm_alerts(user_date = NULL, route = NULL, base_url = tm_base_url())
+tm_alerts(
+  user_date = NULL,
+  route = NULL,
+  end_date = NULL,
+  base_url = tm_base_url()
+)
 }
 \arguments{
 \item{user_date}{A \code{Date} object, a \code{"YYYY-MM-DD"} string, or \code{NULL}
@@ -13,19 +18,28 @@ tm_alerts(user_date = NULL, route = NULL, base_url = tm_base_url())
 \item{route}{One or more MBTA route IDs (e.g. \code{"Red"}, \code{"Orange"}). Only
 used when \code{user_date} is provided.}
 
+\item{end_date}{Optional last date of a range of historical alerts.}
+
 \item{base_url}{Base URL of the TransitMatters API.}
 }
 \value{
-A list with an \code{alerts} element.
+A list of alerts. Historical alerts have \code{valid_from}, \code{valid_to},
+and \code{text}; current alerts have \code{id}, \code{type}, \code{header}, \code{active_period},
+\code{stops}, \code{routes}, and \code{description}.
 }
 \description{
 When \code{user_date} is \code{NULL} the undated \verb{/api/alerts} endpoint is called,
 returning current live alerts. Pass a date to retrieve historical alerts,
-optionally filtered by route.
+optionally filtered by route, and an \code{end_date} to retrieve them for every
+day from \code{user_date} through \code{end_date}.
+}
+\details{
+Alert times are \code{POSIXct} date-times in Eastern time.
 }
 \examples{
 \dontrun{
 tm_alerts()
 tm_alerts("2024-01-15", route = "Red")
+tm_alerts("2024-01-15", route = "Red", end_date = "2024-01-21")
 }
 }

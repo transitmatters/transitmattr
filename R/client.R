@@ -1,3 +1,9 @@
+#' @section Options:
+#' * `tm_dashboard_base_url`: the API's base URL. Defaults to the production
+#'   API.
+#' * `transitmattr.max_concurrency`: how many requests to have in flight at
+#'   once when a call makes several, such as `$headways()` over a date range.
+#'   Defaults to 8.
 #' @keywords internal
 #' @import httr2
 #' @importFrom R6 R6Class
@@ -69,48 +75,51 @@ tm_base_url <- function() {
   get_weather                     = "tm_weather()"
 )
 
-# Cold starts of the API's Lambda functions show up as these statuses.
-.tm_retry_statuses <- c(429L, 500L, 503L)
-
-#' @noRd
-.tm_sleep <- function(seconds) Sys.sleep(seconds)
+# Statuses worth retrying: rate limiting, and the API's Lambda functions
+# timing out or starting cold. A 500 usually means the request itself is bad.
+.tm_retry_statuses <- c(429L, 502L, 503L, 504L)
 
 #' @noRd
 .tm_user_agent <- function() {
   paste0("transitmattr/", utils::packageVersion("transitmattr"))
 }
 
+# Seconds to wait before retry `attempt`: exponential with jitter, capped at
+# 8 seconds. httr2 waits as long as a Retry-After header says instead.
 #' @noRd
-.tm_body_text <- function(resp) {
-  # The generated code puts a string rather than raw bytes in `response` when
-  # a 5xx body is empty.
-  if (is.character(resp$response)) return(resp$response)
-  resp$response_as_text()
+.tm_backoff <- function(attempt) {
+  delay <- min(8, 0.5 * 2^attempt)
+  delay / 2 + stats::runif(1, 0, delay / 2)
 }
 
-# Raise the error httr2 would have, with classes `httr2_http_<status>`,
-# `httr2_http`, and `httr2_error`, so callers can keep catching those.
-#' @noRd
-.tm_http_error <- function(resp, body) {
-  status <- resp$status_code
-  message <- paste0("HTTP ", status, " ", resp$status_code_desc, ".")
-  if (nzchar(body)) message <- paste0(message, "\n", body)
-  stop(structure(
-    class = c(paste0("httr2_http_", status), "httr2_http", "httr2_error",
-              "error", "condition"),
-    list(message = message, call = NULL, status = status, body = body)
-  ))
-}
+# The generated ApiClient builds each request and sends it in Execute(). This
+# subclass keeps the finished request instead of sending it, by running
+# Execute() with httr2's mock hook catching the request, so .tm_perform() can
+# send it, alone or in parallel with others, with httr2's retries.
+TmRequestBuilder <- R6::R6Class(
+  "TmRequestBuilder",
+  inherit = ApiClient,
+  public = list(
+    request = NULL,
+    Execute = function(req, ...) {
+      httr2::with_mocked_responses(
+        function(req) {
+          self$request <- req
+          httr2::response(200L)
+        },
+        super$Execute(req, ...)
+      )
+    }
+  )
+)
 
-# Call one operation of the generated ApiApi, e.g. "get_headways", with the
-# arguments in `...` (NULLs are dropped). Retries cold starts, raises an
-# `httr2_http_<status>` error for any status not in `ok`, and returns the
-# parsed JSON body.
+# Build the request for one operation of the generated ApiApi, e.g.
+# "get_headways", with the arguments in `...` (NULLs are dropped).
 #' @noRd
-.tm_call <- function(operation, ..., base_url = tm_base_url(), simplify = FALSE,
-                     ok = 200L, max_tries = 3L) {
-  client <- ApiClient$new(base_path = base_url, user_agent = .tm_user_agent())
-  method <- ApiApi$new(client)[[paste0(operation, "_with_http_info")]]
+.tm_request <- function(operation, ..., base_url = tm_base_url()) {
+  builder <- TmRequestBuilder$new(base_path = base_url,
+                                  user_agent = .tm_user_agent())
+  method <- ApiApi$new(builder)[[paste0(operation, "_with_http_info")]]
   if (!is.function(method)) {
     stop("The API has no operation `", operation, "`.", call. = FALSE)
   }
@@ -125,18 +134,71 @@ tm_base_url <- function() {
          ". The API spec may have changed.", call. = FALSE)
   }
   args$.parse <- FALSE
+  do.call(method, args)
 
-  for (attempt in seq_len(max_tries)) {
-    resp <- do.call(method, args)
-    status <- resp$status_code
-    retry <- !status %in% ok && status %in% .tm_retry_statuses
-    if (!retry || attempt == max_tries) break
-    .tm_sleep(2^attempt)
+  req <- httr2::req_timeout(builder$request, 30)
+  req <- httr2::req_retry(
+    req,
+    max_tries = 4,
+    retry_on_failure = TRUE,
+    is_transient = function(resp) httr2::resp_status(resp) %in% .tm_retry_statuses,
+    backoff = function(attempt) .tm_backoff(attempt)
+  )
+  # Statuses are checked in .tm_perform(), to raise transitmattr's errors.
+  httr2::req_error(req, is_error = function(resp) FALSE)
+}
+
+# Send requests built by .tm_request() for `operation`, several at once when
+# there are several, and return their bodies as text. Raises a
+# transitmattr_error (see ?transitmattr_errors) for any status not in `ok` or
+# request that got no response.
+#' @noRd
+.tm_perform <- function(reqs, operation, ok = 200L) {
+  max_active <- getOption("transitmattr.max_concurrency", 8L)
+  resps <- if (length(reqs) == 1 || max_active == 1) {
+    lapply(reqs, function(req) {
+      tryCatch(httr2::req_perform(req),
+               httr2_failure = function(failure) failure)
+    })
+  } else {
+    httr2::req_perform_parallel(
+      reqs,
+      on_error = "continue",
+      max_active = max_active,
+      progress = interactive()
+    )
   }
+  lapply(resps, function(resp) {
+    if (inherits(resp, "httr2_failure")) .tm_network_error(resp, operation)
+    if (!httr2::resp_status(resp) %in% ok) .tm_http_error(resp, operation)
+    if (httr2::resp_has_body(resp)) httr2::resp_body_string(resp) else "null"
+  })
+}
 
-  # The generated code wraps 4xx responses in a second ApiResponse.
-  if (inherits(resp$response, "ApiResponse")) resp <- resp$response
-  body <- .tm_body_text(resp)
-  if (!status %in% ok) .tm_http_error(resp, body)
-  jsonlite::fromJSON(body, simplifyVector = simplify)
+# Call one operation of the generated ApiApi, e.g. "get_headways", with the
+# arguments in `...`, and return the parsed body with its fields converted
+# (see R/convert.R).
+#' @noRd
+.tm_call <- function(operation, ..., base_url = tm_base_url(), simplify = FALSE,
+                     ok = 200L) {
+  req <- .tm_request(operation, ..., base_url = base_url)
+  body <- .tm_perform(list(req), operation, ok = ok)[[1]]
+  .tm_convert(jsonlite::fromJSON(body, simplifyVector = simplify),
+              .tm_response_model(operation))
+}
+
+# Call one operation several times in parallel: once per element of
+# `varying`, a list of argument lists, each with the arguments in `...`.
+# `combine` joins the parsed bodies before their fields are converted.
+#' @noRd
+.tm_call_each <- function(operation, varying, ..., base_url = tm_base_url(),
+                          simplify = FALSE, combine = .tm_bind_rows) {
+  shared <- list(...)
+  reqs <- lapply(varying, function(args) {
+    do.call(.tm_request, c(list(operation), args, shared,
+                           list(base_url = base_url)))
+  })
+  bodies <- .tm_perform(reqs, operation)
+  parts <- lapply(bodies, jsonlite::fromJSON, simplifyVector = simplify)
+  .tm_convert(combine(parts), .tm_response_model(operation))
 }

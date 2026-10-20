@@ -116,41 +116,42 @@ TmCRQuery <- R6Class("TmCRQuery",
       )
     },
 
-    #' @description Fetch headway data. Requires `$stop()` and a date.
+    #' @description Fetch headway data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string (overrides `$date()`).
-    #' @return A `data.frame` of headway event records.
+    #' @return A `data.frame` of headway event records, across every
+    #'   requested day.
     headways = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$headways()")
+      dates <- private$.dates("$headways()", date)
       private$.assert_stop("$headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("get_headways", user_date = private$.date, stop = stop_ids)
+      private$.get_each("get_headways", dates, stop = stop_ids)
     },
 
-    #' @description Fetch dwell-time data. Requires `$stop()` and a date.
+    #' @description Fetch dwell-time data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string.
     #' @return A `data.frame` of dwell event records.
     dwells = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$dwells()")
+      dates <- private$.dates("$dwells()", date)
       private$.assert_stop("$dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("get_dwells", user_date = private$.date, stop = stop_ids)
+      private$.get_each("get_dwells", dates, stop = stop_ids)
     },
 
     #' @description Fetch travel-time data. Requires `$from_stop()`, `$to_stop()`,
-    #'   `$direction()`, and a date.
+    #'   `$direction()`, and a date: the `date` argument, `$date()`, or every
+    #'   day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string.
     #' @return A `data.frame` of travel-time event records.
     travel_times = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$travel_times()")
+      dates <- private$.dates("$travel_times()", date)
       private$.assert_from_to("$travel_times()")
       private$.assert_direction("$travel_times()")
       from_ids <- private$.stop_ids(private$.from_data, private$.direction)
       to_ids   <- private$.stop_ids(private$.to_data,   private$.direction)
-      private$.get("get_travel_times", user_date = private$.date,
-                   from_stop = from_ids, to_stop = to_ids)
+      private$.get_each("get_travel_times", dates,
+                        from_stop = from_ids, to_stop = to_ids)
     },
 
     #' @description Fetch aggregate headway data over a date range.
@@ -217,17 +218,19 @@ TmCRQuery <- R6Class("TmCRQuery",
     #' @description Fetch fleet metrics for this route over a date range:
     #'   trips with a known cab car (`fleet_trips`), the share of trips run
     #'   by each fleet type (`fleet_mix_<type>`), and the average cab car age
-    #'   when known. Requires `$date_range()`.
+    #'   when known. Requires `$date_range()`; ranges longer than the API
+    #'   accepts in one request (150 days, weeks, or months) are fetched in
+    #'   pieces.
     #' @param agg Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
     #'   Optional; the API defaults to `"daily"`.
     #' @return A `data.frame` of trip metric records.
     trip_metrics = function(agg = NULL) {
       private$.assert_date_range("$trip_metrics()")
-      private$.get("get_commuter_rail_trip_metrics",
-        start_date = private$.start_date,
-        end_date   = private$.end_date,
-        route      = private$.route,
-        agg        = agg
+      # The API defaults to daily.
+      private$.get_spans("get_commuter_rail_trip_metrics",
+        if (is.null(agg)) "daily" else agg,
+        route = private$.route,
+        agg   = agg
       )
     },
 

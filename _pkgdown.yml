@@ -64,3 +64,6 @@ reference:
       - tm_time_predictions
       - tm_weather
       - tm_healthcheck
+  - title: "Errors"
+    contents:
+      - transitmattr_errors

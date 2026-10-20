@@ -124,7 +124,7 @@ test_that("$scheduled_service() returns the same list as tm_scheduled_service()"
     }
   )
   result <- tm_rt_query("Red")$date_range("2024-01-01", "2024-03-31")$scheduled_service("monthly")
-  expect_equal(result$start_date, "2024-01-01")
+  expect_equal(result$start_date, as.Date("2024-01-01"))
   expect_length(result$counts, 2)
 })
 

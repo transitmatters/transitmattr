@@ -115,7 +115,10 @@ Rscript -e 'devtools::test()'
 ```
 
 If a test lists an operation that isn’t wrapped, add a function or
-method for it and list it in `.tm_wrapped_ops` in `R/client.R`.
+method for it and list it in `.tm_wrapped_ops` in `R/client.R`. If the
+snapshot of the response models’ fields changes, check whether a new
+field is a date or time that `.tm_conversions` in `R/convert.R` should
+convert, then run `testthat::snapshot_accept("convert")`.
 `Rscript data-raw/record_fixtures.R` re-records the API responses the
 tests replay.
 

@@ -11,9 +11,12 @@ Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Imports:
+    hms,
     httr2,
     jsonlite,
     R6,
+    rlang,
+    stats,
     stringr,
     utils
 Suggests:

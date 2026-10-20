@@ -7,6 +7,21 @@
 
 * `tm_scheduled_service()` now requires `route_id`, as the API does.
 
+* Results have R types instead of the API's strings: times are `POSIXct`
+  date-times in Eastern time (`America/New_York`), dates are `Date`s, and
+  the time of day in `$aggregate_travel_times_v2()`'s `by_time` is an `hms`.
+  Headway `direction` is an integer, like the other events'. Column names
+  are unchanged. Code that parsed these columns itself, e.g. with
+  `as.POSIXct()` or `as.Date()`, still works but no longer needs to.
+
+* Errors have transitmattr's own classes, such as `transitmattr_not_found`
+  and `transitmattr_range_too_long` (see `?transitmattr_errors`), and their
+  messages include the API's explanation. They keep httr2's
+  `httr2_http_<status>` classes too.
+
+* A 500 response is no longer retried; the API also sends one for bad
+  requests.
+
 ## New features
 
 * New endpoints:
@@ -21,6 +36,19 @@
   * `tm_weather()`: hourly weather in downtown Boston.
   * `$aggregate_travel_times_v2()` on rapid transit and commuter rail
     queries: travel time statistics by date and by time of day.
+
+* `$headways()`, `$dwells()`, and `$travel_times()` fetch every day in
+  `$date_range()` when no single date is set, several days at a time, and
+  return one data frame. `tm_alerts()` takes an `end_date`. Set
+  `options(transitmattr.max_concurrency = n)` to change how many requests
+  are in flight at once (default 8).
+
+* The `$trip_metrics()` methods accept ranges longer than the API's limit
+  of 150 days, weeks, or months, by fetching them in pieces.
+
+* Requests that time out, fail to connect, or get a 429, 502, 503, or 504
+  are retried up to three times with exponential backoff, waiting as long as
+  a `Retry-After` header asks.
 
 * `agg` arguments accept `"monthly"` wherever the API does
   (`$trip_metrics()`, `$service_hours()`, `$scheduled_service()`), and
@@ -45,6 +73,10 @@
   upstream, regenerates the client, and opens a pull request.
 
 * The user agent now reports the installed package version.
+
+* A test keeps a snapshot of every response model's fields, so a spec sync
+  that adds, removes, or renames a field fails until someone checks whether
+  `.tm_conversions` in `R/convert.R` needs updating.
 
 # transitmattr 0.2.0
 

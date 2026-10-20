@@ -174,9 +174,32 @@ tm_alerts("2024-01-15", route = "Red")
 tm_alerts(route = "Red")
 ```
 
+Times come back as date-times in Eastern time (`POSIXct`), dates as `Date`
+objects, and times of day as `hms` values, so you can filter, sort, and plot
+them without converting anything first. Service days run past midnight: a
+trip at 1 AM belongs to the previous day's service.
+
 ## Step 6: Fetch data over a date range
 
 For multi-day analysis use `$date_range(start, end)` instead of `$date()`.
+
+The single-day methods from Step 5 work with a date range too: they fetch
+every day in the range, several at a time, and return one data frame.
+
+```{r range-days, eval = FALSE}
+# Every headway at Harvard in the first week of January 2024
+tm_rt_query("Red")$
+  stop("Harvard")$
+  date_range("2024-01-01", "2024-01-07")$
+  headways()
+
+# Alerts for each day of that week
+tm_alerts("2024-01-01", route = "Red", end_date = "2024-01-07")
+```
+
+The range methods below return one row per day, week, or month instead. The
+API limits some of them (trip metrics) to about 150 rows per request; longer
+ranges are fetched in pieces for you.
 
 ```{r range, eval = FALSE}
 # Red Line ridership for January 2024
@@ -274,7 +297,7 @@ ridership_df <- tm_rt_query("Red")$
   date_range("2024-01-01", "2024-01-31")$
   ridership()
 
-ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
+ggplot(ridership_df, aes(x = date, y = count)) +
   geom_line(color = "#DA291C") +   # Red Line color
   labs(
     title = "Red Line Daily Ridership — January 2024",
@@ -282,6 +305,24 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
     y     = "Riders"
   ) +
   theme_minimal()
+```
+
+## Step 10: When a request fails
+
+If the API rejects a request or doesn't answer, you get an error whose class
+says what went wrong, such as `transitmattr_not_found` for an unknown route
+or `transitmattr_range_too_long` for a date range with too many rows. Requests
+that time out or hit a temporary server problem are retried a few times
+first. See `?transitmattr_errors` for the full list.
+
+```{r errors, eval = FALSE}
+result <- tryCatch(
+  tm_bus_speed_leaderboard("2026-01-01", "2026-09-30"),
+  transitmattr_range_too_long = function(e) {
+    message("That range is too long; trying the last 150 days instead.")
+    tm_bus_speed_leaderboard("2026-05-04", "2026-09-30")
+  }
+)
 ```
 
 ## Recap: functions and methods at a glance
@@ -296,7 +337,7 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 | `tm_cr_routes()` | Commuter rail route IDs (local) |
 | `tm_ferry_routes()` | Ferry route IDs (local) |
 | `tm_stops(route_id)` | Stop info from the API |
-| `tm_alerts(date, route)` | Service alerts |
+| `tm_alerts(date, route, end_date)` | Service alerts |
 | `tm_scheduled_service(start, end, agg, route_id)` | Scheduled trip counts |
 | `tm_reliability(route_id, start, end, agg)` | On-time performance for The RIDE or commuter rail |
 | `tm_bus_speed_leaderboard(start, end)` | Slowest bus routes by average speed |
@@ -329,9 +370,9 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 
 | Method | Needs |
 |---|---|
-| `$headways(date)` | stop + date |
-| `$dwells(date)` | stop + date |
-| `$travel_times(date)` | from/to stops + direction + date (RT and CR only) |
+| `$headways(date)` | stop + date or date_range |
+| `$dwells(date)` | stop + date or date_range |
+| `$travel_times(date)` | from/to stops + direction + date or date_range (RT and CR only) |
 | `$aggregate_headways()` | stop + date_range |
 | `$aggregate_dwells()` | stop + date_range |
 | `$aggregate_travel_times()` | from/to stops + date_range (RT and CR only) |
