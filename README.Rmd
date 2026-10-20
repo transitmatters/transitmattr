@@ -129,7 +129,8 @@ response models' fields changes, check whether a new field is a date or time
 that `.tm_conversions` in `R/convert.R` should convert, then run
 `testthat::snapshot_accept("convert")`.
 `Rscript data-raw/record_fixtures.R` re-records the API responses the tests
-replay.
+replay, and `Rscript data-raw/run_examples.R` runs the vignettes' code and the
+help pages' examples against the live API, as a weekly workflow also does.
 
 ## License
 

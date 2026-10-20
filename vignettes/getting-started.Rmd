@@ -29,7 +29,7 @@ directly into R. You can get things like:
 
 ## Installation
 
-```{r install, eval = FALSE}
+```{r install, eval = FALSE, live = FALSE}
 # install.packages("pak")  # run this once if you don't have pak
 pak::pak("transitmatters/transitmattr")
 ```

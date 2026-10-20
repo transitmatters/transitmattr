@@ -74,6 +74,9 @@
 
 * The user agent now reports the installed package version.
 
+* DESCRIPTION now requires R 4.1 and httr2 1.1.1, which the package already
+  needed: httr2 requires R 4.1, and parallel requests need httr2 1.1.1.
+
 * A test keeps a snapshot of every response model's fields, so a spec sync
   that adds, removes, or renames a field fails until someone checks whether
   `.tm_conversions` in `R/convert.R` needs updating.

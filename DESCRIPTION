@@ -12,7 +12,7 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 Imports:
     hms,
-    httr2,
+    httr2 (>= 1.1.1),
     jsonlite,
     R6,
     rlang,
@@ -35,4 +35,4 @@ URL: https://transitmatters.github.io/transitmattr/, https://github.com/transitm
 BugReports: https://github.com/transitmatters/transitmattr/issues
 Config/roxygen2/version: 8.0.0
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1)

@@ -29,8 +29,11 @@ A \code{data.frame} with one row per route: \code{route}, trips delivered
 Ranks bus routes by average speed over a date range, slowest first. Speed
 in mph is \code{miles_covered / (total_time / 3600)}.
 }
+\details{
+Data covers recent dates only. The API ranks routes over at most 150 days.
+}
 \examples{
 \dontrun{
-tm_bus_speed_leaderboard("2025-03-01", "2025-03-31", limit = 20)
+tm_bus_speed_leaderboard("2026-09-01", "2026-09-30", limit = 20)
 }
 }

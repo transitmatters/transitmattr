@@ -189,6 +189,8 @@ tm_reliability <- function(route_id, start_date, end_date, agg,
 #' Ranks bus routes by average speed over a date range, slowest first. Speed
 #' in mph is `miles_covered / (total_time / 3600)`.
 #'
+#' Data covers recent dates only. The API ranks routes over at most 150 days.
+#'
 #' @inheritParams tm_scheduled_service
 #' @param limit Maximum number of routes to return, from 1 to 200. Optional;
 #'   the API defaults to 10.
@@ -197,7 +199,7 @@ tm_reliability <- function(route_id, start_date, end_date, agg,
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_bus_speed_leaderboard("2025-03-01", "2025-03-31", limit = 20)
+#' tm_bus_speed_leaderboard("2026-09-01", "2026-09-30", limit = 20)
 #' }
 tm_bus_speed_leaderboard <- function(start_date, end_date, limit = NULL,
                                      base_url = tm_base_url()) {
@@ -212,6 +214,8 @@ tm_bus_speed_leaderboard <- function(start_date, end_date, limit = NULL,
 
 #' Get hourly weather in downtown Boston
 #'
+#' Data covers recent dates only.
+#'
 #' @inheritParams tm_scheduled_service
 #' @return A `data.frame` with one row per hour: `timestamp` (Eastern local
 #'   time, e.g. `"2026-04-22T14:00"`), `temperature_f`, `weather_code` (a WMO
@@ -220,7 +224,7 @@ tm_bus_speed_leaderboard <- function(start_date, end_date, limit = NULL,
 #' @export
 #' @examples
 #' \dontrun{
-#' tm_weather("2025-03-01", "2025-03-07")
+#' tm_weather("2026-10-01", "2026-10-07")
 #' }
 tm_weather <- function(start_date, end_date, base_url = tm_base_url()) {
   .tm_data_frame(.tm_call("get_weather",

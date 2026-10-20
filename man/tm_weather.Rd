@@ -20,10 +20,10 @@ code), \code{condition} (e.g. \code{"clear"}, \code{"rain"}), \code{precipitatio
 \code{humidity_pct}, and \code{wind_mph}.
 }
 \description{
-Get hourly weather in downtown Boston
+Data covers recent dates only.
 }
 \examples{
 \dontrun{
-tm_weather("2025-03-01", "2025-03-07")
+tm_weather("2026-10-01", "2026-10-07")
 }
 }
