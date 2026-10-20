@@ -39,7 +39,7 @@ head(ridership_df)
 
 ``` r
 
-ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
+ggplot(ridership_df, aes(x = date, y = count)) +
   geom_col(fill = "#DA291C") +
   scale_y_continuous(labels = scales::comma) +
   labs(
@@ -79,7 +79,7 @@ head(travel_df)
 
 travel_df <- travel_df |>
   mutate(
-    date       = as.Date(service_date),
+    date       = service_date,   # already a Date
     travel_min = mean / 60
   )
 

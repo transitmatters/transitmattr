@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,54 @@
       <small>Source: <a href="https://github.com/transitmatters/transitmattr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="transitmattr-030">transitmattr 0.3.0<a class="anchor" aria-label="anchor" href="#transitmattr-030"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
+<ul><li><p><code>tm_git_id()</code> has been removed. The API no longer has a <code>/api/git_id</code> endpoint.</p></li>
+<li><p><code><a href="../reference/tm_scheduled_service.html">tm_scheduled_service()</a></code> now requires <code>route_id</code>, as the API does.</p></li>
+<li><p>Results have R types instead of the API’s strings: times are <code>POSIXct</code> date-times in Eastern time (<code>America/New_York</code>), dates are <code>Date</code>s, and the time of day in <code>$aggregate_travel_times_v2()</code>‘s <code>by_time</code> is an <code>hms</code>. Headway <code>direction</code> is an integer, like the other events’. Column names are unchanged. Code that parsed these columns itself, e.g. with <code><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct()</a></code> or <code><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date()</a></code>, still works but no longer needs to.</p></li>
+<li><p>Errors have transitmattr’s own classes, such as <code>transitmattr_not_found</code> and <code>transitmattr_range_too_long</code> (see <code><a href="../reference/transitmattr_errors.html">?transitmattr_errors</a></code>), and their messages include the API’s explanation. They keep httr2’s <code>httr2_http_&lt;status&gt;</code> classes too.</p></li>
+<li><p>A 500 response is no longer retried; the API also sends one for bad requests.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-3-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<ul><li>
+<p>New endpoints:</p>
+<ul><li>
+<code>tm_bus_query(route)$trip_metrics()</code>: trips delivered, miles, and speeds for a bus route, optionally for one <code>time_band</code> or <code>day_type</code>.</li>
+<li>
+<code>tm_cr_query(route)$trip_metrics()</code>: commuter rail fleet mix.</li>
+<li>
+<code>tm_cr_query(route)$reliability()</code> and <code><a href="../reference/tm_reliability.html">tm_reliability()</a></code>: on-time performance for commuter rail or The RIDE.</li>
+<li>
+<code>tm_cr_query(route)$scorecard()</code>: a commuter rail schedule measured against Regional Rail standards.</li>
+<li>
+<code><a href="../reference/tm_bus_speed_leaderboard.html">tm_bus_speed_leaderboard()</a></code>: the slowest bus routes over a date range.</li>
+<li>
+<code><a href="../reference/tm_weather.html">tm_weather()</a></code>: hourly weather in downtown Boston.</li>
+<li>
+<code>$aggregate_travel_times_v2()</code> on rapid transit and commuter rail queries: travel time statistics by date and by time of day.</li>
+</ul></li>
+<li><p><code>$headways()</code>, <code>$dwells()</code>, and <code>$travel_times()</code> fetch every day in <code>$date_range()</code> when no single date is set, several days at a time, and return one data frame. <code><a href="../reference/tm_alerts.html">tm_alerts()</a></code> takes an <code>end_date</code>. Set <code>options(transitmattr.max_concurrency = n)</code> to change how many requests are in flight at once (default 8).</p></li>
+<li><p>The <code>$trip_metrics()</code> methods accept ranges longer than the API’s limit of 150 days, weeks, or months, by fetching them in pieces.</p></li>
+<li><p>Requests that time out, fail to connect, or get a 429, 502, 503, or 504 are retried up to three times with exponential backoff, waiting as long as a <code>Retry-After</code> header asks.</p></li>
+<li><p><code>agg</code> arguments accept <code>"monthly"</code> wherever the API does (<code>$trip_metrics()</code>, <code>$service_hours()</code>, <code>$scheduled_service()</code>), and values the API doesn’t accept are rejected before a request is sent.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
+<ul><li><p><code>tm_rt_query(line)$scheduled_service()</code> returned an empty data frame. It now returns the same list as <code><a href="../reference/tm_scheduled_service.html">tm_scheduled_service()</a></code>.</p></li>
+<li><p><code><a href="../reference/tm_healthcheck.html">tm_healthcheck()</a></code> returns the failing checks when the API reports a failure, instead of raising an HTTP 500 error.</p></li>
+<li><p><code><a href="../reference/tm_stops.html">tm_stops()</a></code> percent-encodes route IDs, so combined bus routes such as <code>"SL4/SL5"</code> work.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="internals-0-3-0">Internals<a class="anchor" aria-label="anchor" href="#internals-0-3-0"></a></h3>
+<ul><li><p>Requests now go through a client generated from the API’s OpenAPI spec with OpenAPI Generator (<code>R/generated-*.R</code>). The spec is pinned in <code>spec/openapi.json</code>; a weekly GitHub Actions workflow syncs it from upstream, regenerates the client, and opens a pull request.</p></li>
+<li><p>The user agent now reports the installed package version.</p></li>
+<li><p>DESCRIPTION now requires R 4.1 and httr2 1.1.1, which the package already needed: httr2 requires R 4.1, and parallel requests need httr2 1.1.1.</p></li>
+<li><p>A test keeps a snapshot of every response model’s fields, so a spec sync that adds, removes, or renames a field fails until someone checks whether <code>.tm_conversions</code> in <code>R/convert.R</code> needs updating.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="transitmattr-020">transitmattr 0.2.0<a class="anchor" aria-label="anchor" href="#transitmattr-020"></a></h2>
 <div class="section level3">
@@ -88,7 +136,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

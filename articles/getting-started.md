@@ -178,10 +178,35 @@ tm_alerts("2024-01-15", route = "Red")
 tm_alerts(route = "Red")
 ```
 
+Times come back as date-times in Eastern time (`POSIXct`), dates as
+`Date` objects, and times of day as `hms` values, so you can filter,
+sort, and plot them without converting anything first. Service days run
+past midnight: a trip at 1 AM belongs to the previous day’s service.
+
 ## Step 6: Fetch data over a date range
 
 For multi-day analysis use `$date_range(start, end)` instead of
 `$date()`.
+
+The single-day methods from Step 5 work with a date range too: they
+fetch every day in the range, several at a time, and return one data
+frame.
+
+``` r
+
+# Every headway at Harvard in the first week of January 2024
+tm_rt_query("Red")$
+  stop("Harvard")$
+  date_range("2024-01-01", "2024-01-07")$
+  headways()
+
+# Alerts for each day of that week
+tm_alerts("2024-01-01", route = "Red", end_date = "2024-01-07")
+```
+
+The range methods below return one row per day, week, or month instead.
+The API limits some of them (trip metrics) to about 150 rows per
+request; longer ranges are fetched in pieces for you.
 
 ``` r
 
@@ -197,7 +222,7 @@ tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$line_delays()
 # Revenue service hours (daily aggregation)
 tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$service_hours("daily")
 
-# Scheduled service counts across all routes
+# Scheduled service counts for the Red Line
 tm_scheduled_service("2024-01-01", "2024-01-31", agg = "daily", route_id = "Red")
 ```
 
@@ -232,8 +257,12 @@ tm_rt_query("Red")$
 
 The same builder pattern applies to other modes. Bus and ferry support
 `$headways()`, `$dwells()`, `$aggregate_headways()`, and
-`$aggregate_dwells()`. Commuter rail additionally supports
-`$travel_times()` and `$aggregate_travel_times()`.
+`$aggregate_dwells()`. Bus also has `$trip_metrics()` for trips
+delivered and average speeds. Commuter rail additionally supports
+`$travel_times()`, `$aggregate_travel_times()`, `$trip_metrics()` for
+its fleet mix, `$reliability()` for on-time performance, and
+`$scorecard()` for how its schedule measures up to Regional Rail
+standards.
 
 ``` r
 
@@ -251,6 +280,16 @@ tm_cr_query("CR-Fairmount")$stop("Newmarket")$headways("2026-01-15")
 
 # Ferry headways at Hingham
 tm_ferry_query("Boat-F1")$stop("Hingham")$headways("2024-01-15")
+
+# Daily trips and speeds on Route 1 during the morning peak
+tm_bus_query("1")$
+  date_range("2026-09-01", "2026-09-30")$
+  trip_metrics(time_band = "am_peak")
+
+# Monthly on-time performance on the Worcester Line
+tm_cr_query("CR-Worcester")$
+  date_range("2025-01-01", "2025-06-30")$
+  reliability("monthly")
 ```
 
 > **Tip:** Terminus stations on commuter rail and ferry may have
@@ -272,7 +311,7 @@ ridership_df <- tm_rt_query("Red")$
   date_range("2024-01-01", "2024-01-31")$
   ridership()
 
-ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
+ggplot(ridership_df, aes(x = date, y = count)) +
   geom_line(color = "#DA291C") +   # Red Line color
   labs(
     title = "Red Line Daily Ridership — January 2024",
@@ -282,6 +321,27 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
   theme_minimal()
 ```
 
+## Step 10: When a request fails
+
+If the API rejects a request or doesn’t answer, you get an error whose
+class says what went wrong, such as `transitmattr_not_found` for an
+unknown route or `transitmattr_range_too_long` for a date range with too
+many rows. Requests that time out or hit a temporary server problem are
+retried a few times first. See
+[`?transitmattr_errors`](https://transitmatters.github.io/transitmattr/reference/transitmattr_errors.md)
+for the full list.
+
+``` r
+
+result <- tryCatch(
+  tm_bus_speed_leaderboard("2026-01-01", "2026-09-30"),
+  transitmattr_range_too_long = function(e) {
+    message("That range is too long; trying the last 150 days instead.")
+    tm_bus_speed_leaderboard("2026-05-04", "2026-09-30")
+  }
+)
+```
+
 ## Recap: functions and methods at a glance
 
 **Standalone functions** (no query object needed):
@@ -289,14 +349,16 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 | Function | What it returns |
 |----|----|
 | [`tm_healthcheck()`](https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.md) | API status |
-| [`tm_git_id()`](https://transitmatters.github.io/transitmattr/reference/tm_git_id.md) | Server git commit SHA |
 | [`tm_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_routes.md) | All routes grouped by mode |
 | [`tm_bus_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.md) | Bus route IDs (local) |
 | [`tm_cr_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.md) | Commuter rail route IDs (local) |
 | [`tm_ferry_routes()`](https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.md) | Ferry route IDs (local) |
 | `tm_stops(route_id)` | Stop info from the API |
-| `tm_alerts(date, route)` | Service alerts |
-| `tm_scheduled_service(start, end, agg)` | Scheduled trip counts |
+| `tm_alerts(date, route, end_date)` | Service alerts |
+| `tm_scheduled_service(start, end, agg, route_id)` | Scheduled trip counts |
+| `tm_reliability(route_id, start, end, agg)` | On-time performance for The RIDE or commuter rail |
+| `tm_bus_speed_leaderboard(start, end)` | Slowest bus routes by average speed |
+| `tm_weather(start, end)` | Hourly weather in downtown Boston |
 | `tm_time_predictions(route_id)` | Live prediction accuracy |
 | [`tm_facilities()`](https://transitmatters.github.io/transitmattr/reference/tm_facilities.md) | All MBTA stations |
 | [`tm_service_ridership_dashboard()`](https://transitmatters.github.io/transitmattr/reference/tm_service_ridership_dashboard.md) | System-wide ridership summary |
@@ -325,18 +387,21 @@ ggplot(ridership_df, aes(x = as.Date(date), y = count)) +
 
 | Method | Needs |
 |----|----|
-| `$headways(date)` | stop + date |
-| `$dwells(date)` | stop + date |
-| `$travel_times(date)` | from/to stops + direction + date (RT and CR only) |
+| `$headways(date)` | stop + date or date_range |
+| `$dwells(date)` | stop + date or date_range |
+| `$travel_times(date)` | from/to stops + direction + date or date_range (RT and CR only) |
 | `$aggregate_headways()` | stop + date_range |
 | `$aggregate_dwells()` | stop + date_range |
 | `$aggregate_travel_times()` | from/to stops + date_range (RT and CR only) |
+| `$aggregate_travel_times_v2()` | from/to stops + date_range (RT and CR only); returns a list of `by_date` and `by_time` |
 | `$ridership()` | date_range (RT only) |
-| `$trip_metrics(agg)` | date_range (RT only) |
+| `$trip_metrics(agg)` | date_range (RT, bus, and CR) |
 | `$line_delays(agg)` | date_range (RT only) |
 | `$service_hours(agg)` | date_range (RT only) |
 | `$scheduled_service(agg)` | date_range (RT only) |
 | `$speed_restrictions(date)` | date (RT only) |
+| `$reliability(agg)` | date_range (CR only) |
+| `$scorecard(agg, day_kind)` | date_range (CR only) |
 
 Next, check out the **Red Line Analysis** vignette for a full worked
 example that goes from raw API data to a polished chart.

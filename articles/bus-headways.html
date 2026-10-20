@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,16 +118,16 @@ and add a direction label:</p>
 <span><span class="va">headways_df</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-3-convert-times-and-filter">Step 3: Convert times and filter<a class="anchor" aria-label="anchor" href="#step-3-convert-times-and-filter"></a>
+<h2 id="step-3-convert-units-and-filter">Step 3: Convert units and filter<a class="anchor" aria-label="anchor" href="#step-3-convert-units-and-filter"></a>
 </h2>
-<p>The departure timestamp (<code>current_dep_dt</code>) comes back as
-an ISO 8601 string (e.g. <code>"2024-01-16T09:30:00"</code>). Convert it
-and keep only the daytime service window.</p>
+<p>The departure time (<code>current_dep_dt</code>) is already a
+date-time in Eastern time (a <code>POSIXct</code>), so you can read the
+hour straight from it. Convert headways to minutes and keep only the
+daytime service window.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">headways_df</span> <span class="op">&lt;-</span> <span class="va">headways_df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    dep_time      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="va">current_dep_dt</span>, format <span class="op">=</span> <span class="st">"%Y-%m-%dT%H:%M:%S"</span>,</span>
-<span>                                tz <span class="op">=</span> <span class="st">"America/New_York"</span><span class="op">)</span>,</span>
+<span>    dep_time      <span class="op">=</span> <span class="va">current_dep_dt</span>,</span>
 <span>    headway_min   <span class="op">=</span> <span class="va">headway_time_sec</span> <span class="op">/</span> <span class="fl">60</span>,</span>
 <span>    benchmark_min <span class="op">=</span> <span class="va">benchmark_headway_time_sec</span> <span class="op">/</span> <span class="fl">60</span>,</span>
 <span>    hour          <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">dep_time</span>, <span class="st">"%H"</span><span class="op">)</span><span class="op">)</span></span>
@@ -205,7 +205,7 @@ returns daily averages rather than individual events.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">agg_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tm_bus_query.html">tm_bus_query</a></span><span class="op">(</span><span class="st">"1"</span><span class="op">)</span><span class="op">$</span><span class="kw">stop</span><span class="op">(</span><span class="st">"MIT @ Mass Ave"</span><span class="op">)</span><span class="op">$</span><span class="fu">direction</span><span class="op">(</span><span class="st">"inbound"</span><span class="op">)</span><span class="op">$</span><span class="fu">date_range</span><span class="op">(</span><span class="st">"2024-01-01"</span>, <span class="st">"2024-01-31"</span><span class="op">)</span><span class="op">$</span><span class="fu">aggregate_headways</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agg_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">service_date</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">mean</span> <span class="op">/</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agg_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">service_date</span>, y <span class="op">=</span> <span class="va">mean</span> <span class="op">/</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#003DA5"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"loess"</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
 <span>              color <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -246,7 +246,7 @@ ferry.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

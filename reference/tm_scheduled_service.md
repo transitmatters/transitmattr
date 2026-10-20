@@ -9,7 +9,7 @@ tm_scheduled_service(
   start_date,
   end_date,
   agg,
-  route_id = NULL,
+  route_id,
   base_url = tm_base_url()
 )
 ```
@@ -26,12 +26,11 @@ tm_scheduled_service(
 
 - agg:
 
-  Aggregation level: `"daily"` or `"weekly"`.
+  Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
 
 - route_id:
 
-  Optional MBTA route ID (e.g. `"Red"`, `"Green-B"`). When `NULL`,
-  returns data for all routes.
+  MBTA route ID (e.g. `"Red"`, `"Green-B"`).
 
 - base_url:
 

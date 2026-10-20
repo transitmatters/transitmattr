@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,16 @@
 
 
     <div class="section level2">
+    <h2 id="options">Options<a class="anchor" aria-label="anchor" href="#options"></a></h2>
+
+
+<ul><li><p><code>tm_dashboard_base_url</code>: the API's base URL. Defaults to the production
+API.</p></li>
+<li><p><code>transitmattr.max_concurrency</code>: how many requests to have in flight at
+once when a call makes several, such as <code>$headways()</code> over a date range.
+Defaults to 8.</p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://transitmatters.github.io/transitmattr/">https://transitmatters.github.io/transitmattr/</a></p></li>
 <li><p><a href="https://github.com/transitmatters/transitmattr" class="external-link">https://github.com/transitmatters/transitmattr</a></p></li>
@@ -69,7 +79,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

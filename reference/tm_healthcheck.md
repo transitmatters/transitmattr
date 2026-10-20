@@ -17,7 +17,8 @@ tm_healthcheck(base_url = tm_base_url())
 
 ## Value
 
-A list with fields `status` (string) and optionally `failed_checks`.
+A list with fields `status` (`"pass"` or `"fail"`) and, when checks
+fail, `failed_checks`.
 
 ## Examples
 

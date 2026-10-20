@@ -14,19 +14,22 @@
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_alerts.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_bus_query.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_bus_routes.html</loc></url>
+<url><loc>https://transitmatters.github.io/transitmattr/reference/tm_bus_speed_leaderboard.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_cr_query.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_cr_routes.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_facilities.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_ferry_query.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_ferry_routes.html</loc></url>
-<url><loc>https://transitmatters.github.io/transitmattr/reference/tm_git_id.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.html</loc></url>
+<url><loc>https://transitmatters.github.io/transitmattr/reference/tm_reliability.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_routes.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_rt_query.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_scheduled_service.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_service_ridership_dashboard.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_stops.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.html</loc></url>
+<url><loc>https://transitmatters.github.io/transitmattr/reference/tm_weather.html</loc></url>
 <url><loc>https://transitmatters.github.io/transitmattr/reference/transitmattr-package.html</loc></url>
+<url><loc>https://transitmatters.github.io/transitmattr/reference/transitmattr_errors.html</loc></url>
 </urlset>
 

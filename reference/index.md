@@ -32,6 +32,10 @@
   : Get scheduled service data
 - [`tm_service_ridership_dashboard()`](https://transitmatters.github.io/transitmattr/reference/tm_service_ridership_dashboard.md)
   : Get the service ridership dashboard summary
+- [`tm_reliability()`](https://transitmatters.github.io/transitmattr/reference/tm_reliability.md)
+  : Get on-time performance for The RIDE or commuter rail
+- [`tm_bus_speed_leaderboard()`](https://transitmatters.github.io/transitmattr/reference/tm_bus_speed_leaderboard.md)
+  : Get the slowest bus routes
 
 ## Alerts
 
@@ -48,7 +52,12 @@
   : Get stops for a route from the API
 - [`tm_time_predictions()`](https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.md)
   : Get current time predictions
+- [`tm_weather()`](https://transitmatters.github.io/transitmattr/reference/tm_weather.md)
+  : Get hourly weather in downtown Boston
 - [`tm_healthcheck()`](https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.md)
   : Check API health
-- [`tm_git_id()`](https://transitmatters.github.io/transitmattr/reference/tm_git_id.md)
-  : Get the deployed git commit ID
+
+## Errors
+
+- [`transitmattr_errors`](https://transitmatters.github.io/transitmattr/reference/transitmattr_errors.md)
+  : Errors raised by transitmattr

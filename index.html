@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">transitmattr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -149,6 +149,16 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="updating-to-a-new-api-spec">Updating to a new API spec<a class="anchor" aria-label="anchor" href="#updating-to-a-new-api-spec"></a>
+</h2>
+<p>The requests in <code>R/generated-*.R</code> are generated from the API’s OpenAPI spec, pinned in <code>spec/openapi.json</code>. A weekly GitHub Actions workflow does these steps and opens a pull request when the spec changes. To do them by hand, from the package root (generating needs Node.js and Java):</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/sync_spec.R           <span class="co"># fetch the latest spec from t-performance-dash</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/generate_client.R     <span class="co"># regenerate R/generated-*.R</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'roxygen2::roxygenise()'</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'devtools::test()'</span></span></code></pre></div>
+<p>If a test lists an operation that isn’t wrapped, add a function or method for it and list it in <code>.tm_wrapped_ops</code> in <code>R/client.R</code>. If the snapshot of the response models’ fields changes, check whether a new field is a date or time that <code>.tm_conversions</code> in <code>R/convert.R</code> should convert, then run <code>testthat::snapshot_accept("convert")</code>. <code>Rscript data-raw/record_fixtures.R</code> re-records the API responses the tests replay, and <code>Rscript data-raw/run_examples.R</code> runs the vignettes’ code and the help pages’ examples against the live API, as a weekly workflow also does.</p>
+</div>
+<div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
 <p>MIT</p>
@@ -196,7 +206,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
