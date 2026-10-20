@@ -1,0 +1,88 @@
+name: Sync upstream OpenAPI spec
+
+on:
+  schedule:
+    - cron: "17 13 * * 1" # Mondays 13:17 UTC (~9am Boston)
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Upstream branch, tag, or SHA to sync to"
+        required: false
+        default: main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-spec
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::devtools, any::roxygen2
+          needs: check
+
+      # OpenAPI Generator runs through its npm wrapper and needs Java 11+.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Fetch upstream spec
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ inputs.ref || 'main' }}
+        run: Rscript data-raw/sync_spec.R --ref "$REF"
+
+      - name: Regenerate client
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          Rscript data-raw/generate_client.R
+          Rscript -e 'roxygen2::roxygenise()'
+
+      - name: Run tests
+        if: steps.sync.outputs.changed == 'true'
+        continue-on-error: true # still open the PR; failures show up in its checks
+        run: Rscript -e 'devtools::test(stop_on_failure = TRUE)'
+
+      - name: Open pull request
+        if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/sync-openapi-spec
+          delete-branch: true
+          commit-message: "chore: sync OpenAPI spec to upstream ${{ steps.sync.outputs.short_sha }}"
+          title: "Sync OpenAPI spec to upstream ${{ steps.sync.outputs.short_sha }}"
+          body: |
+            Automated sync of `server/openapi.json` from
+            [transitmatters/t-performance-dash@${{ steps.sync.outputs.short_sha }}](https://github.com/transitmatters/t-performance-dash/commit/${{ steps.sync.outputs.sha }}).
+
+            - `spec/openapi.json` updated
+            - `spec/UPSTREAM_SHA` bumped
+            - `R/generated-*.R` regenerated
+
+            Review the spec diff for new or changed endpoints. If the tests
+            list an unwrapped operation, add a function or method for it and
+            list it in `.tm_wrapped_ops` in `R/client.R`.
+          labels: dependencies
+          add-paths: |
+            spec/
+            R/generated-*.R
+            NAMESPACE
+            man/

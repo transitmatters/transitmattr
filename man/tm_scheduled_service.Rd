@@ -8,7 +8,7 @@ tm_scheduled_service(
   start_date,
   end_date,
   agg,
-  route_id = NULL,
+  route_id,
   base_url = tm_base_url()
 )
 }
@@ -17,10 +17,9 @@ tm_scheduled_service(
 
 \item{end_date}{End of the date range.}
 
-\item{agg}{Aggregation level: \code{"daily"} or \code{"weekly"}.}
+\item{agg}{Aggregation level: \code{"daily"}, \code{"weekly"}, or \code{"monthly"}.}
 
-\item{route_id}{Optional MBTA route ID (e.g. \code{"Red"}, \code{"Green-B"}). When
-\code{NULL}, returns data for all routes.}
+\item{route_id}{MBTA route ID (e.g. \code{"Red"}, \code{"Green-B"}).}
 
 \item{base_url}{Base URL of the TransitMatters API.}
 }

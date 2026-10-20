@@ -1,0 +1,17 @@
+# OpenAPI Generator settings for R/generated-*.R. The generator version is
+# pinned in openapitools.json; data-raw/generate_client.R runs it.
+generatorName: r
+library: httr2
+additionalProperties:
+  # The deserializer looks model classes up in this package's namespace.
+  packageName: transitmattr
+  operationIdNaming: snake_case
+  # Return non-2xx responses instead of stopping, so .tm_call() can retry
+  # cold starts and report the status code.
+  returnExceptionOnFailure: false
+  hideGenerationTimestamp: true
+globalProperties:
+  apiDocs: "false"
+  modelDocs: "false"
+  apiTests: "false"
+  modelTests: "false"

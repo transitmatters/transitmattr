@@ -47,6 +47,21 @@
   keys[1]
 }
 
+# An empty JSON array parses to an empty list; return a data.frame either way.
+#' @noRd
+.tm_data_frame <- function(result) {
+  if (is.data.frame(result)) result else data.frame()
+}
+
+# The aggregate travel times v2 response: by_date and by_time as data.frames.
+#' @noRd
+.tm_by_date_and_time <- function(result) {
+  list(
+    by_date = .tm_data_frame(result$by_date),
+    by_time = .tm_data_frame(result$by_time)
+  )
+}
+
 #' @noRd
 .tm_normalize_route <- function(route, stations_env, type_label, routes_fn) {
   keys    <- names(stations_env)

@@ -1,3 +1,51 @@
+# transitmattr 0.3.0
+
+## Breaking changes
+
+* `tm_git_id()` has been removed. The API no longer has a `/api/git_id`
+  endpoint.
+
+* `tm_scheduled_service()` now requires `route_id`, as the API does.
+
+## New features
+
+* New endpoints:
+  * `tm_bus_query(route)$trip_metrics()`: trips delivered, miles, and
+    speeds for a bus route, optionally for one `time_band` or `day_type`.
+  * `tm_cr_query(route)$trip_metrics()`: commuter rail fleet mix.
+  * `tm_cr_query(route)$reliability()` and `tm_reliability()`: on-time
+    performance for commuter rail or The RIDE.
+  * `tm_cr_query(route)$scorecard()`: a commuter rail schedule measured
+    against Regional Rail standards.
+  * `tm_bus_speed_leaderboard()`: the slowest bus routes over a date range.
+  * `tm_weather()`: hourly weather in downtown Boston.
+  * `$aggregate_travel_times_v2()` on rapid transit and commuter rail
+    queries: travel time statistics by date and by time of day.
+
+* `agg` arguments accept `"monthly"` wherever the API does
+  (`$trip_metrics()`, `$service_hours()`, `$scheduled_service()`), and
+  values the API doesn't accept are rejected before a request is sent.
+
+## Bug fixes
+
+* `tm_rt_query(line)$scheduled_service()` returned an empty data frame. It
+  now returns the same list as `tm_scheduled_service()`.
+
+* `tm_healthcheck()` returns the failing checks when the API reports a
+  failure, instead of raising an HTTP 500 error.
+
+* `tm_stops()` percent-encodes route IDs, so combined bus routes such as
+  `"SL4/SL5"` work.
+
+## Internals
+
+* Requests now go through a client generated from the API's OpenAPI spec
+  with OpenAPI Generator (`R/generated-*.R`). The spec is pinned in
+  `spec/openapi.json`; a weekly GitHub Actions workflow syncs it from
+  upstream, regenerates the client, and opens a pull request.
+
+* The user agent now reports the installed package version.
+
 # transitmattr 0.2.0
 
 ## Breaking changes

@@ -47,7 +47,7 @@ with_mock_api({
       result,
       c("route_id", "direction", "dep_dt", "arr_dt",
         "travel_time_sec", "benchmark_travel_time_sec",
-        "vehicle_consist", "vehicle_label"),
+        "tm_benchmark_travel_time_sec", "vehicle_consist", "vehicle_label"),
       ignore.order = TRUE
     )
     expect_true(all(result$travel_time_sec > 0))
@@ -97,9 +97,9 @@ with_mock_api({
   test_that("$trip_metrics() returns 31 daily records with positive totals", {
     result <- tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$trip_metrics("daily")
     expect_equal(nrow(result), 31)
-    expect_named(result,
-                 c("count", "date", "line", "miles_covered", "total_time"),
-                 ignore.order = TRUE)
+    # Entries also have fleet fields, some (fleet_mix_<type>) undocumented.
+    expect_true(all(c("count", "date", "line", "miles_covered", "total_time")
+                    %in% names(result)))
     expect_true(all(result$total_time > 0))
   })
 
@@ -141,5 +141,73 @@ with_mock_api({
     expect_equal(nrow(result), 31)
     expect_true("50%" %in% names(result))
     expect_true(all(result[["50%"]] > 0))
+  })
+
+  test_that("$aggregate_travel_times() returns daily travel time statistics", {
+    # Alewife (70061) southbound to Park Street (70075)
+    result <- tm_rt_query("Red")$from_stop("Alewife")$to_stop("Park Street")$date_range("2025-03-03", "2025-03-07")$aggregate_travel_times()
+    expect_equal(nrow(result), 5)
+    expect_true(all(c("service_date", "50%", "count") %in% names(result)))
+    expect_true(all(result[["50%"]] > 0))
+  })
+
+  test_that("$aggregate_travel_times_v2() returns by-date and by-time statistics", {
+    result <- tm_rt_query("Red")$from_stop("Alewife")$to_stop("Park Street")$date_range("2025-03-03", "2025-03-07")$aggregate_travel_times_v2()
+    expect_named(result, c("by_date", "by_time"))
+    expect_true(nrow(result$by_date) > 0)
+    expect_true(nrow(result$by_time) > 0)
+    expect_true("dep_time_from_epoch" %in% names(result$by_time))
+  })
+
+  # ── Bus, commuter rail, and system-wide endpoints ───────────────────────────
+
+  test_that("bus $trip_metrics() returns daily trips and speeds", {
+    result <- tm_bus_query("1")$date_range("2026-09-01", "2026-09-07")$trip_metrics()
+    expect_equal(nrow(result), 7)
+    expect_true(all(c("date", "route", "count", "miles_covered",
+                      "median_speed_mph") %in% names(result)))
+    expect_true(all(result$route == "1"))
+    expect_true(all(result$count > 0))
+  })
+
+  test_that("CR $trip_metrics() returns monthly fleet mix", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$trip_metrics("monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(c("date", "fleet_trips") %in% names(result)))
+    expect_true(any(startsWith(names(result), "fleet_mix_")))
+  })
+
+  test_that("CR $scorecard() returns per-direction scores", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$scorecard("monthly", day_kind = "weekday")
+    expect_equal(nrow(result), 3)
+    expect_true(all(c("date", "days", "outbound", "inbound") %in% names(result)))
+    expect_true(all(result$outbound$trips > 0))
+  })
+
+  test_that("CR $reliability() returns on-time counts with peak split", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$reliability("monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(result$otpNumerator <= result$otpDenominator))
+    expect_true(all(c("otpNumerator", "otpDenominator") %in% names(result$peak)))
+  })
+
+  test_that("tm_reliability('RIDE') returns completed and on-time trips", {
+    result <- tm_reliability("RIDE", "2025-01-01", "2025-03-31", agg = "monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(result$onTime <= result$completed))
+  })
+
+  test_that("tm_bus_speed_leaderboard() returns at most `limit` routes", {
+    result <- tm_bus_speed_leaderboard("2026-09-01", "2026-09-30", limit = 5)
+    expect_equal(nrow(result), 5)
+    expect_named(result,
+                 c("route", "count", "total_time", "miles_covered", "n_traversals"),
+                 ignore.order = TRUE)
+  })
+
+  test_that("tm_weather() returns one row per hour", {
+    result <- tm_weather("2026-10-01", "2026-10-01")
+    expect_equal(nrow(result), 24)
+    expect_true(all(c("timestamp", "temperature_f", "condition") %in% names(result)))
   })
 })

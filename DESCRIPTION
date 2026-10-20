@@ -1,6 +1,6 @@
 Package: transitmattr
 Title: R Client for the TransitMatters Data Dashboard API
-Version: 0.2.0
+Version: 0.3.0
 Authors@R:
     person("Andrew", "Kouré", email = "akoure@transitmatters.info", role = c("aut", "cre"))
 Description: A thin 'httr2'-based wrapper around the TransitMatters Data Dashboard
@@ -12,12 +12,14 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 Imports:
     httr2,
-    R6
+    jsonlite,
+    R6,
+    stringr,
+    utils
 Suggests:
     dplyr,
     ggplot2,
     httptest2,
-    jsonlite,
     knitr,
     rmarkdown,
     scales,

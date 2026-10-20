@@ -51,6 +51,8 @@ reference:
     contents:
       - tm_scheduled_service
       - tm_service_ridership_dashboard
+      - tm_reliability
+      - tm_bus_speed_leaderboard
   - title: "Alerts"
     contents:
       - tm_alerts
@@ -60,5 +62,5 @@ reference:
       - tm_routes
       - tm_stops
       - tm_time_predictions
+      - tm_weather
       - tm_healthcheck
-      - tm_git_id

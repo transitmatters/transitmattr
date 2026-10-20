@@ -22,12 +22,12 @@ TmBaseQuery <- R6Class("TmBaseQuery",
              call. = FALSE)
     },
 
-    # Call tm_request with simplifyVector = TRUE and return a data.frame.
-    # Returns an empty data.frame when the API returns an empty array.
-    .get = function(path, query = list()) {
-      result <- tm_request(path, query = query, base_url = private$.base_url,
-                           simplify = TRUE)
-      if (is.data.frame(result)) result else data.frame()
+    # Call a generated API operation (see .tm_call()) with simplifyVector =
+    # TRUE and return a data.frame. Returns an empty data.frame when the API
+    # returns an empty array.
+    .get = function(operation, ...) {
+      .tm_data_frame(.tm_call(operation, ..., base_url = private$.base_url,
+                              simplify = TRUE))
     }
   ),
   public = list(

@@ -100,6 +100,25 @@ tm_service_hours("2024-01-01", "2024-01-31", agg = "daily")
 options(tm_dashboard_base_url = "https://your-staging-host.example.com")
 ```
 
+## Updating to a new API spec
+
+The requests in `R/generated-*.R` are generated from the API’s OpenAPI
+spec, pinned in `spec/openapi.json`. A weekly GitHub Actions workflow
+does these steps and opens a pull request when the spec changes. To do
+them by hand, from the package root (generating needs Node.js and Java):
+
+``` sh
+Rscript data-raw/sync_spec.R           # fetch the latest spec from t-performance-dash
+Rscript data-raw/generate_client.R     # regenerate R/generated-*.R
+Rscript -e 'roxygen2::roxygenise()'
+Rscript -e 'devtools::test()'
+```
+
+If a test lists an operation that isn’t wrapped, add a function or
+method for it and list it in `.tm_wrapped_ops` in `R/client.R`.
+`Rscript data-raw/record_fixtures.R` re-records the API responses the
+tests replay.
+
 ## License
 
 MIT

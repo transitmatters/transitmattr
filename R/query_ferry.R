@@ -98,7 +98,7 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date("$headways()")
       private$.assert_stop("$headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "headways", private$.date), list(stop = stop_ids))
+      private$.get("get_headways", user_date = private$.date, stop = stop_ids)
     },
 
     #' @description Fetch dwell-time data. Requires `$stop()` and a date.
@@ -109,7 +109,7 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date("$dwells()")
       private$.assert_stop("$dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "dwells", private$.date), list(stop = stop_ids))
+      private$.get("get_dwells", user_date = private$.date, stop = stop_ids)
     },
 
     #' @description Fetch aggregate headway data over a date range.
@@ -119,11 +119,11 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date_range("$aggregate_headways()")
       private$.assert_stop("$aggregate_headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/headways", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_headways",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     },
 
     #' @description Fetch aggregate dwell-time data over a date range.
@@ -133,11 +133,11 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date_range("$aggregate_dwells()")
       private$.assert_stop("$aggregate_dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/dwells", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_dwells",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     }
   )
 )

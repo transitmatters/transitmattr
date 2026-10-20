@@ -81,7 +81,7 @@ TmBusQuery <- R6Class("TmBusQuery",
       private$.assert_date("$headways()")
       private$.assert_stop("$headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "headways", private$.date), list(stop = stop_ids))
+      private$.get("get_headways", user_date = private$.date, stop = stop_ids)
     },
 
     #' @description Fetch dwell-time data. Requires `$stop()` and a date.
@@ -92,7 +92,7 @@ TmBusQuery <- R6Class("TmBusQuery",
       private$.assert_date("$dwells()")
       private$.assert_stop("$dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "dwells", private$.date), list(stop = stop_ids))
+      private$.get("get_dwells", user_date = private$.date, stop = stop_ids)
     },
 
     #' @description Fetch aggregate headway data over a date range.
@@ -102,11 +102,11 @@ TmBusQuery <- R6Class("TmBusQuery",
       private$.assert_date_range("$aggregate_headways()")
       private$.assert_stop("$aggregate_headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/headways", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_headways",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     },
 
     #' @description Fetch aggregate dwell-time data over a date range.
@@ -116,11 +116,39 @@ TmBusQuery <- R6Class("TmBusQuery",
       private$.assert_date_range("$aggregate_dwells()")
       private$.assert_stop("$aggregate_dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/dwells", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_dwells",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
+    },
+
+    #' @description Fetch delivered trip metrics for this route over a date
+    #'   range: trips delivered (`count`), total trip time in seconds,
+    #'   `miles_covered`, and, for whole days, median and mean speed in mph;
+    #'   plus fleet fields (`fleet_trips`, `avg_bus_age`, `fleet_mix_<type>`)
+    #'   when known. Older periods may have only the fleet fields. Requires
+    #'   `$date_range()`. Combined routes such as `"104/109"` are summed
+    #'   across their routes.
+    #' @param agg Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
+    #'   Optional; the API defaults to `"daily"`.
+    #' @param time_band Optional time of day: `"early_am"`, `"am_peak"`,
+    #'   `"midday"`, `"pm_peak"`, `"evening"`, or `"late_night"`. Omit it for
+    #'   the whole day.
+    #' @param day_type Optional `"business_day"` or `"weekend_or_holiday"`.
+    #'   Omit it for every day.
+    #' @return A `data.frame` of trip metric records.
+    trip_metrics = function(agg = NULL, time_band = NULL, day_type = NULL) {
+      private$.assert_date_range("$trip_metrics()")
+      private$.get("get_bus_trip_metrics",
+        start_date = private$.start_date,
+        end_date   = private$.end_date,
+        # The API takes a group of routes comma-separated, e.g. "104,109".
+        route      = gsub("/", ",", private$.route, fixed = TRUE),
+        agg        = agg,
+        time_band  = time_band,
+        day_type   = day_type
+      )
     }
   )
 )
