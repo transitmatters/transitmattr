@@ -1,0 +1,45 @@
+name: Examples
+
+# Runs the vignettes' code and the help pages' examples against the live API
+# (data-raw/run_examples.R), so they keep working as the API and the package
+# change. The tests replay recorded responses, so they can't notice the API
+# changing. Each run makes about 80 API requests.
+
+on:
+  schedule:
+    - cron: "47 13 * * 1" # Mondays 13:47 UTC, after the spec sync
+  pull_request:
+    paths:
+      - R/**
+      - vignettes/**
+      - DESCRIPTION
+      - data-raw/run_examples.R
+      - .github/workflows/examples.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: examples-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::devtools
+          needs: check
+
+      - name: Run examples
+        run: Rscript data-raw/run_examples.R

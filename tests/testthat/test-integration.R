@@ -47,7 +47,7 @@ with_mock_api({
       result,
       c("route_id", "direction", "dep_dt", "arr_dt",
         "travel_time_sec", "benchmark_travel_time_sec",
-        "vehicle_consist", "vehicle_label"),
+        "tm_benchmark_travel_time_sec", "vehicle_consist", "vehicle_label"),
       ignore.order = TRUE
     )
     expect_true(all(result$travel_time_sec > 0))
@@ -97,9 +97,9 @@ with_mock_api({
   test_that("$trip_metrics() returns 31 daily records with positive totals", {
     result <- tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$trip_metrics("daily")
     expect_equal(nrow(result), 31)
-    expect_named(result,
-                 c("count", "date", "line", "miles_covered", "total_time"),
-                 ignore.order = TRUE)
+    # Entries also have fleet fields, some (fleet_mix_<type>) undocumented.
+    expect_true(all(c("count", "date", "line", "miles_covered", "total_time")
+                    %in% names(result)))
     expect_true(all(result$total_time > 0))
   })
 
@@ -116,8 +116,8 @@ with_mock_api({
                                    route_id = "Red")
     expect_true("start_date" %in% names(result))
     expect_true("counts" %in% names(result))
-    expect_equal(result$start_date, "2024-01-01")
-    expect_equal(result$end_date, "2024-01-31")
+    expect_equal(result$start_date, as.Date("2024-01-01"))
+    expect_equal(result$end_date, as.Date("2024-01-31"))
   })
 
   test_that("tm_time_predictions() returns prediction records for Red Line", {
@@ -141,5 +141,138 @@ with_mock_api({
     expect_equal(nrow(result), 31)
     expect_true("50%" %in% names(result))
     expect_true(all(result[["50%"]] > 0))
+  })
+
+  test_that("$aggregate_travel_times() returns daily travel time statistics", {
+    # Alewife (70061) southbound to Park Street (70075)
+    result <- tm_rt_query("Red")$from_stop("Alewife")$to_stop("Park Street")$date_range("2025-03-03", "2025-03-07")$aggregate_travel_times()
+    expect_equal(nrow(result), 5)
+    expect_true(all(c("service_date", "50%", "count") %in% names(result)))
+    expect_true(all(result[["50%"]] > 0))
+  })
+
+  test_that("$aggregate_travel_times_v2() returns by-date and by-time statistics", {
+    result <- tm_rt_query("Red")$from_stop("Alewife")$to_stop("Park Street")$date_range("2025-03-03", "2025-03-07")$aggregate_travel_times_v2()
+    expect_named(result, c("by_date", "by_time"))
+    expect_true(nrow(result$by_date) > 0)
+    expect_true(nrow(result$by_time) > 0)
+    expect_true("dep_time_from_epoch" %in% names(result$by_time))
+  })
+
+  # ── Bus, commuter rail, and system-wide endpoints ───────────────────────────
+
+  test_that("bus $trip_metrics() returns daily trips and speeds", {
+    result <- tm_bus_query("1")$date_range("2026-09-01", "2026-09-07")$trip_metrics()
+    expect_equal(nrow(result), 7)
+    expect_true(all(c("date", "route", "count", "miles_covered",
+                      "median_speed_mph") %in% names(result)))
+    expect_true(all(result$route == "1"))
+    expect_true(all(result$count > 0))
+  })
+
+  test_that("CR $trip_metrics() returns monthly fleet mix", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$trip_metrics("monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(c("date", "fleet_trips") %in% names(result)))
+    expect_true(any(startsWith(names(result), "fleet_mix_")))
+  })
+
+  test_that("CR $scorecard() returns per-direction scores", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$scorecard("monthly", day_kind = "weekday")
+    expect_equal(nrow(result), 3)
+    expect_true(all(c("date", "days", "outbound", "inbound") %in% names(result)))
+    expect_true(all(result$outbound$trips > 0))
+  })
+
+  test_that("CR $reliability() returns on-time counts with peak split", {
+    result <- tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$reliability("monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(result$otpNumerator <= result$otpDenominator))
+    expect_true(all(c("otpNumerator", "otpDenominator") %in% names(result$peak)))
+  })
+
+  test_that("tm_reliability('RIDE') returns completed and on-time trips", {
+    result <- tm_reliability("RIDE", "2025-01-01", "2025-03-31", agg = "monthly")
+    expect_equal(nrow(result), 3)
+    expect_true(all(result$onTime <= result$completed))
+  })
+
+  test_that("tm_bus_speed_leaderboard() returns at most `limit` routes", {
+    result <- tm_bus_speed_leaderboard("2026-09-01", "2026-09-30", limit = 5)
+    expect_equal(nrow(result), 5)
+    expect_named(result,
+                 c("route", "count", "total_time", "miles_covered", "n_traversals"),
+                 ignore.order = TRUE)
+  })
+
+  test_that("tm_weather() returns one row per hour", {
+    result <- tm_weather("2026-10-01", "2026-10-01")
+    expect_equal(nrow(result), 24)
+    expect_true(all(c("timestamp", "temperature_f", "condition") %in% names(result)))
+  })
+
+  # ── Date ranges ──────────────────────────────────────────────────────────────
+
+  test_that("$headways() over a date range returns both days' departures", {
+    one_day <- tm_rt_query("Red")$stop("Alewife")$headways("2024-01-15")
+    result <- tm_rt_query("Red")$stop("Alewife")$date_range("2024-01-15", "2024-01-16")$headways()
+    expect_gt(nrow(result), nrow(one_day))
+    # Service days run past midnight, until about 3:30 AM the next day.
+    times <- result$current_dep_dt
+    expect_equal(format(min(times), "%Y-%m-%d"), "2024-01-15")
+    expect_lt(max(times), as.POSIXct("2024-01-17 04:00", tz = "America/New_York"))
+    expect_true(any(format(times, "%Y-%m-%d") == "2024-01-16"))
+  })
+
+  test_that("$trip_metrics() over more than 150 days returns every day once", {
+    result <- tm_rt_query("Red")$date_range("2024-01-01", "2024-07-31")$trip_metrics("daily")
+    expect_equal(nrow(result), 213)
+    expect_equal(result$date, seq(as.Date("2024-01-01"), as.Date("2024-07-31"), by = "day"))
+  })
+
+  # ── Types ────────────────────────────────────────────────────────────────────
+
+  test_that("event times are Eastern date-times", {
+    result <- tm_rt_query("Red")$stop("Alewife")$headways("2024-01-15")
+    expect_s3_class(result$current_dep_dt, "POSIXct")
+    expect_equal(attr(result$current_dep_dt, "tzone"), "America/New_York")
+    expect_equal(format(result$current_dep_dt[1], "%Y-%m-%d %H:%M:%S %Z"),
+                 "2024-01-15 05:27:12 EST")
+    expect_type(result$direction, "integer")
+
+    trips <- tm_rt_query("Red")$from_stop("Park Street")$to_stop("Davis")$direction("northbound")$travel_times("2024-01-15")
+    expect_s3_class(trips$dep_dt, "POSIXct")
+    expect_true(all(trips$arr_dt > trips$dep_dt))
+  })
+
+  test_that("alert times with a UTC offset are Eastern date-times", {
+    alert <- tm_alerts("2024-01-15", route = "Red")[[1]]
+    expect_s3_class(alert$valid_from, "POSIXct")
+    expect_equal(format(alert$valid_from, "%H:%M"), "05:58")
+  })
+
+  test_that("dates are Dates", {
+    expect_s3_class(
+      tm_rt_query("Red")$stop("Davis")$direction("southbound")$date_range("2024-01-01", "2024-01-31")$aggregate_headways()$service_date,
+      "Date"
+    )
+    expect_s3_class(tm_rt_query("Red")$date_range("2024-01-01", "2024-01-31")$ridership()$date, "Date")
+    expect_s3_class(tm_cr_query("CR-Worcester")$date_range("2025-01-01", "2025-03-31")$scorecard("monthly", day_kind = "weekday")$date, "Date")
+    result <- tm_rt_query("Red")$speed_restrictions("2024-01-15")
+    expect_s3_class(result$date, "Date")
+    expect_s3_class(result$zones[[1]]$reported, "Date")
+  })
+
+  test_that("times of day are hms", {
+    result <- tm_rt_query("Red")$from_stop("Alewife")$to_stop("Park Street")$date_range("2025-03-03", "2025-03-07")$aggregate_travel_times_v2()
+    expect_s3_class(result$by_time$dep_time_from_epoch, "hms")
+    expect_equal(format(result$by_time$dep_time_from_epoch[1]), "05:30:00")
+    expect_s3_class(result$by_date$service_date, "Date")
+  })
+
+  test_that("weather timestamps are Eastern date-times", {
+    result <- tm_weather("2026-10-01", "2026-10-01")
+    expect_s3_class(result$timestamp, "POSIXct")
+    expect_equal(format(result$timestamp[c(1, 24)], "%H:%M"), c("00:00", "23:00"))
   })
 })

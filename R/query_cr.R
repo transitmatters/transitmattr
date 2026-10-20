@@ -116,43 +116,42 @@ TmCRQuery <- R6Class("TmCRQuery",
       )
     },
 
-    #' @description Fetch headway data. Requires `$stop()` and a date.
+    #' @description Fetch headway data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string (overrides `$date()`).
-    #' @return A `data.frame` of headway event records.
+    #' @return A `data.frame` of headway event records, across every
+    #'   requested day.
     headways = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$headways()")
+      dates <- private$.dates("$headways()", date)
       private$.assert_stop("$headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "headways", private$.date), list(stop = stop_ids))
+      private$.get_each("get_headways", dates, stop = stop_ids)
     },
 
-    #' @description Fetch dwell-time data. Requires `$stop()` and a date.
+    #' @description Fetch dwell-time data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string.
     #' @return A `data.frame` of dwell event records.
     dwells = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$dwells()")
+      dates <- private$.dates("$dwells()", date)
       private$.assert_stop("$dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "dwells", private$.date), list(stop = stop_ids))
+      private$.get_each("get_dwells", dates, stop = stop_ids)
     },
 
     #' @description Fetch travel-time data. Requires `$from_stop()`, `$to_stop()`,
-    #'   `$direction()`, and a date.
+    #'   `$direction()`, and a date: the `date` argument, `$date()`, or every
+    #'   day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string.
     #' @return A `data.frame` of travel-time event records.
     travel_times = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$travel_times()")
+      dates <- private$.dates("$travel_times()", date)
       private$.assert_from_to("$travel_times()")
       private$.assert_direction("$travel_times()")
       from_ids <- private$.stop_ids(private$.from_data, private$.direction)
       to_ids   <- private$.stop_ids(private$.to_data,   private$.direction)
-      private$.get(
-        c("api", "traveltimes", private$.date),
-        list(from_stop = from_ids, to_stop = to_ids)
-      )
+      private$.get_each("get_travel_times", dates,
+                        from_stop = from_ids, to_stop = to_ids)
     },
 
     #' @description Fetch aggregate headway data over a date range.
@@ -162,11 +161,11 @@ TmCRQuery <- R6Class("TmCRQuery",
       private$.assert_date_range("$aggregate_headways()")
       private$.assert_stop("$aggregate_headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/headways", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_headways",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     },
 
     #' @description Fetch aggregate dwell-time data over a date range.
@@ -176,11 +175,11 @@ TmCRQuery <- R6Class("TmCRQuery",
       private$.assert_date_range("$aggregate_dwells()")
       private$.assert_stop("$aggregate_dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/dwells", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_dwells",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     },
 
     #' @description Fetch aggregate travel-time data over a date range.
@@ -190,13 +189,77 @@ TmCRQuery <- R6Class("TmCRQuery",
     aggregate_travel_times = function() {
       private$.assert_date_range("$aggregate_travel_times()")
       private$.assert_from_to("$aggregate_travel_times()")
-      result <- tm_request("api/aggregate/traveltimes", query = list(
+      private$.get("get_aggregate_travel_times",
+        start_date = private$.start_date,
+        end_date   = private$.end_date,
+        from_stop  = private$.from_data$station,
+        to_stop    = private$.to_data$station
+      )
+    },
+
+    #' @description Fetch aggregate travel-time data over a date range, by
+    #'   date and by time of day. Requires `$from_stop()`, `$to_stop()`, and
+    #'   `$date_range()`. Uses GTFS place IDs; direction is not needed.
+    #' @return A list of two `data.frame`s: `by_date`, one row per service
+    #'   day, and `by_time`, one row per 30-minute departure slot.
+    aggregate_travel_times_v2 = function() {
+      private$.assert_date_range("$aggregate_travel_times_v2()")
+      private$.assert_from_to("$aggregate_travel_times_v2()")
+      .tm_by_date_and_time(.tm_call("get_aggregate_travel_times_v2",
+        start_date = private$.start_date,
+        end_date   = private$.end_date,
         from_stop  = private$.from_data$station,
         to_stop    = private$.to_data$station,
+        base_url   = private$.base_url,
+        simplify   = TRUE
+      ))
+    },
+
+    #' @description Fetch fleet metrics for this route over a date range:
+    #'   trips with a known cab car (`fleet_trips`), the share of trips run
+    #'   by each fleet type (`fleet_mix_<type>`), and the average cab car age
+    #'   when known. Requires `$date_range()`; ranges longer than the API
+    #'   accepts in one request (150 days, weeks, or months) are fetched in
+    #'   pieces.
+    #' @param agg Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
+    #'   Optional; the API defaults to `"daily"`.
+    #' @return A `data.frame` of trip metric records.
+    trip_metrics = function(agg = NULL) {
+      private$.assert_date_range("$trip_metrics()")
+      # The API defaults to daily.
+      private$.get_spans("get_commuter_rail_trip_metrics",
+        if (is.null(agg)) "daily" else agg,
+        route = private$.route,
+        agg   = agg
+      )
+    },
+
+    #' @description Fetch on-time performance counts for this route over a
+    #'   date range. Requires `$date_range()`. For The RIDE or all commuter
+    #'   rail combined, use [tm_reliability()].
+    #' @param agg Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
+    #' @return A `data.frame` of reliability records.
+    reliability = function(agg) {
+      private$.assert_date_range("$reliability()")
+      tm_reliability(private$.route, private$.start_date, private$.end_date,
+                     agg, base_url = private$.base_url)
+    },
+
+    #' @description Measure this route's schedule against Regional Rail
+    #'   standards over a date range. Requires `$date_range()`.
+    #' @param agg Aggregation level: `"daily"`, `"weekly"`, or `"monthly"`.
+    #' @param day_kind Which schedule to measure: `"weekday"`, `"saturday"`,
+    #'   `"sunday"`, or `"all"` (the default) to mix every day.
+    #' @return A `data.frame` of scorecard records.
+    scorecard = function(agg, day_kind = "all") {
+      private$.assert_date_range("$scorecard()")
+      private$.get("get_commuter_rail_scorecard",
+        route_id   = private$.route,
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ), base_url = private$.base_url, simplify = TRUE)
-      if (is.data.frame(result$data)) result$data else data.frame()
+        end_date   = private$.end_date,
+        agg        = agg,
+        day_kind   = day_kind
+      )
     }
   )
 )

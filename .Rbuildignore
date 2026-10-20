@@ -14,3 +14,8 @@
 ^CRAN-SUBMISSION$
 ^doc$
 ^Meta$
+^spec$
+^openapitools\.json$
+^openapi-config\.yml$
+^data-raw$
+^constants$

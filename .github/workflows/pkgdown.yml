@@ -1,17 +1,27 @@
 name: pkgdown
 
+# Builds the site on pull requests, to catch problems such as an export
+# missing from _pkgdown.yml before merging, and deploys it from main.
+
 on:
   push:
+    branches: ["main"]
+  pull_request:
     branches: ["main"]
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
+    # Deploys run one at a time; pull request builds don't wait for them.
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+    permissions:
+      contents: write
+      pages: write
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -24,10 +34,18 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
+      - name: Check and build site
+        if: github.event_name == 'pull_request'
+        run: |
+          pkgdown::check_pkgdown()
+          pkgdown::build_site(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
       - name: Configure git identity
+        if: github.event_name != 'pull_request'
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
       - name: Build and deploy site
+        if: github.event_name != 'pull_request'
         run: pkgdown::deploy_to_branch(new_process = FALSE)
         shell: Rscript {0}

@@ -90,26 +90,27 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       )
     },
 
-    #' @description Fetch headway data. Requires `$stop()` and a date.
+    #' @description Fetch headway data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string (overrides `$date()`).
-    #' @return A `data.frame` of headway event records.
+    #' @return A `data.frame` of headway event records, across every
+    #'   requested day.
     headways = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$headways()")
+      dates <- private$.dates("$headways()", date)
       private$.assert_stop("$headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "headways", private$.date), list(stop = stop_ids))
+      private$.get_each("get_headways", dates, stop = stop_ids)
     },
 
-    #' @description Fetch dwell-time data. Requires `$stop()` and a date.
+    #' @description Fetch dwell-time data. Requires `$stop()` and a date: the
+    #'   `date` argument, `$date()`, or every day in `$date_range()`.
     #' @param date Optional `Date` or `"YYYY-MM-DD"` string.
     #' @return A `data.frame` of dwell event records.
     dwells = function(date = NULL) {
-      if (!is.null(date)) private$.date <- .tm_date(date)
-      private$.assert_date("$dwells()")
+      dates <- private$.dates("$dwells()", date)
       private$.assert_stop("$dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get(c("api", "dwells", private$.date), list(stop = stop_ids))
+      private$.get_each("get_dwells", dates, stop = stop_ids)
     },
 
     #' @description Fetch aggregate headway data over a date range.
@@ -119,11 +120,11 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date_range("$aggregate_headways()")
       private$.assert_stop("$aggregate_headways()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/headways", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_headways",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     },
 
     #' @description Fetch aggregate dwell-time data over a date range.
@@ -133,11 +134,11 @@ TmFerryQuery <- R6Class("TmFerryQuery",
       private$.assert_date_range("$aggregate_dwells()")
       private$.assert_stop("$aggregate_dwells()")
       stop_ids <- private$.resolve_stop_ids(private$.stop_data)
-      private$.get("api/aggregate/dwells", list(
-        stop       = stop_ids,
+      private$.get("get_aggregate_dwells",
         start_date = private$.start_date,
-        end_date   = private$.end_date
-      ))
+        end_date   = private$.end_date,
+        stop       = stop_ids
+      )
     }
   )
 )

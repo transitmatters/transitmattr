@@ -11,7 +11,8 @@ tm_healthcheck(base_url = tm_base_url())
 \code{getOption("tm_dashboard_base_url")} or the production host.}
 }
 \value{
-A list with fields \code{status} (string) and optionally \code{failed_checks}.
+A list with fields \code{status} (\code{"pass"} or \code{"fail"}) and, when checks
+fail, \code{failed_checks}.
 }
 \description{
 Check API health

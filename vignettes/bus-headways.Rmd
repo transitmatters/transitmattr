@@ -68,17 +68,16 @@ headways_df <- bind_rows(
 headways_df
 ```
 
-## Step 3: Convert times and filter
+## Step 3: Convert units and filter
 
-The departure timestamp (`current_dep_dt`) comes back as an ISO 8601 string
-(e.g. `"2024-01-16T09:30:00"`). Convert it and keep only the daytime service
-window.
+The departure time (`current_dep_dt`) is already a date-time in Eastern time
+(a `POSIXct`), so you can read the hour straight from it. Convert headways to
+minutes and keep only the daytime service window.
 
 ```{r clean, eval = FALSE}
 headways_df <- headways_df |>
   mutate(
-    dep_time      = as.POSIXct(current_dep_dt, format = "%Y-%m-%dT%H:%M:%S",
-                                tz = "America/New_York"),
+    dep_time      = current_dep_dt,
     headway_min   = headway_time_sec / 60,
     benchmark_min = benchmark_headway_time_sec / 60,
     hour          = as.integer(format(dep_time, "%H"))
@@ -156,7 +155,7 @@ agg_df <- tm_bus_query("1")$stop("MIT @ Mass Ave")$direction("inbound")$date_ran
 ```
 
 ```{r plot-aggregate, eval = FALSE}
-ggplot(agg_df, aes(x = as.Date(service_date), y = mean / 60)) +
+ggplot(agg_df, aes(x = service_date, y = mean / 60)) +
   geom_line(color = "#003DA5") +
   geom_smooth(method = "loess", se = FALSE, linetype = "dashed",
               color = "grey50") +
