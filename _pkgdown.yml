@@ -1,7 +1,21 @@
 url: https://transitmatters.github.io/transitmattr
 
+# Styling matches the Labs docs at https://transitmatters.github.io/architecture/
+# (TransitMatters Labs brand colors, Roboto, and the flask logo and favicons in
+# man/figures/ and pkgdown/favicon/). More rules are in pkgdown/extra.css.
 template:
   bootstrap: 5
+  light-switch: true
+  bslib:
+    primary: "#1773ba"
+    navbar-bg: "#1773ba"
+    link-color-dark: "#6cb4ea"
+    link-hover-color: "#f17a21"
+    link-hover-color-dark: "#f17a21"
+    body-bg-dark: "#1e2129"
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Roboto"}
+    code_font: {google: "Roboto Mono"}
 
 home:
   title: "transitmattr — R Client for the TransitMatters API"
@@ -9,12 +23,21 @@ home:
 navbar:
   structure:
     left: [intro, reference, articles, news]
-    right: [github]
+    right: [search, github, lightswitch]
   components:
     github:
       icon: fab fa-github
       href: https://github.com/transitmatters/transitmattr
       aria-label: GitHub
+
+footer:
+  structure:
+    left: copyright
+    right: [github_org, labs]
+  components:
+    copyright: © TransitMatters
+    github_org: <a href="https://github.com/transitmatters" aria-label="TransitMatters on GitHub"><span class="fab fa-github fa-lg"></span></a>
+    labs: <a href="https://transitmatters.org/transitmatters-labs" aria-label="TransitMatters Labs"><span class="fas fa-globe fa-lg"></span></a>
 
 articles:
   - title: "Getting started"
