@@ -33,6 +33,30 @@ test_that("tm_time_predictions sends route_id", {
   expect_no_error(tm_time_predictions("Red"))
 })
 
+test_that("tm_time_predictions sends start_date and end_date", {
+  httr2::local_mocked_responses(
+    function(req) {
+      expect_true(grepl("start_date=2024-01-01", req$url))
+      expect_true(grepl("end_date=2024-01-31", req$url))
+      mock_response('[]')
+    }
+  )
+  expect_no_error(
+    tm_time_predictions("Red", as.Date("2024-01-01"), "2024-01-31")
+  )
+})
+
+test_that("tm_time_predictions omits dates it isn't given", {
+  httr2::local_mocked_responses(
+    function(req) {
+      expect_false(grepl("start_date", req$url))
+      expect_false(grepl("end_date", req$url))
+      mock_response('[]')
+    }
+  )
+  expect_no_error(tm_time_predictions("Red"))
+})
+
 test_that("$line_delays() sends required params", {
   httr2::local_mocked_responses(
     function(req) {

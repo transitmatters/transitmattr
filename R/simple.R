@@ -111,20 +111,35 @@ tm_stops <- function(route_id, base_url = tm_base_url()) {
   .tm_call("get_stops_for_route", route_id = route_id, base_url = base_url)
 }
 
-#' Get current time predictions
+#' Get prediction accuracy by week
 #'
-#' Returns time prediction accuracy data for an MBTA route.
+#' Returns how accurate the MBTA's arrival and departure predictions were for
+#' a route, week by week. Pass `start_date` and `end_date` to return only the
+#' weeks starting in that range; omit them for the full history.
 #'
 #' @param route_id Route identifier, e.g. `"Red"`, `"CR-Fairmount"`.
+#' @param start_date Optional. Return only weeks starting on or after this
+#'   date. A `Date` object or `"YYYY-MM-DD"` string.
+#' @param end_date Optional. Return only weeks starting on or before this date.
 #' @param base_url Base URL of the TransitMatters API.
-#' @return A list with a `predictions` field.
+#' @return A list with one element per week, each with `routeId`, `week` (a
+#'   `Date`), and `prediction`: a list of accuracy buckets with `bin` (how far
+#'   ahead the prediction was, e.g. `"0-3 min"`), `num_predictions`, and
+#'   `num_accurate_predictions`.
 #' @export
 #' @examples
 #' \dontrun{
 #' tm_time_predictions("Red")
+#' tm_time_predictions("Red", "2026-06-01", "2026-07-31")
 #' }
-tm_time_predictions <- function(route_id, base_url = tm_base_url()) {
-  .tm_call("get_time_predictions", route_id = route_id, base_url = base_url)
+tm_time_predictions <- function(route_id, start_date = NULL, end_date = NULL,
+                                base_url = tm_base_url()) {
+  .tm_call("get_time_predictions",
+    route_id   = route_id,
+    start_date = .tm_date(start_date),
+    end_date   = .tm_date(end_date),
+    base_url   = base_url
+  )
 }
 
 #' Get scheduled service data

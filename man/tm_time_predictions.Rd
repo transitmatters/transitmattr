@@ -2,23 +2,39 @@
 % Please edit documentation in R/simple.R
 \name{tm_time_predictions}
 \alias{tm_time_predictions}
-\title{Get current time predictions}
+\title{Get prediction accuracy by week}
 \usage{
-tm_time_predictions(route_id, base_url = tm_base_url())
+tm_time_predictions(
+  route_id,
+  start_date = NULL,
+  end_date = NULL,
+  base_url = tm_base_url()
+)
 }
 \arguments{
 \item{route_id}{Route identifier, e.g. \code{"Red"}, \code{"CR-Fairmount"}.}
 
+\item{start_date}{Optional. Return only weeks starting on or after this
+date. A \code{Date} object or \code{"YYYY-MM-DD"} string.}
+
+\item{end_date}{Optional. Return only weeks starting on or before this date.}
+
 \item{base_url}{Base URL of the TransitMatters API.}
 }
 \value{
-A list with a \code{predictions} field.
+A list with one element per week, each with \code{routeId}, \code{week} (a
+\code{Date}), and \code{prediction}: a list of accuracy buckets with \code{bin} (how far
+ahead the prediction was, e.g. \code{"0-3 min"}), \code{num_predictions}, and
+\code{num_accurate_predictions}.
 }
 \description{
-Returns time prediction accuracy data for an MBTA route.
+Returns how accurate the MBTA's arrival and departure predictions were for
+a route, week by week. Pass \code{start_date} and \code{end_date} to return only the
+weeks starting in that range; omit them for the full history.
 }
 \examples{
 \dontrun{
 tm_time_predictions("Red")
+tm_time_predictions("Red", "2026-06-01", "2026-07-31")
 }
 }

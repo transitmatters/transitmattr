@@ -39,7 +39,8 @@
 
 * `$headways()`, `$dwells()`, and `$travel_times()` fetch every day in
   `$date_range()` when no single date is set, several days at a time, and
-  return one data frame. `tm_alerts()` takes an `end_date`. Set
+  return one data frame. `tm_alerts()` takes an `end_date`, and
+  `tm_time_predictions()` a `start_date` and `end_date`. Set
   `options(transitmattr.max_concurrency = n)` to change how many requests
   are in flight at once (default 8).
 
