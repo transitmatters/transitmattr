@@ -3,12 +3,29 @@ name: R-CMD-check
 # R CMD check --as-cran on the platforms CRAN checks, failing on warnings as
 # CRAN does. The R 4.1 job checks the minimum in DESCRIPTION, which httr2
 # sets.
+#
+# Runs only when files that go into the package build change, which is
+# everything .Rbuildignore doesn't exclude. Keep the list in step with it.
 
 on:
   push:
     branches: ["main"]
+    paths: &package-files
+      - DESCRIPTION
+      - NAMESPACE
+      - LICENSE
+      - NEWS.md
+      - README.md
+      - .Rbuildignore
+      - R/**
+      - man/**
+      - inst/**
+      - tests/**
+      - vignettes/**
+      - .github/workflows/r.yml
   pull_request:
     branches: ["main"]
+    paths: *package-files
   workflow_dispatch:
 
 permissions:

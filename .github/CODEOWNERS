@@ -1,0 +1,7 @@
+# Reviewers GitHub requests on pull requests. When several patterns match a
+# file, the last one wins.
+* @ankoure @transitmatters/labs-leads
+
+# CI and deploy workflows, reviewed by the Labs infrastructure maintainers as
+# in the other TransitMatters repos.
+/.github/ @ankoure @transitmatters/labs-leads

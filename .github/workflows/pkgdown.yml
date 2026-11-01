@@ -1,13 +1,30 @@
 name: pkgdown
 
 # Builds the site on pull requests, to catch problems such as an export
-# missing from _pkgdown.yml before merging, and deploys it from main.
+# missing from _pkgdown.yml before merging, and deploys it from main. Runs only
+# when files the site is built from change; R/ is there because the articles
+# and examples run the package's code.
 
 on:
   push:
     branches: ["main"]
+    paths: &site-files
+      - DESCRIPTION
+      - NAMESPACE
+      - LICENSE
+      - LICENSE.md
+      - NEWS.md
+      - README.md
+      - _pkgdown.yml
+      - pkgdown/**
+      - R/**
+      - man/**
+      - inst/**
+      - vignettes/**
+      - .github/workflows/pkgdown.yml
   pull_request:
     branches: ["main"]
+    paths: *site-files
   workflow_dispatch:
 
 permissions:
@@ -16,9 +33,11 @@ permissions:
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Deploys run one at a time; pull request builds don't wait for them.
+    # Deploys run one at a time; pull request builds don't wait for them, and
+    # a new push to a pull request cancels its previous build.
     concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+      group: pkgdown-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: write
       pages: write
