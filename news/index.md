@@ -52,8 +52,11 @@
   `$date_range()` when no single date is set, several days at a time,
   and return one data frame.
   [`tm_alerts()`](https://transitmatters.github.io/transitmattr/reference/tm_alerts.md)
-  takes an `end_date`. Set `options(transitmattr.max_concurrency = n)`
-  to change how many requests are in flight at once (default 8).
+  takes an `end_date`, and
+  [`tm_time_predictions()`](https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.md)
+  a `start_date` and `end_date`. Set
+  `options(transitmattr.max_concurrency = n)` to change how many
+  requests are in flight at once (default 8).
 
 - The `$trip_metrics()` methods accept ranges longer than the API’s
   limit of 150 days, weeks, or months, by fetching them in pieces.

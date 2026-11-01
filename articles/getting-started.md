@@ -359,7 +359,7 @@ result <- tryCatch(
 | `tm_reliability(route_id, start, end, agg)` | On-time performance for The RIDE or commuter rail |
 | `tm_bus_speed_leaderboard(start, end)` | Slowest bus routes by average speed |
 | `tm_weather(start, end)` | Hourly weather in downtown Boston |
-| `tm_time_predictions(route_id)` | Live prediction accuracy |
+| `tm_time_predictions(route_id, start, end)` | Weekly prediction accuracy |
 | [`tm_facilities()`](https://transitmatters.github.io/transitmattr/reference/tm_facilities.md) | All MBTA stations |
 | [`tm_service_ridership_dashboard()`](https://transitmatters.github.io/transitmattr/reference/tm_service_ridership_dashboard.md) | System-wide ridership summary |
 

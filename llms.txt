@@ -186,7 +186,7 @@ MIT
 - [`tm_stops()`](https://transitmatters.github.io/transitmattr/reference/tm_stops.md)
   : Get stops for a route from the API
 - [`tm_time_predictions()`](https://transitmatters.github.io/transitmattr/reference/tm_time_predictions.md)
-  : Get current time predictions
+  : Get prediction accuracy by week
 - [`tm_weather()`](https://transitmatters.github.io/transitmattr/reference/tm_weather.md)
   : Get hourly weather in downtown Boston
 - [`tm_healthcheck()`](https://transitmatters.github.io/transitmattr/reference/tm_healthcheck.md)
