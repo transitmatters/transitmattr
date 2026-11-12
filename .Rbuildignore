@@ -19,3 +19,5 @@
 ^openapi-config\.yml$
 ^data-raw$
 ^constants$
+^AGENTS\.md$
+^CONTRIBUTING\.md$
